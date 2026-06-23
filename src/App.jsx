@@ -8,6 +8,7 @@ import PremiumBundles from './components/PremiumBundles';
 import NewsletterOffer from './components/NewsletterOffer';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
+import BrandQuote from './components/BrandQuote';
 
 function App() {
   return (
@@ -15,13 +16,14 @@ function App() {
       <Navbar />
       <main>
         <Hero />
-        <QuoteBanner />
+        <BrandQuote />
         <TrendingProducts />
         <FeaturedCategory />
         <MakeItCustom />
         <PremiumBundles />
         <NewsletterOffer />
-        <Testimonials />
+         <QuoteBanner />
+        {/* <Testimonials /> */}
       </main>
       <Footer />
     </>

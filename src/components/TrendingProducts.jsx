@@ -2,11 +2,11 @@ import { HeartIcon, ArrowRightIcon } from './icons';
 import './TrendingProducts.css';
 
 const trendingProducts = [
-  { image: '/images/trending-product-1.png', showSale: true },
-  { image: '/images/trending-product-2.png', showSale: false },
-  { image: '/images/trending-product-3.png', showSale: true },
-  { image: '/images/trending-product-4.png', showSale: true },
-  { image: '/images/trending-product-5.png', showSale: false },
+  { image: '/images/stack1.png', showSale: true },
+  { image: '/images/stack2.png', showSale: false },
+  { image: '/images/stack3.png', showSale: true },
+  { image: '/images/stack4.png', showSale: true },
+  { image: '/images/stack5.png', showSale: false },
 ];
 
 export default function TrendingProducts() {
@@ -22,15 +22,15 @@ export default function TrendingProducts() {
 
         <div className="trending-products-row">
           {trendingProducts.map((product, index) => (
-            <article key={index} className="trending-product-card">
+            <article key={index} className="trending-product-card" style={{ position: 'relative' }}>
               <div className="trending-product-image-wrap">
                 <img
                   src={product.image}
                   alt="Minimal stacked rings"
                   className="trending-product-image"
                 />
-                {product.showSale && <span className="trending-sale-badge">Sale!</span>}
               </div>
+              {product.showSale && <span className="trending-sale-badge">Sale!</span>}
               <div className="trending-product-info-row">
                 <h3 className="trending-product-name">Minimal stacked rings</h3>
                 <button type="button" className="trending-wishlist-btn" aria-label="Add to wishlist">

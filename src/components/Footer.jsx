@@ -19,9 +19,9 @@ export default function Footer() {
         </form>
 
         <nav className="footer-nav-row">
-          {footerLinks.map((link, i) => (
-            <span key={link}>
-              {i > 0 && <span className="footer-nav-dot"> · </span>}
+          {footerLinks.map((link) => (
+            <span key={link} className="footer-nav-item">
+              <span className="footer-nav-dot">• </span>
               <a href="#" className="footer-nav-link">{link}</a>
             </span>
           ))}

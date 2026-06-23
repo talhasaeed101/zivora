@@ -25,7 +25,7 @@ export default function FeaturedCategory() {
           <div className="featured-image-zone">
             <div className="featured-organic-image-wrap">
               <img
-                src="/images/featured-category-model.png"
+                src="/images/features categoruy image 1.png"
                 alt="Woman wearing necklace holding flowers"
                 className="featured-organic-image"
               />
@@ -36,7 +36,7 @@ export default function FeaturedCategory() {
                 <defs>
                   <path id="featuredCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
                 </defs>
-                <text fontSize="8" fontWeight="600" letterSpacing="1px" fill="#fff">
+                <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#000">
                   <textPath href="#featuredCirclePath" startOffset="0%">
                     SHOP THE COLLECTION • SHOP THE COLLECTION •
                   </textPath>

@@ -18,17 +18,21 @@
 
 .trending-heading {
   font-family: Teneka, serif;
-  font-size: 56px;
+  font-size: 46px;
   font-weight: 400;
   color: #000;
   margin: 0;
-  line-height: 1;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
 }
 
 .trending-view-all-link {
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  font-family: Cabin, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
+  text-transform: none;
   color: #000;
   text-decoration: none;
   display: flex;
@@ -53,14 +57,14 @@
 
 .trending-product-image-wrap {
   position: relative;
-  border-top-left-radius: 999px;
-  border-top-right-radius: 999px;
+  border-top-left-radius: 300px;
+  border-top-right-radius: 300px;
   overflow: hidden;
 }
 
 .trending-product-image {
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 368 / 470;
   object-fit: cover;
   display: block;
   background-color: #f0ebe4;
@@ -73,14 +77,18 @@
 
 .trending-sale-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   background-color: #000;
   color: #fff;
   font-size: 10px;
   font-style: italic;
-  padding: 4px 12px;
-  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
 }
 
 .trending-product-info-row {
@@ -92,9 +100,11 @@
 }
 
 .trending-product-name {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: Cabin, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.005em;
   margin: 0;
 }
 
@@ -137,27 +147,34 @@
 
 @media (max-width: 768px) {
   .trending-section {
-    padding: 48px 24px;
+    padding: 48px 16px;
   }
 
   .trending-heading {
-    font-size: 40px;
+    font-size: 32px;
+  }
+
+  .trending-view-all-link {
+    font-size: 14px;
+  }
+
+  .trending-header-row {
+    margin-bottom: 24px;
   }
 
   .trending-products-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 16px;
-    padding-bottom: 8px;
-    scrollbar-width: none;
-  }
-
-  .trending-products-row::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .trending-product-card {
-    min-width: 160px;
-    width: calc(50% - 8px);
+    width: 100%;
+  }
+
+  .trending-product-image-wrap {
+    border-top-left-radius: 180px;
+    border-top-right-radius: 180px;
   }
 }
+

@@ -19,7 +19,7 @@ export default function MakeItCustom() {
         <div className="custom-image-grid">
           <div className="custom-left-image-block">
             <img
-              src="/images/custom-necklaces.png"
+              src="/images/necklace image 1.png"
               alt="Minimal necklace close-up"
               className="custom-grid-image"
             />
@@ -37,7 +37,7 @@ export default function MakeItCustom() {
           <div className="custom-right-column">
             <div className="custom-right-top-block">
               <img
-                src="/images/custom-rings.png"
+                src="/images/Minimal Rings.png"
                 alt="Minimal rings on hand"
                 className="custom-grid-image"
               />
@@ -53,7 +53,7 @@ export default function MakeItCustom() {
 
             <div className="custom-right-bottom-block">
               <img
-                src="/images/custom-earrings.png"
+                src="/images/Rectangle 3298.png"
                 alt="Minimal earrings close-up"
                 className="custom-grid-image"
               />

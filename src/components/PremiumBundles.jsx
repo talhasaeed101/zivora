@@ -2,11 +2,11 @@ import { HeartIcon, ArrowRightIcon } from './icons';
 import './PremiumBundles.css';
 
 const bundleProducts = [
-  { image: '/images/bundle-product-1.png', showSale: true },
-  { image: '/images/bundle-product-2.png', showSale: false },
-  { image: '/images/bundle-product-3.png', showSale: true },
-  { image: '/images/bundle-product-4.png', showSale: true },
-  { image: '/images/bundle-product-5.png', showSale: false },
+  { image: '/images/stack1.png', showSale: true },
+  { image: '/images/stack2.png', showSale: false },
+  { image: '/images/stack3.png', showSale: true },
+  { image: '/images/stack4.png', showSale: true },
+  { image: '/images/stack5.png', showSale: false },
 ];
 
 export default function PremiumBundles() {
@@ -22,15 +22,15 @@ export default function PremiumBundles() {
 
         <div className="bundles-products-row">
           {bundleProducts.map((product, index) => (
-            <article key={index} className="bundles-product-card">
+            <article key={index} className="bundles-product-card" style={{ position: 'relative' }}>
               <div className="bundles-product-image-wrap">
                 <img
                   src={product.image}
                   alt="Minimal stacked rings"
                   className="bundles-product-image"
                 />
-                {product.showSale && <span className="bundles-sale-badge">Sale!</span>}
               </div>
+              {product.showSale && <span className="bundles-sale-badge">Sale!</span>}
               <div className="bundles-product-info-row">
                 <h3 className="bundles-product-name">Minimal stacked rings</h3>
                 <button type="button" className="bundles-wishlist-btn" aria-label="Add to wishlist">

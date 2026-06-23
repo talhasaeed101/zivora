@@ -1,0 +1,38 @@
+.brand-quote-section {
+  width: 100%;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.brand-quote-inner {
+  max-width: 1560px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-quote-text {
+  max-width: 1000px;
+  font-family: Cabin, sans-serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .brand-quote-section {
+    padding: 48px 16px;
+  }
+  .brand-quote-text {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+}

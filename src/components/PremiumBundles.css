@@ -18,17 +18,17 @@
 
 .bundles-heading {
   font-family: Teneka, serif;
-  font-size: 56px;
+  font-size: 46px;
   font-weight: 400;
   color: #000;
   margin: 0;
-  line-height: 1;
+  line-height: 1.25;
+  letter-spacing: 0.005em;
 }
 
 .bundles-view-all-link {
-  font-size: 11px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
+  font-family: Cabin, sans-serif;
+  font-size: 14px;
   color: #000;
   text-decoration: none;
   display: flex;
@@ -73,14 +73,21 @@
 
 .bundles-sale-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
   background-color: #000;
   color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Cabin, sans-serif;
   font-size: 10px;
+  font-weight: 400;
   font-style: italic;
-  padding: 4px 12px;
-  border-radius: 999px;
+  z-index: 10;
 }
 
 .bundles-product-info-row {
@@ -92,9 +99,11 @@
 }
 
 .bundles-product-name {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-family: Cabin, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #000;
+  letter-spacing: 0.005em;
   margin: 0;
 }
 
@@ -119,11 +128,14 @@
 }
 
 .bundles-price-current {
+  font-family: Cabin, sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
+  color: #000;
 }
 
 .bundles-price-original {
+  font-family: Cabin, sans-serif;
   font-size: 12px;
   color: #999;
   text-decoration: line-through;
@@ -137,27 +149,34 @@
 
 @media (max-width: 768px) {
   .bundles-section {
-    padding: 48px 24px;
+    padding: 48px 16px;
   }
 
   .bundles-heading {
-    font-size: 40px;
+    font-size: 32px;
+  }
+
+  .bundles-view-all-link {
+    font-size: 14px;
+  }
+
+  .bundles-header-row {
+    margin-bottom: 24px;
   }
 
   .bundles-products-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 16px;
-    padding-bottom: 8px;
-    scrollbar-width: none;
-  }
-
-  .bundles-products-row::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .bundles-product-card {
-    min-width: 160px;
-    width: calc(50% - 8px);
+    width: 100%;
+  }
+
+  .bundles-product-image-wrap {
+    border-top-left-radius: 180px;
+    border-top-right-radius: 180px;
   }
 }
+

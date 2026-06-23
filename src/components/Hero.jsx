@@ -4,6 +4,9 @@ export default function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-main-wrapper">
+        <p className="hero-tagline-text">
+          From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.
+        </p>
         <div className="hero-left-zone-container">
           <div className="hero-left-column-1">
             <div className="hero-pill-image-wrapper">
@@ -25,12 +28,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="hero-center-zone-container">
-          <p className="hero-tagline-text">
-            From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.
-          </p>
-
-          <div className="hero-collection-row-container">
+        <div className="hero-center-zone-container">          <div className="hero-collection-row-container">
             <p className="hero-collection-title-text">COLLECTION</p>
             <div className="hero-collection-separator-line" />
             <div className="hero-collection-arrow-icon-wrapper">

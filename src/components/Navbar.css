@@ -12,7 +12,7 @@
   max-width: 1440px;
   margin: 0 auto;
   height: 100%;
-  padding: 0 80px;
+  /* padding: 0 80px; */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -153,8 +153,7 @@
     padding: 0 24px;
   }
 
-  .navbar-links,
-  .navbar-actions {
+  .navbar-links {
     display: none;
   }
 
@@ -166,3 +165,56 @@
     font-size: 24px;
   }
 }
+
+@media (max-width: 768px) {
+  .navbar-header {
+    height: 70px;
+  }
+
+  .navbar-inner {
+    padding: 0 16px;
+  }
+
+  .navbar-logo {
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+
+  .navbar-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .navbar-search-wrap {
+    width: auto;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .navbar-search-input {
+    display: none;
+  }
+
+  .navbar-user-btn {
+    display: none;
+  }
+
+  .navbar-cart-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navbar-mobile-toggle {
+    padding: 4px;
+  }
+
+  .navbar-mobile-menu {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    z-index: 99;
+  }
+}
+
