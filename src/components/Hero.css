@@ -85,7 +85,10 @@
 .hero-center-zone-container * {
   pointer-events: auto;
 }
-
+.hero___tag___responsive
+{
+  display:none
+}
 .hero-tagline-text {
   font-family: Teneka, serif;
   font-size: 20px;
@@ -209,6 +212,7 @@
   to { transform: rotate(360deg); }
 }
 
+
 @media (max-width: 1280px) {
   .hero-main-wrapper {
     padding: 32px 40px;
@@ -268,30 +272,47 @@
   }
 }
 
+/* ============================================================
+   MOBILE — matches screenshot layout exactly
+   Layout:
+   - Row 1 (top): [pill image | tagline text]
+   - Rows 1-2 (left column): PERFECT + COLLECTIONS vertical texts side-by-side
+   - Row 2 (right): circular badge floats in the right zone
+   - Row 3 (full width): COLLECTION row
+   - Row 4 (full width): arch image
+   ============================================================ */
 @media (max-width: 768px) {
   .hero-main-wrapper {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    grid-template-rows: auto auto auto;
-    column-gap: 20px;
-    row-gap: 32px;
-    padding: 24px 16px 0 16px;
+    display: none;
   }
-
+.mobile___hero___container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 40px !important;
+  padding:15px 15px 0px 15px !important
+}
+.mobile___hero___container_inner {
+  display: flex !important;
+  justify-content: space-around !important;
+  flex-direction: row-reverse !important;
+}
+  /* Left zone: pill image on top, then the two vertical text columns */
   .hero-left-zone-container {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / 3;
     display: flex;
     flex-direction: row;
-    gap: 12px;
-    padding-bottom: 0;
-    order: 1;
+    gap: 8px;
+    padding-bottom: 16px;
+    align-self: stretch;
+    max-width: 116px;
   }
 
   .hero-left-column-1 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    flex: 1;
   }
 
   .hero-left-column-2 {
@@ -299,104 +320,68 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
+    flex: 1;
   }
 
   .hero-pill-image-wrapper {
-    width: 60px;
-    height: 110px;
-    border-radius: 30px;
-    margin-bottom: 12px;
+    width: 56px;
+    height: 105px;
+    border-radius: 28px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
   }
 
   .hero-vertical-text {
-    font-size: 44px;
-    letter-spacing: 2px;
+    font-size: 52px;
+    letter-spacing: 3px;
+    line-height: 0.9;
   }
 
+  /* Tagline occupies the top-right cell */
   .hero-tagline-text {
     grid-column: 2;
     grid-row: 1;
     position: static;
     width: 100%;
     height: auto;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.55;
     color: #7c7c7c;
-    align-self: center;
+    align-self: start;
+    padding-top: 4px;
     margin: 0;
-    order: 2;
   }
 
-  .hero-center-zone-container {
-    grid-column: 1 / span 2;
-    grid-row: 2;
-    position: static;
-    width: 100%;
-    padding: 0;
-    order: 3;
-  }
-
-  .hero-collection-row-container {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .hero-collection-title-text {
-    font-size: 16px;
-    letter-spacing: 1px;
-  }
-
-  .hero-collection-separator-line {
-    flex: 1;
-    margin: 0 12px;
-    height: 1px;
-    background-color: #000;
-  }
-
-  .hero-collection-thumbnails-container {
-    margin-left: 8px;
-  }
-
-  .hero-collection-thumbnails-image {
-    height: 36px;
-    width: 96px;
-  }
-
+  /* Right zone: sits in row 1 + overlaps row 2 to show badge */
   .hero-right-zone-container {
-    grid-column: 1 / span 2;
-    grid-row: 3;
+    grid-column: 2;
+    grid-row: 1 / 3;
     width: 100%;
     margin-top: 0;
     position: relative;
-    display: block;
-    order: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-self: stretch;
+    /* hide actual image here — it's shown in the full-width row below */
+    pointer-events: none;
   }
 
+  /* The arch image wrapper & image are hidden in the right-zone cell on mobile;
+     they will be displayed in a dedicated full-width row instead */
   .hero-arch-image-wrapper {
-    width: 100%;
-    border-top-left-radius: 120px;
-    border-top-right-radius: 120px;
-    overflow: hidden;
+    display: none;
   }
 
-  .hero-arch-image {
-    width: 100%;
-    max-width: 100%;
-    max-height: none;
-    display: block;
-  }
-
+  /* Circular badge floats in the center-right area */
   .hero-circular-badge-container {
-    position: absolute;
-    top: 0;
-    right: 16px;
-    left: auto;
-    transform: translateY(-50%);
+    pointer-events: auto;
+    position: static;
+    transform: none;
     width: 90px;
     height: 90px;
+    align-self: center;
+    margin: 0 auto;
   }
 
   .hero-circular-rotating-svg {
@@ -408,27 +393,118 @@
     width: 38px;
     height: 38px;
   }
+
+  /* Collection row spans full width */
+  .hero-center-zone-container {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    position: static;
+    width: 100%;
+    padding: 16px 0 0px;
+  }
+
+  .hero-collection-row-container {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .hero-collection-title-text {
+    font-size: 16px;
+    letter-spacing: 1.5px;
+    white-space: nowrap;
+  }
+
+  .hero-collection-separator-line {
+  display: none;
+  }
+.hdhdhdhdjjjjjjjjjj_12
+{
+  display: flex;
+  gap:10px;
+  align-items: center;
+}
+  .hero-collection-thumbnails-container {
+    margin-left: 6px;
+  }
+
+  .hero-collection-thumbnails-image {
+    height: 38px;
+    width: 100px;
+    object-fit: cover;
+  }
+}
+
+/* Full-width arch image injected via a pseudo-wrapper — achieved by
+   targeting the right-zone on a new grid row using a sibling trick.
+   Since Hero.jsx renders .hero-right-zone-container after .hero-center-zone-container
+   in the DOM, we change the grid placement so it becomes row 4. */
+@media (max-width: 768px) {
+  /* Override: put the right zone (arch image container) as a full-width row 4 */
+
+  .hero-right-zone-container {
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    pointer-events: auto;
+    display: block;
+    position: relative;
+  }
+
+  .hero-arch-image-wrapper {
+    display: block;
+    width: 100%;
+    border-top-left-radius: 50% 40px;
+    border-top-right-radius: 50% 40px;
+    overflow: hidden;
+    border-radius: 120px 120px 0 0;
+    margin-top: 40px;
+  }
+
+  .hero-arch-image {
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Badge is now positioned absolute atop the arch image */
+  .hero-circular-badge-container {
+    position: absolute;
+    top: 40%;
+    right:30%;
+    left: auto;
+    transform: translateY(-50%);
+    margin: 0;
+    width: 90px;
+    height: 90px;
+  }
 }
 
 @media (max-width: 480px) {
   .hero-main-wrapper {
     grid-template-columns: 100px 1fr;
-    column-gap: 12px;
-    row-gap: 24px;
+    column-gap: 10px;
   }
 
   .hero-vertical-text {
-    font-size: 34px;
+    font-size: 40px;
+    letter-spacing: 2px;
   }
 
   .hero-pill-image-wrapper {
     width: 44px;
-    height: 80px;
-    border-radius: 20px;
+    height: 84px;
+    border-radius: 22px;
   }
 
   .hero-tagline-text {
-    font-size: 12px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    max-width: 214px;
   }
 
   .hero-collection-title-text {
@@ -436,23 +512,25 @@
   }
 
   .hero-collection-thumbnails-image {
-    height: 30px;
-    width: 80px;
+    height: 40px;
+    width: 130px;
   }
 
   .hero-circular-badge-container {
-    width: 76px;
-    height: 76px;
+    width: 120px;
+    height: 120px;
   }
 
   .hero-circular-rotating-svg {
-    width: 76px;
-    height: 76px;
+    width: 120px;
+    height: 120px;
   }
 
   .hero-circular-inner-button {
-    width: 32px;
-    height: 32px;
+    width: 54px;
+    height: 54px;
   }
+
+
 }
 
