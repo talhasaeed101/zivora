@@ -1,0 +1,227 @@
+.auth-page {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  padding: 48px 24px 80px;
+}
+
+.auth-page-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Inter, sans-serif;
+  color: #767676;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid #e5e5e5;
+  padding: 48px 40px;
+  background: #fff;
+}
+
+.auth-heading {
+  font-family: Teneka, serif;
+  font-size: 36px;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.auth-subheading {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: #767676;
+  margin: 0 0 32px;
+}
+
+.auth-error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  padding: 12px 14px;
+  margin-bottom: 24px;
+}
+
+.auth-field {
+  margin-bottom: 20px;
+}
+
+.auth-field label {
+  display: block;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 8px;
+}
+
+.auth-field input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background: transparent;
+  color: #000;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.auth-field input:focus {
+  border-bottom-color: #c8815f;
+}
+
+.auth-field input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-field-error {
+  display: block;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 6px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 12px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 14px;
+  border: none;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: #333;
+}
+
+.auth-submit:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: #767676;
+  text-align: center;
+  margin: 24px 0 0;
+}
+
+.auth-switch a {
+  color: #c8815f;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+.profile-page {
+  background: #fff;
+  min-height: calc(100vh - 90px);
+  padding: 48px 80px 80px;
+}
+
+.profile-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-title {
+  font-family: Teneka, serif;
+  font-size: 42px;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 32px;
+}
+
+.profile-card {
+  border: 1px solid #e5e5e5;
+  padding: 32px;
+}
+
+.profile-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-row:last-of-type {
+  border-bottom: none;
+}
+
+.profile-label {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #767676;
+}
+
+.profile-value {
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  color: #000;
+}
+
+.profile-logout {
+  margin-top: 32px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: 1px solid #000;
+  background: transparent;
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.profile-logout:hover {
+  background: #000;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    padding: 32px 24px;
+  }
+
+  .auth-heading {
+    font-size: 28px;
+  }
+
+  .profile-page {
+    padding: 32px 20px 64px;
+  }
+
+  .profile-title {
+    font-size: 32px;
+  }
+}

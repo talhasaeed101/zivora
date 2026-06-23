@@ -1,4 +1,5 @@
 import './MakeItCustom.css';
+import { ROUTES } from '../utils/navigation';
 
 export default function MakeItCustom() {
   return (
@@ -30,12 +31,13 @@ export default function MakeItCustom() {
                 <span className="custom-overlay-line" />
               </div>
               <h3 className="custom-overlay-title">Minimal Necklace</h3>
-              <button type="button" className="custom-shop-btn">Shop Collection</button>
+              <a href={ROUTES.search} className="custom-shop-btn">Shop Collection</a>
             </div>
           </div>
 
           <div className="custom-right-column">
             <div className="custom-right-top-block">
+              <a href={ROUTES.search} className="custom-overlay-link">
               <img
                 src="/images/Minimal Rings.png"
                 alt="Minimal rings on hand"
@@ -49,9 +51,11 @@ export default function MakeItCustom() {
                 </div>
                 <h3 className="custom-overlay-title">Minimal Rings</h3>
               </div>
+              </a>
             </div>
 
             <div className="custom-right-bottom-block">
+              <a href={ROUTES.search} className="custom-overlay-link">
               <img
                 src="/images/Rectangle 3298.png"
                 alt="Minimal earrings close-up"
@@ -65,6 +69,7 @@ export default function MakeItCustom() {
                 </div>
                 <h3 className="custom-overlay-title">Minimal Earrings</h3>
               </div>
+              </a>
             </div>
           </div>
         </div>

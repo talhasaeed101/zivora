@@ -1,4 +1,5 @@
 import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons';
+import { FOOTER_LINKS, ROUTES } from '../utils/navigation';
 import './Footer.css';
 
 const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact'];
@@ -7,7 +8,9 @@ export default function Footer() {
   return (
     <footer id="contact" className="footer-section">
       <div className="footer-inner">
-        <p className="footer-logo">ZIVORA</p>
+        <p className="footer-logo">
+          <a href={ROUTES.home} className="footer-logo-link">ZIVORA</a>
+        </p>
 
         <form className="footer-newsletter-form" onSubmit={(e) => e.preventDefault()}>
           <input
@@ -22,7 +25,7 @@ export default function Footer() {
           {footerLinks.map((link) => (
             <span key={link} className="footer-nav-item">
               <span className="footer-nav-dot">• </span>
-              <a href="#" className="footer-nav-link">{link}</a>
+              <a href={FOOTER_LINKS[link]} className="footer-nav-link">{link}</a>
             </span>
           ))}
         </nav>
@@ -30,17 +33,17 @@ export default function Footer() {
         <div className="footer-bottom-bar">
           <p className="footer-copyright">© 2026 ZIVORA. ALL RIGHTS RESERVED.</p>
           <div className="footer-legal-links">
-            <a href="#" className="footer-legal-link">Privacy Policy</a>
-            <a href="#" className="footer-legal-link">Terms of Uses</a>
+            <a href={ROUTES.home} className="footer-legal-link">Privacy Policy</a>
+            <a href={ROUTES.home} className="footer-legal-link">Terms of Uses</a>
           </div>
           <div className="footer-social-row">
-            <a href="#" className="footer-social-link" aria-label="Instagram">
+            <a href={ROUTES.home} className="footer-social-link" aria-label="Instagram">
               <InstagramIcon />
             </a>
-            <a href="#" className="footer-social-link" aria-label="TikTok">
+            <a href={ROUTES.home} className="footer-social-link" aria-label="TikTok">
               <TikTokIcon />
             </a>
-            <a href="#" className="footer-social-link" aria-label="Facebook">
+            <a href={ROUTES.home} className="footer-social-link" aria-label="Facebook">
               <FacebookIcon />
             </a>
           </div>

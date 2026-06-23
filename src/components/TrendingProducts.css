@@ -45,6 +45,12 @@
   color: #c8815f;
 }
 
+.trending-product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .trending-products-row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

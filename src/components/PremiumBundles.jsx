@@ -1,4 +1,5 @@
 import { HeartIcon, ArrowRightIcon } from './icons';
+import { ROUTES } from '../utils/navigation';
 import './PremiumBundles.css';
 
 const bundleProducts = [
@@ -15,14 +16,15 @@ export default function PremiumBundles() {
       <div className="bundles-inner">
         <div className="bundles-header-row">
           <h2 className="bundles-heading">Premium Bundles</h2>
-          <a href="#" className="bundles-view-all-link">
+          <a href={ROUTES.search} className="bundles-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </a>
         </div>
 
         <div className="bundles-products-row">
           {bundleProducts.map((product, index) => (
-            <article key={index} className="bundles-product-card" style={{ position: 'relative' }}>
+            <a key={index} href={ROUTES.product} className="bundles-product-card-link">
+              <article className="bundles-product-card" style={{ position: 'relative' }}>
               <div className="bundles-product-image-wrap">
                 <img
                   src={product.image}
@@ -33,7 +35,7 @@ export default function PremiumBundles() {
               {product.showSale && <span className="bundles-sale-badge">Sale!</span>}
               <div className="bundles-product-info-row">
                 <h3 className="bundles-product-name">Minimal stacked rings</h3>
-                <button type="button" className="bundles-wishlist-btn" aria-label="Add to wishlist">
+                <button type="button" className="bundles-wishlist-btn" aria-label="Add to wishlist" onClick={(e) => e.preventDefault()}>
                   <HeartIcon />
                 </button>
               </div>
@@ -42,6 +44,7 @@ export default function PremiumBundles() {
                 <span className="bundles-price-original">$52.00</span>
               </div>
             </article>
+            </a>
           ))}
         </div>
       </div>

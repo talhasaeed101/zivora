@@ -94,6 +94,7 @@
   color: #fff;
   cursor: pointer;
   transition: background-color 0.25s ease;
+  text-decoration: none;
 }
 
 .navbar-cart-btn:hover {
@@ -111,10 +112,32 @@
   justify-content: center;
   cursor: pointer;
   transition: border-color 0.25s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .navbar-user-btn:hover {
   border-color: #000;
+}
+
+.navbar-wishlist-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.25s ease, border-color 0.25s ease;
+  text-decoration: none;
+}
+
+.navbar-wishlist-btn:hover {
+  color: #c8815f;
+  border-color: #c8815f;
 }
 
 .navbar-mobile-toggle {

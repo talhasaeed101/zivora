@@ -110,6 +110,9 @@
   cursor: pointer;
   transition: transform 0.25s ease;
   pointer-events: auto;
+  text-decoration: none;
+  color: inherit;
+  border: none;
 }
 
 .featured-circular-badge-container:hover {

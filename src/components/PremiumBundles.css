@@ -47,6 +47,12 @@
   gap: 20px;
 }
 
+.bundles-product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .bundles-product-card {
   flex-shrink: 0;
 }

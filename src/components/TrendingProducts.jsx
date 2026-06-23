@@ -1,4 +1,5 @@
 import { HeartIcon, ArrowRightIcon } from './icons';
+import { ROUTES } from '../utils/navigation';
 import './TrendingProducts.css';
 
 const trendingProducts = [
@@ -15,14 +16,15 @@ export default function TrendingProducts() {
       <div className="trending-inner">
         <div className="trending-header-row">
           <h2 className="trending-heading">Trending</h2>
-          <a href="#" className="trending-view-all-link">
+          <a href={ROUTES.search} className="trending-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </a>
         </div>
 
         <div className="trending-products-row">
           {trendingProducts.map((product, index) => (
-            <article key={index} className="trending-product-card" style={{ position: 'relative' }}>
+            <a key={index} href={ROUTES.product} className="trending-product-card-link">
+              <article className="trending-product-card" style={{ position: 'relative' }}>
               <div className="trending-product-image-wrap">
                 <img
                   src={product.image}
@@ -33,7 +35,7 @@ export default function TrendingProducts() {
               {product.showSale && <span className="trending-sale-badge">Sale!</span>}
               <div className="trending-product-info-row">
                 <h3 className="trending-product-name">Minimal stacked rings</h3>
-                <button type="button" className="trending-wishlist-btn" aria-label="Add to wishlist">
+                <button type="button" className="trending-wishlist-btn" aria-label="Add to wishlist" onClick={(e) => e.preventDefault()}>
                   <HeartIcon />
                 </button>
               </div>
@@ -42,6 +44,7 @@ export default function TrendingProducts() {
                 <span className="trending-price-original">Rs. 2,499</span>
               </div>
             </article>
+            </a>
           ))}
         </div>
       </div>

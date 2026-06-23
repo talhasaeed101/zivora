@@ -21,6 +21,15 @@
   color: #fff;
 }
 
+.footer-logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.footer-logo-link:hover {
+  opacity: 0.85;
+}
+
 .footer-newsletter-form {
   display: flex;
   align-items: center;

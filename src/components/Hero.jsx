@@ -1,4 +1,5 @@
 import './Hero.css';
+import { ROUTES } from '../utils/navigation';
 
 export default function Hero() {
   return (
@@ -28,7 +29,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="hero-center-zone-container">          <div className="hero-collection-row-container">
+        <div className="hero-center-zone-container">          <a href={ROUTES.search} className="hero-collection-row-container hero-collection-link">
             <p className="hero-collection-title-text">COLLECTION</p>
             <div className="hero-collection-separator-line" />
             <div className="hero-collection-arrow-icon-wrapper">
@@ -43,7 +44,7 @@ export default function Hero() {
                 className="hero-collection-thumbnails-image"
               />
             </div>
-          </div>
+          </a>
         </div>
 
         <div className="hero-right-zone-container">
@@ -55,7 +56,7 @@ export default function Hero() {
             />
           </div>
 
-          <button type="button" className="hero-circular-badge-container" aria-label="Shop the collection">
+          <a href={ROUTES.search} className="hero-circular-badge-container" aria-label="Shop the collection">
             <svg viewBox="0 0 100 100" width="120" height="120" className="hero-circular-rotating-svg" aria-hidden="true">
               <defs>
                 <path id="heroCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
@@ -71,7 +72,7 @@ export default function Hero() {
                 <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-          </button>
+          </a>
         </div>
       </div>
     </section>

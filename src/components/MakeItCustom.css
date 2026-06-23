@@ -154,6 +154,16 @@
   cursor: pointer;
   transition: background-color 0.25s ease;
   box-sizing: border-box;
+  text-decoration: none;
+}
+
+.custom-overlay-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
 }
 
 .custom-shop-btn:hover {
