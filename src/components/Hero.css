@@ -211,7 +211,10 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-
+.mobile___hero___container
+{
+  display: none;
+}
 
 @media (max-width: 1280px) {
   .hero-main-wrapper {
