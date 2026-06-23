@@ -1,69 +1,72 @@
-import React from 'react';
-import { Box, Typography, InputBase } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import { useState } from 'react';
+import { SearchIcon, ShoppingBagIcon, UserIcon } from './icons';
+import './Navbar.css';
 
-const Navbar = () => {
+const navLinks = [
+  { label: 'HOME', href: '#', active: true },
+  { label: 'COLLECTION', href: '#collection' },
+  { label: 'BUNDLES', href: '#bundles' },
+  { label: 'TESTIMONIALS', href: '#testimonials' },
+  { label: 'CONTACT', href: '#contact' },
+];
+
+export default function Navbar() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
-    <Box sx={{
-      width: '100%',
-      height: '90px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      borderBottom: '1px solid #eaeaea',
-      padding: '0 80px',
-      boxSizing: 'border-box',
-      backgroundColor: '#fff',
-    }}>
-      {/* Left: Logo */}
-      <Box sx={{ flex: 1 }}>
-        <Typography 
-          variant="h4" 
-          component="div" 
-          sx={{ 
-            fontFamily: '"Tenaka", serif', 
-            letterSpacing: '2px', 
-            cursor: 'pointer', 
-            color: '#000',
-            fontWeight: 'normal'
-          }}
+    <header className="navbar-header">
+      <div className="navbar-inner">
+        <a href="#" className="navbar-logo">ZIVORAH</a>
+
+        <nav className="navbar-links">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className={`navbar-link ${link.active ? 'navbar-link-active' : ''}`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="navbar-actions">
+          <div className="navbar-search-wrap">
+            <input type="search" placeholder="Search" className="navbar-search-input" />
+            <SearchIcon className="w-5 h-5" />
+          </div>
+          <button type="button" className="navbar-cart-btn" aria-label="Cart">
+            <ShoppingBagIcon />
+          </button>
+          <button type="button" className="navbar-user-btn" aria-label="Account">
+            <UserIcon />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="navbar-mobile-toggle"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle menu"
         >
-          ZIVORA
-        </Typography>
-      </Box>
+          <span className="navbar-mobile-bar" />
+          <span className="navbar-mobile-bar" />
+          <span className="navbar-mobile-bar" />
+        </button>
+      </div>
 
-      {/* Center-left: Links */}
-      <Box sx={{ display: 'flex', gap: '40px', alignItems: 'center', flex: 2 }}>
-        <Typography sx={{ cursor: 'pointer', fontSize: '12px', fontWeight: 600, letterSpacing: '1.5px', color: '#c8815f' }}>HOME</Typography>
-        <Typography sx={{ cursor: 'pointer', fontSize: '12px', fontWeight: 500, letterSpacing: '1.5px', color: '#000' }}>COLLECTION</Typography>
-        <Typography sx={{ cursor: 'pointer', fontSize: '12px', fontWeight: 500, letterSpacing: '1.5px', color: '#000' }}>BUNDLES</Typography>
-        <Typography sx={{ cursor: 'pointer', fontSize: '12px', fontWeight: 500, letterSpacing: '1.5px', color: '#000' }}>TESTIMONIALS</Typography>
-        <Typography sx={{ cursor: 'pointer', fontSize: '12px', fontWeight: 500, letterSpacing: '1.5px', color: '#000' }}>CONTACT</Typography>
-      </Box>
-
-      {/* Right: Icons */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, justifyContent: 'flex-end' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid #ddd', paddingBottom: '2px', width: '200px' }}>
-          <InputBase placeholder="Search" sx={{ fontSize: '13px', fontStyle: 'italic', color: '#000', flex: 1 }} />
-          <SearchIcon sx={{ color: '#000', cursor: 'pointer', fontSize: '20px' }} />
-        </Box>
-        <Box sx={{
-          width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#000',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-        }}>
-          <ShoppingBagIcon sx={{ color: '#fff', fontSize: '18px' }} />
-        </Box>
-        <Box sx={{
-          width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #ddd',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backgroundColor: '#fff'
-        }}>
-          <PersonOutlineOutlinedIcon sx={{ color: '#000', fontSize: '18px' }} />
-        </Box>
-      </Box>
-    </Box>
+      <nav className={`navbar-mobile-menu ${menuOpen ? 'navbar-mobile-menu-open' : ''}`}>
+        {navLinks.map((link) => (
+          <a
+            key={link.label}
+            href={link.href}
+            className={`navbar-link ${link.active ? 'navbar-link-active' : ''}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            {link.label}
+          </a>
+        ))}
+      </nav>
+    </header>
   );
-};
-
-export default Navbar;
+}
