@@ -1,0 +1,55 @@
+@import './Collection.css';
+
+.category-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--catalog-border);
+}
+
+.category-hero-image-wrap {
+  overflow: hidden;
+  border-top-left-radius: 160px;
+  border-top-right-radius: 160px;
+}
+
+.category-hero-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+}
+
+.category-hero-copy {
+  max-width: 480px;
+}
+
+.category-hero-title {
+  font-family: Teneka, serif;
+  font-size: 42px;
+  font-weight: 400;
+  margin: 0 0 16px;
+  line-height: 1.15;
+}
+
+.category-hero-description {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--catalog-gray);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .category-hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .category-hero-title {
+    font-size: 30px;
+  }
+}

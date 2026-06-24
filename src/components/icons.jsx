@@ -65,6 +65,17 @@ export function ChevronDownIcon({ className = 'w-4 h-4' }) {
   );
 }
 
+export function FilterIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
+      <circle cx="18" cy="6" r="2" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="12" r="2" fill="currentColor" stroke="none" />
+      <circle cx="14" cy="18" r="2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function InstagramIcon({ className = 'w-4 h-4' }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -2,7 +2,7 @@ import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons';
 import { FOOTER_LINKS, ROUTES } from '../utils/navigation';
 import './Footer.css';
 
-const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact'];
+const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact', 'About'];
 
 export default function Footer() {
   return (
@@ -33,17 +33,17 @@ export default function Footer() {
         <div className="footer-bottom-bar">
           <p className="footer-copyright">© 2026 ZIVORA. ALL RIGHTS RESERVED.</p>
           <div className="footer-legal-links">
-            <a href={ROUTES.home} className="footer-legal-link">Privacy Policy</a>
-            <a href={ROUTES.home} className="footer-legal-link">Terms of Uses</a>
+            <a href={ROUTES.privacyPolicy} className="footer-legal-link">Privacy Policy</a>
+            <a href={ROUTES.termsOfUse} className="footer-legal-link">Terms of Use</a>
           </div>
           <div className="footer-social-row">
-            <a href={ROUTES.home} className="footer-social-link" aria-label="Instagram">
+            <a href="#" className="footer-social-link" aria-label="Instagram">
               <InstagramIcon />
             </a>
-            <a href={ROUTES.home} className="footer-social-link" aria-label="TikTok">
+            <a href="#" className="footer-social-link" aria-label="TikTok">
               <TikTokIcon />
             </a>
-            <a href={ROUTES.home} className="footer-social-link" aria-label="Facebook">
+            <a href="#" className="footer-social-link" aria-label="Facebook">
               <FacebookIcon />
             </a>
           </div>

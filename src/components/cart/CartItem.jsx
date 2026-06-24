@@ -1,4 +1,6 @@
-import { ROUTES } from '../../utils/navigation';
+import { ROUTES, productPath } from '../../utils/navigation';
+import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
+import SafeImage from '../SafeImage.jsx';
 
 function CalendarIcon() {
   return (
@@ -30,18 +32,20 @@ function formatPrice(amount) {
   return `Rs. ${amount.toLocaleString('en-IN')}`;
 }
 
-export default function CartItem({ item, onQuantityChange, onRemove }) {
+export default function CartItem({ item, onQuantityChange, onRemove, updating = false }) {
   const lineTotal = item.unitPrice * item.quantity;
+  const productHref = item.slug ? productPath(item.slug) : ROUTES.product;
+  const imageSrc = item.image || PLACEHOLDER_IMAGE;
 
   return (
     <article className="cart-item">
       <div className="cart-item-product">
-        <a href={ROUTES.product} className="cart-item-image-link">
-          <img src={item.image} alt={item.title} className="cart-item-image" />
+        <a href={productHref} className="cart-item-image-link">
+          <SafeImage src={imageSrc} alt={item.title} className="cart-item-image" />
         </a>
         <div className="cart-item-details">
           <h3 className="cart-item-title">
-            <a href={ROUTES.product} className="cart-item-title-link">{item.title}</a>
+            <a href={productHref} className="cart-item-title-link">{item.title}</a>
           </h3>
           <p className="cart-item-material">{item.material}</p>
           <div className="cart-item-meta">
@@ -64,6 +68,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }) {
             className="cart-item-qty-btn"
             onClick={() => onQuantityChange(item.id, item.quantity - 1)}
             aria-label="Decrease quantity"
+            disabled={updating || item.quantity <= 1}
           >
             −
           </button>
@@ -73,6 +78,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }) {
             className="cart-item-qty-btn"
             onClick={() => onQuantityChange(item.id, item.quantity + 1)}
             aria-label="Increase quantity"
+            disabled={updating}
           >
             +
           </button>
@@ -88,6 +94,7 @@ export default function CartItem({ item, onQuantityChange, onRemove }) {
         className="cart-item-remove"
         onClick={() => onRemove(item)}
         aria-label="Remove item"
+        disabled={updating}
       >
         <CloseIcon />
       </button>

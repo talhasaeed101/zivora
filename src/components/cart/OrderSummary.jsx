@@ -1,17 +1,28 @@
-import { useState } from 'react';
-import { ROUTES } from '../../utils/navigation';
-
 function formatPrice(amount) {
   return `Rs. ${amount.toLocaleString('en-IN')}`;
 }
 
-export default function OrderSummary({ itemCount, subtotal, discount, total }) {
-  const [promoCode, setPromoCode] = useState('');
-  const [applied, setApplied] = useState(false);
-
-  const handleApply = (e) => {
-    e.preventDefault();
-    setApplied(promoCode.trim().length > 0);
+export default function OrderSummary({
+  itemCount,
+  subtotal,
+  discount,
+  taxFee = 0,
+  total,
+  onCheckout,
+  checkingOut = false,
+  checkoutError = '',
+  checkoutSuccess = '',
+  canCheckout = true,
+  promoCode = '',
+  onPromoCodeChange,
+  onApplyPromo,
+  promoApplying = false,
+  promoError = '',
+  appliedPromo = null,
+}) {
+  const handleApply = (event) => {
+    event.preventDefault();
+    onApplyPromo?.(promoCode.trim());
   };
 
   return (
@@ -28,12 +39,22 @@ export default function OrderSummary({ itemCount, subtotal, discount, total }) {
               placeholder="Type here..."
               className="cart-promo-input"
               value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
+              onChange={(event) => onPromoCodeChange?.(event.target.value)}
+              disabled={promoApplying || checkingOut}
             />
-            <button type="submit" className="cart-promo-apply">Apply</button>
+            <button
+              type="submit"
+              className="cart-promo-apply"
+              disabled={promoApplying || checkingOut || !promoCode.trim()}
+            >
+              {promoApplying ? 'Applying...' : 'Apply'}
+            </button>
           </div>
-          {applied && (
-            <p className="cart-promo-applied">Promo code applied</p>
+          {promoError && <p className="cart-promo-error">{promoError}</p>}
+          {appliedPromo && !promoError && (
+            <p className="cart-promo-applied">
+              Promo code {appliedPromo.code} applied
+            </p>
           )}
         </form>
 
@@ -48,7 +69,7 @@ export default function OrderSummary({ itemCount, subtotal, discount, total }) {
           </div>
           <div className="cart-summary-row">
             <span>Tax &amp; fee</span>
-            <span>—</span>
+            <span>{taxFee > 0 ? formatPrice(taxFee) : '—'}</span>
           </div>
           <div className="cart-summary-row cart-summary-total">
             <span>Total</span>
@@ -56,9 +77,17 @@ export default function OrderSummary({ itemCount, subtotal, discount, total }) {
           </div>
         </div>
 
-        <a href={ROUTES.home} className="cart-checkout-btn">
-          Continue to checkout
-        </a>
+        {checkoutError && <p className="cart-checkout-error">{checkoutError}</p>}
+        {checkoutSuccess && <p className="cart-checkout-success">{checkoutSuccess}</p>}
+
+        <button
+          type="button"
+          className="cart-checkout-btn"
+          onClick={onCheckout}
+          disabled={!canCheckout || checkingOut}
+        >
+          {checkingOut ? 'Placing order...' : 'Continue to checkout'}
+        </button>
       </div>
     </aside>
   );

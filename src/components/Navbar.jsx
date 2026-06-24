@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SearchIcon, ShoppingBagIcon, UserIcon, HeartIcon } from './icons';
-import { NAV_ROUTES, ROUTES, getAccountRoute } from '../utils/navigation';
+import { NAV_ROUTES, ROUTES, getAccountRoute, searchPath } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useCart } from '../context/CartContext.jsx';
+import { useWishlist } from '../context/WishlistContext.jsx';
 import './Navbar.css';
 
 const NAV_ITEMS = [
@@ -13,10 +15,16 @@ const NAV_ITEMS = [
   { label: 'CONTACT', href: NAV_ROUTES.CONTACT, hash: 'CONTACT' },
 ];
 
-export default function Navbar({ activeLink = 'HOME', showWishlist = false, homeHref = '#' }) {
+export default function Navbar({ activeLink = 'HOME', homeHref = '#' }) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   const { isAuthenticated } = useAuth();
+  const { totalItems } = useCart();
+  const { totalItems: wishlistCount } = useWishlist();
   const accountPath = getAccountRoute(isAuthenticated);
+  const cartCount = isAuthenticated ? totalItems : 0;
+  const wishlistBadgeCount = isAuthenticated ? wishlistCount : 0;
 
   const navLinks = NAV_ITEMS.map((item) => ({
     ...item,
@@ -24,10 +32,17 @@ export default function Navbar({ activeLink = 'HOME', showWishlist = false, home
     active: item.hash === activeLink,
   }));
 
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const query = searchInput.trim();
+    setMenuOpen(false);
+    navigate(searchPath({ q: query }));
+  };
+
   return (
     <header className="navbar-header">
       <div className="navbar-inner">
-        <a href={homeHref} className="navbar-logo">ZIVORAH</a>
+        <a href={homeHref} className="navbar-logo">ZIVORA</a>
 
         <nav className="navbar-links">
           {navLinks.map((link) => (
@@ -43,21 +58,40 @@ export default function Navbar({ activeLink = 'HOME', showWishlist = false, home
 
         <div className="navbar-actions">
           <div className="navbar-search-wrap">
-            <form onSubmit={(e) => { e.preventDefault(); window.location.href = ROUTES.search; }} style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
-              <input type="search" placeholder="Search" className="navbar-search-input" />
+            <form onSubmit={handleSearchSubmit} style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+              <input
+                type="search"
+                placeholder="Search"
+                className="navbar-search-input"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+              />
               <button type="submit" aria-label="Submit search" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', color: 'inherit' }}>
                 <SearchIcon className="w-5 h-5" />
               </button>
             </form>
           </div>
-          {showWishlist && (
-            <a href={ROUTES.home} className="navbar-wishlist-btn" aria-label="Wishlist">
+          {isAuthenticated ? (
+            <Link to={ROUTES.wishlist} className="navbar-wishlist-btn" aria-label="Wishlist">
               <HeartIcon className="w-4 h-4" />
-            </a>
+              {wishlistBadgeCount > 0 && (
+                <span className="navbar-wishlist-badge">{wishlistBadgeCount}</span>
+              )}
+            </Link>
+          ) : (
+            <Link
+              to={ROUTES.login}
+              state={{ from: ROUTES.wishlist }}
+              className="navbar-wishlist-btn"
+              aria-label="Wishlist"
+            >
+              <HeartIcon className="w-4 h-4" />
+            </Link>
           )}
-          <a href={ROUTES.cart} className="navbar-cart-btn" aria-label="Cart">
+          <Link to={ROUTES.cart} className="navbar-cart-btn" aria-label="Cart">
             <ShoppingBagIcon />
-          </a>
+            {cartCount > 0 && <span className="navbar-cart-badge">{cartCount}</span>}
+          </Link>
           <Link to={accountPath} className="navbar-user-btn" aria-label="Account">
             <UserIcon />
           </Link>
@@ -76,6 +110,20 @@ export default function Navbar({ activeLink = 'HOME', showWishlist = false, home
       </div>
 
       <nav className={`navbar-mobile-menu ${menuOpen ? 'navbar-mobile-menu-open' : ''}`}>
+        <form className="navbar-mobile-search" onSubmit={handleSearchSubmit}>
+          <input
+            type="search"
+            placeholder="Search jewelry..."
+            className="navbar-mobile-search-input"
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            aria-label="Search"
+          />
+          <button type="submit" className="navbar-mobile-search-btn" aria-label="Submit search">
+            <SearchIcon className="w-5 h-5" />
+          </button>
+        </form>
+
         {navLinks.map((link) => (
           <a
             key={link.label}

@@ -1,0 +1,15 @@
+@import './Legal.css';
+
+.about-hero {
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.about-lead {
+  font-family: Inter, sans-serif;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #333;
+  margin: 0;
+}

@@ -122,8 +122,9 @@
   transition: color 0.25s ease;
 }
 
-.bundles-wishlist-btn:hover {
-  color: #000;
+.bundles-wishlist-btn:hover,
+.bundles-wishlist-btn-active {
+  color: #c8815f;
 }
 
 .bundles-price-row {

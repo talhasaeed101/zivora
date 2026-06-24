@@ -19,7 +19,38 @@ function PhoneIcon() {
   );
 }
 
-export default function DeliveryAddressSection({ address, onChangeClick }) {
+export default function DeliveryAddressSection({
+  address,
+  addresses = [],
+  loading = false,
+  onChangeClick,
+  onSelectAddress,
+}) {
+  if (loading) {
+    return (
+      <section className="cart-delivery-section">
+        <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
+        <div className="cart-delivery-card cart-delivery-empty">
+          <p>Loading delivery address...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!address) {
+    return (
+      <section className="cart-delivery-section">
+        <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
+        <div className="cart-delivery-card cart-delivery-empty">
+          <p className="cart-delivery-empty-text">No delivery address saved yet.</p>
+          <button type="button" className="cart-delivery-change-btn" onClick={onChangeClick}>
+            Add Delivery Address
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="cart-delivery-section">
       <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
@@ -29,7 +60,7 @@ export default function DeliveryAddressSection({ address, onChangeClick }) {
           <div className="cart-delivery-details">
             <span className="cart-delivery-detail">
               <LocationIcon />
-              {address.street}
+              {address.street}, {address.city}, {address.province} {address.postalCode}
             </span>
             <span className="cart-delivery-divider" aria-hidden="true" />
             <span className="cart-delivery-detail">
@@ -42,6 +73,26 @@ export default function DeliveryAddressSection({ address, onChangeClick }) {
           Change
         </button>
       </div>
+
+      {addresses.length > 1 && (
+        <div className="cart-address-select-wrap">
+          <label htmlFor="cart-address-select" className="cart-address-select-label">
+            Use saved address
+          </label>
+          <select
+            id="cart-address-select"
+            className="cart-address-select"
+            value={address.id}
+            onChange={(event) => onSelectAddress(event.target.value)}
+          >
+            {addresses.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name} — {item.city}{item.isDefault ? ' (Default)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </section>
   );
 }

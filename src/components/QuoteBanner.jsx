@@ -1,9 +1,19 @@
+import { useState } from 'react';
+import SafeImage from './SafeImage.jsx';
+import { AVATAR_PLACEHOLDER } from '../utils/images.js';
+import { TESTIMONIALS } from '../data/testimonials.js';
 import './QuoteBanner.css';
 
 export default function QuoteBanner() {
+  const [current, setCurrent] = useState(0);
+  const quote = TESTIMONIALS[current];
+
+  const prev = () => setCurrent((index) => (index === 0 ? TESTIMONIALS.length - 1 : index - 1));
+  const next = () => setCurrent((index) => (index === TESTIMONIALS.length - 1 ? 0 : index + 1));
+
   return (
     <section className="quote-banner-section">
-      <button className="quote-nav-btn prev" aria-label="Previous quote">
+      <button type="button" className="quote-nav-btn prev" onClick={prev} aria-label="Previous quote">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
           <path d="M18 12H6M10 16l-4-4 4-4"/>
         </svg>
@@ -11,24 +21,20 @@ export default function QuoteBanner() {
 
       <div className="quote-content">
         <div className="quote-author-row">
-          <img src="/images/Ellipse 519.png" alt="Jenny Wilson" className="quote-avatar" />
+          <SafeImage src={AVATAR_PLACEHOLDER} alt={quote.name} className="quote-avatar" />
           <div className="quote-author-details">
             <div className="quote-stars">
-              <span style={{ color: '#FABB05' }}>★</span>
-              <span style={{ color: '#FABB05' }}>★</span>
-              <span style={{ color: '#FABB05' }}>★</span>
-              <span style={{ color: '#FABB05' }}>★</span>
-              <span style={{ color: '#e0e0e0' }}>★</span>
+              {[...Array(5)].map((_, index) => (
+                <span key={index} style={{ color: index < quote.rating ? '#FABB05' : '#ddd' }}>★</span>
+              ))}
             </div>
-            <div className="quote-author-name">Jenny Wilson</div>
+            <div className="quote-author-name">{quote.name}</div>
           </div>
         </div>
-        <p className="quote-banner-text">
-          “Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.”
-        </p>
+        <p className="quote-banner-text">&ldquo;{quote.quote}&rdquo;</p>
       </div>
 
-      <button className="quote-nav-btn next" aria-label="Next quote">
+      <button type="button" className="quote-nav-btn next" onClick={next} aria-label="Next quote">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 12h12M14 8l4 4-4 4"/>
         </svg>

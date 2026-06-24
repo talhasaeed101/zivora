@@ -1,30 +1,15 @@
-import { ROUTES, NAV_ROUTES, FOOTER_LINKS, getAccountRoute } from './utils/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES, NAV_ROUTES, FOOTER_LINKS, getAccountRoute, searchPath, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
 import { useAuth } from './context/AuthContext.jsx';
+import { usePageTitle } from './hooks/usePageTitle.js';
+import { publicCatalogApi } from './services/api.js';
+import { formatPrice, getProductImage, hasSale } from './utils/products.js';
+import { PRICE_RANGES, SORT_OPTIONS, getSortLabel } from './utils/catalogFilters.js';
+import WishlistButton from './components/WishlistButton.jsx';
+import SafeImage from './components/SafeImage.jsx';
 
-const products = [
-  { id: 1, image: '/images/stack1.png', showSale: false },
-  { id: 2, image: '/images/stack2.png', showSale: false },
-  { id: 3, image: '/images/stack3.png', showSale: true },
-  { id: 4, image: '/images/stack4.png', showSale: true },
-  { id: 5, image: '/images/stack5.png', showSale: true },
-  { id: 6, image: '/images/stack1.png', showSale: false },
-];
-
-const categories = [
-  { label: 'Rings', count: 124, checked: true },
-  { label: 'Bracelets', count: 86, checked: false },
-  { label: 'Necklaces', count: 72, checked: false },
-  { label: 'Earrings', count: 54, checked: false },
-  { label: 'Anklets', count: 32, checked: false },
-];
-
-const priceRanges = [
-  { label: 'Rs. 500 to 999', checked: true },
-  { label: 'Rs. 1,000 to 1,499', checked: false },
-  { label: 'Rs. 1,500 to 1,999', checked: false },
-  { label: 'Rs. 2,000 to 2,499', checked: false },
-  { label: 'Rs. 2,500 and above', checked: false },
-];
+const PAGE_SIZE = 24;
 
 const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact'];
 
@@ -109,21 +94,29 @@ function FacebookIcon() {
 }
 
 function ProductCard({ product, variant }) {
+  const image = getProductImage(product);
+  const showSale = hasSale(product);
+  const href = `/product/${product.slug}`;
+
   const cardContent = variant === 'mobile' ? (
     <>
         <div className="sr-product-image-wrap sr-product-image-wrap-mobile">
-          <img src={product.image} alt="Minimal stacked rings" className="sr-product-image" />
-          {product.showSale && <span className="sr-sale-badge">Sale!</span>}
+          <SafeImage src={image} alt={product.title} className="sr-product-image" />
+          {showSale && <span className="sr-sale-badge">Sale!</span>}
           <div className="sr-product-overlay">
             <div className="sr-product-info-row">
-              <h3 className="sr-product-name sr-product-name-mobile">Minimal stacked rings</h3>
-              <button type="button" className="sr-wishlist-btn" aria-label="Add to wishlist" onClick={(e) => e.preventDefault()}>
-                <HeartIcon />
-              </button>
+              <h3 className="sr-product-name sr-product-name-mobile">{product.title}</h3>
+              <WishlistButton
+                productId={product._id}
+                className="sr-wishlist-btn"
+                activeClassName="sr-wishlist-btn-active"
+              />
             </div>
             <div className="sr-price-row">
-              <span className="sr-price-current">Rs. 1,999</span>
-              <span className="sr-price-original">Rs. 2,499</span>
+              <span className="sr-price-current">{formatPrice(product.price)}</span>
+              {product.oldPrice && (
+                <span className="sr-price-original">{formatPrice(product.oldPrice)}</span>
+              )}
             </div>
           </div>
         </div>
@@ -131,24 +124,28 @@ function ProductCard({ product, variant }) {
   ) : (
     <>
       <div className="sr-product-image-wrap">
-        <img src={product.image} alt="Minimal stacked rings" className="sr-product-image" />
-        {product.showSale && <span className="sr-sale-badge">Sale!</span>}
+        <SafeImage src={image} alt={product.title} className="sr-product-image" />
+        {showSale && <span className="sr-sale-badge">Sale!</span>}
       </div>
       <div className="sr-product-info-row">
-        <h3 className="sr-product-name">Minimal stacked rings</h3>
-        <button type="button" className="sr-wishlist-btn" aria-label="Add to wishlist" onClick={(e) => e.preventDefault()}>
-          <HeartIcon />
-        </button>
+        <h3 className="sr-product-name">{product.title}</h3>
+        <WishlistButton
+          productId={product._id}
+          className="sr-wishlist-btn"
+          activeClassName="sr-wishlist-btn-active"
+        />
       </div>
       <div className="sr-price-row">
-        <span className="sr-price-current">Rs. 1,999</span>
-        <span className="sr-price-original">Rs. 2,499</span>
+        <span className="sr-price-current">{formatPrice(product.price)}</span>
+        {product.oldPrice && (
+          <span className="sr-price-original">{formatPrice(product.oldPrice)}</span>
+        )}
       </div>
     </>
   );
 
   return (
-    <a href={ROUTES.product} className={`sr-product-card-link ${variant === 'mobile' ? 'sr-product-card-link-mobile' : ''}`}>
+    <a href={href} className={`sr-product-card-link ${variant === 'mobile' ? 'sr-product-card-link-mobile' : ''}`}>
       <article className={`sr-product-card ${variant === 'mobile' ? 'sr-product-card-mobile' : ''}`}>
         {cardContent}
       </article>
@@ -157,8 +154,146 @@ function ProductCard({ product, variant }) {
 }
 
 export default function SearchResults() {
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const accountPath = getAccountRoute(isAuthenticated);
+  const initialQuery = getSearchQueryFromUrl();
+  const initialCategory = getSearchCategoryFromUrl();
+  const filtersRef = useRef(null);
+
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [searchInput, setSearchInput] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [categoryFilter, setCategoryFilter] = useState(initialCategory);
+  const [sort, setSort] = useState('newest');
+  const [priceRangeId, setPriceRangeId] = useState('');
+  const [customMinPrice, setCustomMinPrice] = useState('');
+  const [customMaxPrice, setCustomMaxPrice] = useState('');
+  const [page, setPage] = useState(1);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const selectedPriceRange = PRICE_RANGES.find((range) => range.id === priceRangeId);
+  const minPrice = selectedPriceRange
+    ? selectedPriceRange.minPrice
+    : customMinPrice
+      ? Number(customMinPrice)
+      : undefined;
+  const maxPrice = selectedPriceRange
+    ? selectedPriceRange.maxPrice ?? undefined
+    : customMaxPrice
+      ? Number(customMaxPrice)
+      : undefined;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    publicCatalogApi
+      .getPublicCategories()
+      .then((response) => {
+        if (isMounted) {
+          setCategories(response.data || []);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setCategories([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    publicCatalogApi
+      .getPublicProducts({
+        search: searchQuery || undefined,
+        category: categoryFilter || undefined,
+        sort,
+        minPrice: minPrice ?? undefined,
+        maxPrice: maxPrice ?? undefined,
+        page,
+        limit: PAGE_SIZE,
+      })
+      .then((response) => {
+        if (isMounted) {
+          setProducts(response.data?.products || []);
+          setPagination(response.data?.pagination || null);
+          setError('');
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setError(err.message || 'Unable to load products.');
+          setProducts([]);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page]);
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    setLoading(true);
+    const nextQuery = searchInput.trim();
+    setSearchQuery(nextQuery);
+    setPage(1);
+    navigate(searchPath({ q: nextQuery, category: categoryFilter }));
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setCategoryFilter((current) => (current === categoryId ? '' : categoryId));
+    setPage(1);
+    setLoading(true);
+  };
+
+  const handlePriceRangeChange = (rangeId) => {
+    setPriceRangeId((current) => (current === rangeId ? '' : rangeId));
+    setCustomMinPrice('');
+    setCustomMaxPrice('');
+    setPage(1);
+    setLoading(true);
+  };
+
+  const handleApplyCustomPrice = () => {
+    setPriceRangeId('');
+    setPage(1);
+    setLoading(true);
+  };
+
+  const handleSortChange = (value) => {
+    setSort(value);
+    setSortMenuOpen(false);
+    setMobileSortOpen(false);
+    setPage(1);
+    setLoading(true);
+  };
+
+  const handleOpenMobileFilters = () => {
+    setMobileFiltersOpen(true);
+    filtersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const displayQuery = searchQuery || 'all products';
+  const productCount = pagination?.total ?? products.length;
+
+  usePageTitle(searchQuery ? `Search: ${searchQuery} | Zivora` : 'Search | Zivora');
 
   return (
     <>
@@ -392,6 +527,85 @@ export default function SearchResults() {
           color: var(--sr-black);
         }
 
+        .sr-sort-wrap {
+          position: relative;
+        }
+
+        .sr-sort-menu {
+          position: absolute;
+          top: calc(100% + 4px);
+          right: 0;
+          z-index: 20;
+          min-width: 200px;
+          background: var(--sr-white);
+          border: 1px solid var(--sr-border-input);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .sr-sort-option {
+          display: block;
+          width: 100%;
+          padding: 10px 16px;
+          border: none;
+          background: none;
+          text-align: left;
+          font-family: inherit;
+          font-size: 13px;
+          cursor: pointer;
+        }
+
+        .sr-sort-option:hover,
+        .sr-sort-option-active {
+          background: #f7f5f2;
+        }
+
+        .sr-price-inputs {
+          display: flex;
+          gap: 8px;
+          margin-top: 12px;
+        }
+
+        .sr-price-input {
+          width: 100%;
+          padding: 8px 10px;
+          border: 1px solid var(--sr-border-input);
+          font-family: inherit;
+          font-size: 13px;
+        }
+
+        .sr-price-apply {
+          margin-top: 10px;
+          width: 100%;
+          padding: 8px 12px;
+          border: 1px solid var(--sr-black);
+          background: var(--sr-black);
+          color: var(--sr-white);
+          font-family: inherit;
+          font-size: 11px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+
+        .sr-filter-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          font-family: inherit;
+          font-size: inherit;
+          color: inherit;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          text-align: left;
+        }
+
+        .sr-mobile-filter-overlay {
+          display: none;
+        }
+
         .sr-sort-btn strong {
           font-weight: 600;
         }
@@ -574,6 +788,11 @@ export default function SearchResults() {
           padding: 0;
           display: flex;
           align-items: center;
+        }
+
+        .sr-wishlist-btn:hover,
+        .sr-wishlist-btn-active {
+          color: #c8815f;
         }
 
         .sr-price-row {
@@ -910,6 +1129,35 @@ export default function SearchResults() {
             display: none;
           }
 
+          .sr-sidebar-mobile-open {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: min(320px, 88vw);
+            z-index: 100;
+            background: var(--sr-white);
+            padding: 24px 20px;
+            overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+          }
+
+          .sr-mobile-filter-overlay {
+            display: block;
+            position: fixed;
+            inset: 0;
+            z-index: 99;
+            background: rgba(0, 0, 0, 0.4);
+            border: none;
+            cursor: pointer;
+          }
+
+          .sr-mobile-sort-wrap {
+            position: relative;
+            flex: 1.4;
+          }
+
           .sr-product-grid {
             display: none;
           }
@@ -1064,8 +1312,14 @@ export default function SearchResults() {
               <a href={NAV_ROUTES.CONTACT} className="sr-nav-link">CONTACT</a>
             </nav>
             <div className="sr-header-actions">
-              <form className="sr-search-wrap" onSubmit={(e) => { e.preventDefault(); window.location.href = ROUTES.search; }}>
-                <input type="search" defaultValue="Rings" className="sr-search-input" aria-label="Search" />
+              <form className="sr-search-wrap" onSubmit={handleSearchSubmit}>
+                <input
+                  type="search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  className="sr-search-input"
+                  aria-label="Search"
+                />
                 <button type="submit" aria-label="Search" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}>
                   <SearchIcon />
                 </button>
@@ -1084,7 +1338,19 @@ export default function SearchResults() {
         <header className="sr-header-mobile">
           <div className="sr-mobile-header-row">
             <div className="sr-mobile-search">
-              <input type="search" placeholder="Search" aria-label="Search" />
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search"
+                aria-label="Search"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSearchSubmit(event);
+                  }
+                }}
+              />
               <SearchIcon />
             </div>
             <button type="button" className="sr-mobile-menu-btn" aria-label="Menu">
@@ -1096,47 +1362,96 @@ export default function SearchResults() {
 
         <main className="sr-main">
           <p className="sr-breadcrumbs">
-            <a href={ROUTES.home}>Home</a> &gt; <a href={ROUTES.search}>Products</a> &gt; <span>Rings</span>
+            <a href={ROUTES.home}>Home</a> &gt; <a href={searchPath()}>Products</a> &gt; <span>{displayQuery}</span>
           </p>
 
           <h1 className="sr-page-title">
-            Showing product for <em>&apos;Rings&apos;</em>
-            <span className="sr-page-title-count"> (24 Products)</span>
+            Showing product for <em>&apos;{displayQuery}&apos;</em>
+            <span className="sr-page-title-count"> ({productCount} Products)</span>
           </h1>
-          <p className="sr-page-title-count-mobile">(124 Products)</p>
+          <p className="sr-page-title-count-mobile">({productCount} Products)</p>
+
+          {error && <p style={{ color: '#b91c1c', marginBottom: '16px' }}>{error}</p>}
 
           <div className="sr-toolbar">
             <span className="sr-filters-label">FILTERS</span>
-            <button type="button" className="sr-sort-btn">
-              Short by: <strong>Recommended</strong>
-              <ChevronDownIcon />
-            </button>
+            <div className="sr-sort-wrap">
+              <button type="button" className="sr-sort-btn" onClick={() => setSortMenuOpen((open) => !open)}>
+                Sort by: <strong>{getSortLabel(sort)}</strong>
+                <ChevronDownIcon />
+              </button>
+              {sortMenuOpen && (
+                <div className="sr-sort-menu">
+                  {SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`sr-sort-option ${sort === option.value ? 'sr-sort-option-active' : ''}`}
+                      onClick={() => handleSortChange(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="sr-mobile-controls">
-            <button type="button" className="sr-mobile-filter-btn">
+            <button type="button" className="sr-mobile-filter-btn" onClick={handleOpenMobileFilters}>
               Filters
               <FilterIcon />
             </button>
-            <button type="button" className="sr-mobile-sort-btn">
-              <span>Short by: <strong>Recommended</strong></span>
-              <ChevronDownIcon />
-            </button>
+            <div className="sr-mobile-sort-wrap">
+              <button type="button" className="sr-mobile-sort-btn" onClick={() => setMobileSortOpen((open) => !open)}>
+                <span>Sort by: <strong>{getSortLabel(sort)}</strong></span>
+                <ChevronDownIcon />
+              </button>
+              {mobileSortOpen && (
+                <div className="sr-sort-menu">
+                  {SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`sr-sort-option ${sort === option.value ? 'sr-sort-option-active' : ''}`}
+                      onClick={() => handleSortChange(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
+          {mobileFiltersOpen && (
+            <button
+              type="button"
+              className="sr-mobile-filter-overlay"
+              aria-label="Close filters"
+              onClick={() => setMobileFiltersOpen(false)}
+            />
+          )}
+
           <div className="sr-content-row">
-            <aside className="sr-sidebar">
+            <aside ref={filtersRef} className={`sr-sidebar ${mobileFiltersOpen ? 'sr-sidebar-mobile-open' : ''}`}>
               <div className="sr-filter-section">
                 <h2 className="sr-filter-heading">CATEGORIES</h2>
                 <ul className="sr-filter-list">
                   {categories.map((cat) => (
-                    <li key={cat.label} className="sr-filter-item">
-                      <span className={`sr-checkbox ${cat.checked ? 'sr-checkbox-checked' : ''}`}>
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                      {cat.label} <span className="sr-filter-count">({cat.count} items)</span>
+                    <li key={cat._id || cat.slug} className="sr-filter-item">
+                      <button
+                        type="button"
+                        className="sr-filter-btn"
+                        onClick={() => handleCategoryChange(cat._id)}
+                      >
+                        <span className={`sr-checkbox ${categoryFilter === cat._id ? 'sr-checkbox-checked' : ''}`}>
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        {cat.name}
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -1145,53 +1460,125 @@ export default function SearchResults() {
               <div className="sr-filter-section">
                 <h2 className="sr-filter-heading">PRICE</h2>
                 <ul className="sr-filter-list">
-                  {priceRanges.map((range) => (
-                    <li key={range.label} className="sr-filter-item">
-                      <span className={`sr-checkbox ${range.checked ? 'sr-checkbox-checked' : ''}`}>
-                        <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                          <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                      {range.label}
+                  {PRICE_RANGES.map((range) => (
+                    <li key={range.id} className="sr-filter-item">
+                      <button
+                        type="button"
+                        className="sr-filter-btn"
+                        onClick={() => handlePriceRangeChange(range.id)}
+                      >
+                        <span className={`sr-checkbox ${priceRangeId === range.id ? 'sr-checkbox-checked' : ''}`}>
+                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                        {range.label}
+                      </button>
                     </li>
                   ))}
                 </ul>
+                <div className="sr-price-inputs">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Min"
+                    className="sr-price-input"
+                    value={customMinPrice}
+                    onChange={(event) => setCustomMinPrice(event.target.value)}
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Max"
+                    className="sr-price-input"
+                    value={customMaxPrice}
+                    onChange={(event) => setCustomMaxPrice(event.target.value)}
+                  />
+                </div>
+                <button type="button" className="sr-price-apply" onClick={handleApplyCustomPrice}>
+                  Apply Price
+                </button>
               </div>
 
-              <div className="sr-filter-section">
-                <h2 className="sr-filter-heading">COLOR</h2>
-                <div className="sr-color-swatches">
-                  <span className="sr-color-swatch sr-color-swatch-gray" aria-label="Gray" />
-                  <span className="sr-color-swatch sr-color-swatch-gold sr-color-swatch-selected" aria-label="Gold" />
-                </div>
-              </div>
+              {/* Color filter hidden — backend does not support metalColor filtering on public products yet */}
             </aside>
 
             <div className="sr-grid-wrap">
-              <div className="sr-product-grid">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} variant="desktop" />
-                ))}
-              </div>
+              {loading ? (
+                <p style={{ padding: '24px 0', color: '#767676' }}>Loading products...</p>
+              ) : products.length === 0 ? (
+                <p style={{ padding: '24px 0', color: '#767676' }}>No products found for your search.</p>
+              ) : (
+                <>
+                  <div className="sr-product-grid">
+                    {products.map((product) => (
+                      <ProductCard key={product._id} product={product} variant="desktop" />
+                    ))}
+                  </div>
 
-              <div className="sr-product-grid-mobile">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} variant="mobile" />
-                ))}
-              </div>
+                  <div className="sr-product-grid-mobile">
+                    {products.map((product) => (
+                      <ProductCard key={product._id} product={product} variant="mobile" />
+                    ))}
+                  </div>
+                </>
+              )}
 
               <nav className="sr-pagination" aria-label="Pagination">
-                <button type="button" className="sr-page-btn sr-page-btn-prev">
+                <button
+                  type="button"
+                  className="sr-page-btn sr-page-btn-prev"
+                  disabled={!pagination?.hasPrevPage}
+                  onClick={() => {
+                    setPage((current) => current - 1);
+                    setLoading(true);
+                  }}
+                >
                   &lt; Previous
                 </button>
-                <div className="sr-page-numbers">
-                  <button type="button" className="sr-page-num sr-page-num-active">1</button>
-                  <button type="button" className="sr-page-num">2</button>
-                  <button type="button" className="sr-page-num">3</button>
-                  <span className="sr-page-num">...</span>
-                  <button type="button" className="sr-page-num">10</button>
-                </div>
-                <button type="button" className="sr-page-btn sr-page-btn-next">
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="sr-page-numbers">
+                    {Array.from({ length: pagination.totalPages }, (_, index) => index + 1)
+                      .filter((num) =>
+                        num === 1 ||
+                        num === pagination.totalPages ||
+                        Math.abs(num - page) <= 1
+                      )
+                      .reduce((acc, num, index, arr) => {
+                        if (index > 0 && num - arr[index - 1] > 1) {
+                          acc.push('…');
+                        }
+                        acc.push(num);
+                        return acc;
+                      }, [])
+                      .map((num, index) =>
+                        num === '…' ? (
+                          <span key={`ellipsis-${index}`} className="sr-page-num">…</span>
+                        ) : (
+                          <button
+                            key={num}
+                            type="button"
+                            className={`sr-page-num ${num === page ? 'sr-page-num-active' : ''}`}
+                            onClick={() => {
+                              setPage(num);
+                              setLoading(true);
+                            }}
+                          >
+                            {num}
+                          </button>
+                        )
+                      )}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="sr-page-btn sr-page-btn-next"
+                  disabled={!pagination?.hasNextPage}
+                  onClick={() => {
+                    setPage((current) => current + 1);
+                    setLoading(true);
+                  }}
+                >
                   Next &gt;
                 </button>
               </nav>
@@ -1227,25 +1614,25 @@ export default function SearchResults() {
             <div className="sr-footer-bottom">
               <p>©2026 ZIVORA. ALL RIGHTS RESERVED</p>
               <div className="sr-footer-legal">
-                <a href={ROUTES.home}>PRIVACY POLICY</a>
-                <a href={ROUTES.home}>TERMS OF USES</a>
+                <a href="/privacy-policy">PRIVACY POLICY</a>
+                <a href="/terms-of-use">TERMS OF USE</a>
               </div>
               <div className="sr-footer-social">
-                <a href={ROUTES.home} aria-label="Instagram"><InstagramIcon /></a>
-                <a href={ROUTES.home} aria-label="TikTok"><TikTokIcon /></a>
-                <a href={ROUTES.home} aria-label="Facebook"><FacebookIcon /></a>
+                <a href="#" aria-label="Instagram"><InstagramIcon /></a>
+                <a href="#" aria-label="TikTok"><TikTokIcon /></a>
+                <a href="#" aria-label="Facebook"><FacebookIcon /></a>
               </div>
             </div>
 
             <div className="sr-footer-bottom-mobile">
               <div className="sr-footer-social-mobile">
-                <a href={ROUTES.home} aria-label="Instagram"><InstagramIcon /></a>
-                <a href={ROUTES.home} aria-label="TikTok"><TikTokIcon /></a>
-                <a href={ROUTES.home} aria-label="Facebook"><FacebookIcon /></a>
+                <a href="#" aria-label="Instagram"><InstagramIcon /></a>
+                <a href="#" aria-label="TikTok"><TikTokIcon /></a>
+                <a href="#" aria-label="Facebook"><FacebookIcon /></a>
               </div>
               <div className="sr-footer-legal-mobile">
-                <a href={ROUTES.home}>PRIVACY POLICY</a>
-                <a href={ROUTES.home}>TERMS OF USES</a>
+                <a href="/privacy-policy">PRIVACY POLICY</a>
+                <a href="/terms-of-use">TERMS OF USE</a>
               </div>
               <p className="sr-footer-copyright-mobile">©2026 ZIVORA. ALL RIGHTS RESERVED</p>
             </div>

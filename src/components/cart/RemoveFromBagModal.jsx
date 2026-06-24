@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import SafeImage from '../SafeImage.jsx';
+import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
 
 function CloseIcon() {
   return (
@@ -37,7 +39,7 @@ export default function RemoveFromBagModal({ item, onClose, onRemove, onMoveToWi
         <p className="cart-remove-text">Are you sure you want to move this item from bag?</p>
 
         <div className="cart-remove-product">
-          <img src={item.image} alt={item.title} className="cart-remove-image" />
+          <SafeImage src={item.image || PLACEHOLDER_IMAGE} alt={item.title} className="cart-remove-image" />
           <div className="cart-remove-details">
             <p className="cart-remove-name">{item.title}</p>
             <p className="cart-remove-material">{item.material}</p>

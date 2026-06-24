@@ -1,0 +1,156 @@
+.buy-now-modal {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.buy-now-modal-body {
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.buy-now-product-summary {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+
+.buy-now-product-image {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.buy-now-product-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.buy-now-product-title {
+  margin: 0 0 8px;
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #111;
+}
+
+.buy-now-product-meta {
+  margin: 0 0 8px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #767676;
+}
+
+.buy-now-product-price {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #967259;
+}
+
+.buy-now-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.buy-now-section-title {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #767676;
+}
+
+.buy-now-link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #967259;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.buy-now-link-btn:hover {
+  color: #c8815f;
+}
+
+.buy-now-address-card {
+  padding: 14px 16px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+.buy-now-address-name {
+  margin: 0 0 6px;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.buy-now-address-line {
+  margin: 0 0 4px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #555;
+}
+
+.buy-now-address-select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e5e5;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+}
+
+.buy-now-muted {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #767676;
+}
+
+.buy-now-total-section {
+  padding-top: 4px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.buy-now-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+.buy-now-total-row-strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.buy-now-payment-note {
+  margin: 8px 0 0;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: #767676;
+}
+
+.buy-now-place-order-btn {
+  width: 100%;
+}

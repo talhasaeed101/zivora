@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon } from '../icons';
+import { EMPTY_ADDRESS_FORM } from '../../utils/addresses.js';
 
 const PROVINCES = [
   'Punjab',
@@ -31,48 +32,48 @@ function PakistanFlag() {
   );
 }
 
-const EMPTY_FORM = {
-  name: '',
-  email: '',
-  phone: '',
-  province: '',
-  city: '',
-  street: '',
-  postalCode: '',
-};
-
-export default function DeliveryAddressModal({ isOpen, address, onClose, onSave }) {
-  const [form, setForm] = useState(EMPTY_FORM);
+export default function DeliveryAddressModal({
+  isOpen,
+  address,
+  onClose,
+  onSave,
+  saving = false,
+  error = '',
+}) {
+  const [form, setForm] = useState(EMPTY_ADDRESS_FORM);
 
   useEffect(() => {
     if (isOpen) {
       setForm({
-        name: address.name || '',
-        email: address.email || '',
-        phone: address.phone?.replace(/^\(\d{3}\)\s?/, '') || '',
-        province: address.province || '',
-        city: address.city || '',
-        street: address.street || '',
-        postalCode: address.postalCode || '',
+        name: address?.name || '',
+        email: address?.email || '',
+        phone: address?.phone || '',
+        province: address?.province || '',
+        city: address?.city || '',
+        street: address?.street || '',
+        postalCode: address?.postalCode || '',
       });
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
+
     return () => {
       document.body.style.overflow = '';
     };
   }, [isOpen, address]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave({
+    await onSave({
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
@@ -81,8 +82,9 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
       street: form.street.trim(),
       postalCode: form.postalCode.trim(),
     });
-    onClose();
   };
+
+  const title = address?.id ? 'Update Delivery Address' : 'Add Delivery Address';
 
   return (
     <div className="cart-modal-overlay" onClick={onClose} role="presentation">
@@ -94,11 +96,13 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
         aria-labelledby="address-modal-title"
       >
         <div className="cart-modal-header">
-          <h2 id="address-modal-title" className="cart-modal-title">Add Delivery Address</h2>
+          <h2 id="address-modal-title" className="cart-modal-title">{title}</h2>
           <button type="button" className="cart-modal-close" onClick={onClose} aria-label="Close">
             <CloseIcon />
           </button>
         </div>
+
+        {error && <p className="cart-modal-error">{error}</p>}
 
         <form className="cart-address-form" onSubmit={handleSubmit}>
           <div className="cart-form-group">
@@ -111,6 +115,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
               value={form.name}
               onChange={handleChange('name')}
               required
+              disabled={saving}
             />
           </div>
 
@@ -125,6 +130,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
                 value={form.email}
                 onChange={handleChange('email')}
                 required
+                disabled={saving}
               />
             </div>
             <div className="cart-form-group">
@@ -143,6 +149,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
                   value={form.phone}
                   onChange={handleChange('phone')}
                   required
+                  disabled={saving}
                 />
               </div>
             </div>
@@ -158,6 +165,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
                   value={form.province}
                   onChange={handleChange('province')}
                   required
+                  disabled={saving}
                 >
                   <option value="" disabled>Select Province</option>
                   {PROVINCES.map((p) => (
@@ -177,6 +185,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
                 value={form.city}
                 onChange={handleChange('city')}
                 required
+                disabled={saving}
               />
             </div>
           </div>
@@ -191,6 +200,7 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
               value={form.street}
               onChange={handleChange('street')}
               required
+              disabled={saving}
             />
           </div>
 
@@ -204,10 +214,13 @@ export default function DeliveryAddressModal({ isOpen, address, onClose, onSave 
               value={form.postalCode}
               onChange={handleChange('postalCode')}
               required
+              disabled={saving}
             />
           </div>
 
-          <button type="submit" className="cart-modal-primary-btn">Save Address</button>
+          <button type="submit" className="cart-modal-primary-btn" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Address'}
+          </button>
         </form>
       </div>
     </div>

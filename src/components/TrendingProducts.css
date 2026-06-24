@@ -123,8 +123,9 @@
   transition: color 0.25s ease;
 }
 
-.trending-wishlist-btn:hover {
-  color: #000;
+.trending-wishlist-btn:hover,
+.trending-wishlist-btn-active {
+  color: #c8815f;
 }
 
 .trending-price-row {

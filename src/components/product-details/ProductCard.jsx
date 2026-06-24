@@ -1,36 +1,34 @@
-import { useState } from 'react';
-import { HeartIcon } from '../icons';
-import { ROUTES } from '../../utils/navigation';
+import WishlistButton from '../WishlistButton.jsx';
+import SafeImage from '../SafeImage.jsx';
+import { productPath } from '../../utils/navigation';
+import { mapProductForCard } from '../../utils/products.js';
 
 export default function ProductCard({ product, variant = 'slider' }) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const cardProduct = product.slug ? mapProductForCard(product) : product;
+  const href = cardProduct.slug ? productPath(cardProduct.slug) : productPath();
+  const productId = product._id || cardProduct.id;
 
   return (
-    <a href={ROUTES.product} className="pd-product-card-link">
+    <a href={href} className="pd-product-card-link">
       <article className={`pd-product-card ${variant === 'mobile' ? 'pd-product-card-mobile' : ''}`}>
       <div className="pd-product-card-image-wrap">
-        <img src={product.image} alt={product.name} className="pd-product-card-image" />
-        {product.showSale && <span className="pd-product-card-sale">Sale!</span>}
+        <SafeImage src={cardProduct.image} alt={cardProduct.name} className="pd-product-card-image" />
+        {cardProduct.showSale && <span className="pd-product-card-sale">Sale!</span>}
         {variant === 'mobile' && (
           <div className="pd-product-card-overlay">
             <div className="pd-product-card-info-row">
-              <h3 className="pd-product-card-name">{product.name}</h3>
-              <button
-                type="button"
-                className={`pd-product-card-wishlist ${wishlisted ? 'pd-product-card-wishlist-active' : ''}`}
-                aria-label="Add to wishlist"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setWishlisted(!wishlisted);
-                }}
-              >
-                <HeartIcon className="w-4 h-4" />
-              </button>
+              <h3 className="pd-product-card-name">{cardProduct.name}</h3>
+              <WishlistButton
+                productId={productId}
+                className="pd-product-card-wishlist"
+                activeClassName="pd-product-card-wishlist-active"
+              />
             </div>
             <div className="pd-product-card-prices">
-              <span className="pd-product-card-price">{product.price}</span>
-              <span className="pd-product-card-price-old">{product.originalPrice}</span>
+              <span className="pd-product-card-price">{cardProduct.price}</span>
+              {cardProduct.originalPrice && (
+                <span className="pd-product-card-price-old">{cardProduct.originalPrice}</span>
+              )}
             </div>
           </div>
         )}
@@ -38,23 +36,18 @@ export default function ProductCard({ product, variant = 'slider' }) {
       {variant !== 'mobile' && (
         <>
           <div className="pd-product-card-info-row">
-            <h3 className="pd-product-card-name">{product.name}</h3>
-            <button
-              type="button"
-              className={`pd-product-card-wishlist ${wishlisted ? 'pd-product-card-wishlist-active' : ''}`}
-              aria-label="Add to wishlist"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setWishlisted(!wishlisted);
-              }}
-            >
-              <HeartIcon className="w-4 h-4" />
-            </button>
+            <h3 className="pd-product-card-name">{cardProduct.name}</h3>
+            <WishlistButton
+              productId={productId}
+              className="pd-product-card-wishlist"
+              activeClassName="pd-product-card-wishlist-active"
+            />
           </div>
           <div className="pd-product-card-prices">
-            <span className="pd-product-card-price">{product.price}</span>
-            <span className="pd-product-card-price-old">{product.originalPrice}</span>
+            <span className="pd-product-card-price">{cardProduct.price}</span>
+            {cardProduct.originalPrice && (
+              <span className="pd-product-card-price-old">{cardProduct.originalPrice}</span>
+            )}
           </div>
         </>
       )}

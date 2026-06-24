@@ -4,9 +4,11 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ROUTES } from '../utils/navigation';
+import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
 
 export default function Register() {
+  usePageTitle('Create Account | Zivora');
   const navigate = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
 

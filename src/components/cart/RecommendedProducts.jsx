@@ -1,47 +1,38 @@
-import { useRef, useState } from 'react';
-import { HeartIcon, ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
-import { ROUTES } from '../../utils/navigation';
-
-const PRODUCTS = [
-  { id: 1, image: '/images/stack1.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: true },
-  { id: 2, image: '/images/stack2.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: false },
-  { id: 3, image: '/images/stack3.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: true },
-  { id: 4, image: '/images/stack4.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: true },
-  { id: 5, image: '/images/stack5.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: false },
-  { id: 6, image: '/images/stack1.png', name: 'Minimal stacked rings', price: 'Rs. 1,999', originalPrice: 'Rs. 2,499', showSale: true },
-];
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import WishlistButton from '../WishlistButton.jsx';
+import SafeImage from '../SafeImage.jsx';
+import { searchPath } from '../../utils/navigation';
+import { publicCatalogApi } from '../../services/api.js';
+import { formatPrice, getProductImage, hasSale } from '../../utils/products.js';
 
 function RecommendedCard({ product }) {
-  const [wishlisted, setWishlisted] = useState(false);
+  const image = getProductImage(product);
+  const showSale = hasSale(product);
 
   return (
-    <a href={ROUTES.product} className="cart-rec-card-link">
+    <a href={`/product/${product.slug}`} className="cart-rec-card-link">
       <article className="cart-rec-card">
-      <div className="cart-rec-image-wrap">
-        <img src={product.image} alt={product.name} className="cart-rec-image" />
-        {product.showSale && <span className="cart-rec-sale">Sale!</span>}
-      </div>
-      <div className="cart-rec-info">
-        <div className="cart-rec-info-row">
-          <h3 className="cart-rec-name">{product.name}</h3>
-          <button
-            type="button"
-            className={`cart-rec-wishlist ${wishlisted ? 'cart-rec-wishlist-active' : ''}`}
-            aria-label="Add to wishlist"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setWishlisted(!wishlisted);
-            }}
-          >
-            <HeartIcon className="w-4 h-4" />
-          </button>
+        <div className="cart-rec-image-wrap">
+          <SafeImage src={image} alt={product.title} className="cart-rec-image" />
+          {showSale && <span className="cart-rec-sale">Sale!</span>}
         </div>
-        <div className="cart-rec-prices">
-          <span className="cart-rec-price">{product.price}</span>
-          <span className="cart-rec-price-old">{product.originalPrice}</span>
+        <div className="cart-rec-info">
+          <div className="cart-rec-info-row">
+            <h3 className="cart-rec-name">{product.title}</h3>
+            <WishlistButton
+              productId={product._id}
+              className="cart-rec-wishlist"
+              activeClassName="cart-rec-wishlist-active"
+            />
+          </div>
+          <div className="cart-rec-prices">
+            <span className="cart-rec-price">{formatPrice(product.price)}</span>
+            {product.oldPrice && (
+              <span className="cart-rec-price-old">{formatPrice(product.oldPrice)}</span>
+            )}
+          </div>
         </div>
-      </div>
       </article>
     </a>
   );
@@ -49,6 +40,37 @@ function RecommendedCard({ product }) {
 
 export default function RecommendedProducts() {
   const sliderRef = useRef(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    publicCatalogApi
+      .getPublicProducts({ isFeatured: true, limit: 6 })
+      .then((response) => {
+        if (isMounted) {
+          setProducts(response.data?.products || []);
+          setError('');
+        }
+      })
+      .catch((err) => {
+        if (isMounted) {
+          setProducts([]);
+          setError(err.message || 'Unable to load recommendations.');
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const scroll = (direction) => {
     if (!sliderRef.current) return;
@@ -61,24 +83,32 @@ export default function RecommendedProducts() {
     <section className="cart-recommended">
       <div className="cart-recommended-header">
         <h2 className="cart-section-title">You might also like</h2>
-        <a href={ROUTES.search} className="cart-view-all">
+        <a href={searchPath()} className="cart-view-all">
           View All <ArrowRightIcon className="w-3.5 h-3.5" />
         </a>
       </div>
 
-      <div className="cart-rec-slider-wrap">
-        <button type="button" className="cart-rec-nav cart-rec-nav-prev" onClick={() => scroll(-1)} aria-label="Previous">
-          <ChevronLeftIcon className="w-5 h-5" />
-        </button>
-        <div className="cart-rec-slider" ref={sliderRef}>
-          {PRODUCTS.map((product) => (
-            <RecommendedCard key={product.id} product={product} />
-          ))}
+      {loading ? (
+        <p className="cart-rec-state-message">Loading recommendations...</p>
+      ) : error ? (
+        <p className="cart-rec-state-message cart-rec-state-error">{error}</p>
+      ) : products.length === 0 ? (
+        <p className="cart-rec-state-message">No recommendations available right now.</p>
+      ) : (
+        <div className="cart-rec-slider-wrap">
+          <button type="button" className="cart-rec-nav cart-rec-nav-prev" onClick={() => scroll(-1)} aria-label="Previous">
+            <ChevronLeftIcon className="w-5 h-5" />
+          </button>
+          <div className="cart-rec-slider" ref={sliderRef}>
+            {products.map((product) => (
+              <RecommendedCard key={product._id} product={product} />
+            ))}
+          </div>
+          <button type="button" className="cart-rec-nav cart-rec-nav-next" onClick={() => scroll(1)} aria-label="Next">
+            <ChevronRightIcon className="w-5 h-5" />
+          </button>
         </div>
-        <button type="button" className="cart-rec-nav cart-rec-nav-next" onClick={() => scroll(1)} aria-label="Next">
-          <ChevronRightIcon className="w-5 h-5" />
-        </button>
-      </div>
+      )}
     </section>
   );
 }

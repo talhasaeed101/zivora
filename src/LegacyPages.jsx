@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import Testimonials from './components/Testimonials';
 import QuoteBanner from './components/QuoteBanner';
 import TrendingProducts from './components/TrendingProducts';
 import FeaturedCategory from './components/FeaturedCategory';
@@ -10,8 +11,9 @@ import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
 import SearchResults from './search-results';
-import ProductDetails from './pages/ProductDetails';
-import CartPage from './pages/CartPage';
+import ProductDetails from './Pages/ProductDetails.jsx';
+import CartPage from './Pages/CartPage.jsx';
+import { usePageTitle } from './hooks/usePageTitle.js';
 
 export default function LegacyPages() {
   const [page, setPage] = useState('home');
@@ -19,11 +21,11 @@ export default function LegacyPages() {
   useEffect(() => {
     const resolvePage = () => {
       const params = new URLSearchParams(window.location.search);
-      if (params.has('cart') || window.location.pathname === '/cart') {
+      if (params.has('cart')) {
         setPage('cart');
       } else if (params.has('product') || window.location.pathname === '/product') {
         setPage('product');
-      } else if (params.has('search') || window.location.pathname === '/search') {
+      } else if (params.has('search')) {
         setPage('search');
       } else {
         setPage('home');
@@ -34,6 +36,17 @@ export default function LegacyPages() {
     window.addEventListener('popstate', resolvePage);
     return () => window.removeEventListener('popstate', resolvePage);
   }, []);
+
+  const pageTitle =
+    page === 'home'
+      ? 'Zivora | Premium Jewelry'
+      : page === 'search'
+        ? 'Search | Zivora'
+        : page === 'cart'
+          ? 'Shopping Cart | Zivora'
+          : 'Zivora';
+
+  usePageTitle(pageTitle);
 
   if (page === 'cart') {
     return <CartPage />;
@@ -58,6 +71,7 @@ export default function LegacyPages() {
         <MakeItCustom />
         <PremiumBundles />
         <NewsletterOffer />
+        <Testimonials />
         <QuoteBanner />
       </main>
       <Footer />

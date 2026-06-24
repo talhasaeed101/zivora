@@ -1,37 +1,16 @@
 import { useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from './icons';
+import SafeImage from './SafeImage.jsx';
+import { AVATAR_PLACEHOLDER } from '../utils/images.js';
+import { TESTIMONIALS } from '../data/testimonials.js';
 import './Testimonials.css';
-
-const testimonials = [
-  {
-    name: 'Jenny Wilson',
-    avatar: '/images/testimonial-jenny-wilson.png',
-    rating: 4,
-    quote:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-  },
-  {
-    name: 'Sarah Mitchell',
-    avatar: '/images/testimonial-sarah-mitchell.png',
-    rating: 5,
-    quote:
-      'The craftsmanship is absolutely stunning. Every piece feels luxurious and timeless.',
-  },
-  {
-    name: 'Emily Chen',
-    avatar: '/images/testimonial-emily-chen.png',
-    rating: 4,
-    quote:
-      'Beautiful jewelry with exceptional attention to detail. Highly recommend.',
-  },
-];
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
-  const t = testimonials[current];
+  const t = TESTIMONIALS[current];
 
-  const prev = () => setCurrent((c) => (c === 0 ? testimonials.length - 1 : c - 1));
-  const next = () => setCurrent((c) => (c === testimonials.length - 1 ? 0 : c + 1));
+  const prev = () => setCurrent((c) => (c === 0 ? TESTIMONIALS.length - 1 : c - 1));
+  const next = () => setCurrent((c) => (c === TESTIMONIALS.length - 1 ? 0 : c + 1));
 
   return (
     <section id="testimonials" className="testimonial-section">
@@ -43,7 +22,7 @@ export default function Testimonials() {
 
           <div className="testimonial-content-block">
             <div className="testimonial-profile-row">
-              <img src={t.avatar} alt={t.name} className="testimonial-avatar" />
+              <SafeImage src={AVATAR_PLACEHOLDER} alt={t.name} className="testimonial-avatar" />
               <div className="testimonial-profile-meta">
                 <div className="testimonial-stars-row">
                   {[...Array(5)].map((_, i) => (

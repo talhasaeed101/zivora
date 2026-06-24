@@ -83,6 +83,7 @@
 }
 
 .navbar-cart-btn {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -99,6 +100,22 @@
 
 .navbar-cart-btn:hover {
   background-color: #333;
+}
+
+.navbar-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #967259;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
 }
 
 .navbar-user-btn {
@@ -121,6 +138,7 @@
 }
 
 .navbar-wishlist-btn {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -138,6 +156,23 @@
 .navbar-wishlist-btn:hover {
   color: #c8815f;
   border-color: #c8815f;
+}
+
+.navbar-wishlist-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #967259;
+  color: #fff;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
 }
 
 .navbar-mobile-toggle {
@@ -165,6 +200,35 @@
   flex-direction: column;
   gap: 16px;
   background: #fff;
+}
+
+.navbar-mobile-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 12px;
+}
+
+.navbar-mobile-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 12px 0;
+  background: transparent;
+}
+
+.navbar-mobile-search-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  color: inherit;
 }
 
 .navbar-mobile-menu-open {

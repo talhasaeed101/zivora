@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, HeartIcon } from '../icons';
+import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import WishlistButton from '../WishlistButton.jsx';
+import SafeImage from '../SafeImage.jsx';
+import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
 
-export default function ProductGallery({ images }) {
+export default function ProductGallery({ images, title = 'Product image', productId }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
 
-  const displayImages = images.length ? images : ['/images/stack1.png'];
+  const displayImages = images?.length ? images : [PLACEHOLDER_IMAGE];
 
   const prev = () => {
     setCurrentIndex((i) => (i === 0 ? displayImages.length - 1 : i - 1));
@@ -20,19 +22,17 @@ export default function ProductGallery({ images }) {
   return (
     <div className="pd-gallery">
       <div className="pd-gallery-main-wrap">
-        <img
+        <SafeImage
           src={displayImages[currentIndex]}
-          alt="Minimal Stacked Rings"
+          alt={title}
           className="pd-gallery-main-image"
         />
-        <button
-          type="button"
-          className={`pd-gallery-wishlist ${wishlisted ? 'pd-gallery-wishlist-active' : ''}`}
-          aria-label="Add to wishlist"
-          onClick={() => setWishlisted(!wishlisted)}
-        >
-          <HeartIcon className="w-4 h-4" />
-        </button>
+        <WishlistButton
+          productId={productId}
+          className="pd-gallery-wishlist"
+          activeClassName="pd-gallery-wishlist-active"
+          stopPropagation={false}
+        />
       </div>
 
       <div className="pd-gallery-nav">

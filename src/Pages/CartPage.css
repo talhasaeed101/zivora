@@ -198,7 +198,7 @@
 }
 
 .cart-modal {
-  background: var(--cart-white);
+  background:#ffffff;
   width: 100%;
   max-width: 560px;
   max-height: calc(100vh - 48px);
@@ -650,6 +650,41 @@
   color: var(--cart-gray);
 }
 
+.cart-empty-title {
+  font-family: Teneka, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--cart-black);
+  margin: 0 0 12px;
+}
+
+.cart-empty-text {
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--cart-gray);
+}
+
+.cart-auth-message,
+.cart-error-message,
+.cart-loading-message {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  margin: 0 0 20px;
+  color: var(--cart-gray);
+}
+
+.cart-error-message {
+  color: #b91c1c;
+}
+
+.cart-auth-message a {
+  color: var(--cart-gold);
+  text-decoration: none;
+  font-weight: 500;
+}
+
 .cart-empty-link {
   display: inline-block;
   margin-top: 16px;
@@ -801,6 +836,69 @@
   background: var(--cart-gold-hover);
 }
 
+.cart-checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cart-checkout-error {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #b91c1c;
+  margin: 0 0 12px;
+}
+
+.cart-checkout-success {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #047857;
+  margin: 0 0 12px;
+}
+
+.cart-delivery-empty {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cart-delivery-empty-text {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  color: var(--cart-gray);
+}
+
+.cart-address-select-wrap {
+  margin-top: 16px;
+}
+
+.cart-address-select-label {
+  display: block;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cart-gray);
+  margin-bottom: 8px;
+}
+
+.cart-address-select {
+  width: 100%;
+  max-width: 420px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--cart-border-input);
+  background: #fff;
+  color: #000;
+}
+
+.cart-modal-error {
+  color: #b91c1c;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
 .cart-rec-card-link {
   text-decoration: none;
   color: inherit;
@@ -824,6 +922,18 @@
   align-items: flex-end;
   justify-content: space-between;
   margin-bottom: 40px;
+}
+
+.cart-rec-state-message {
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  color: #767676;
+  margin: 0;
+  padding: 24px 0;
+}
+
+.cart-rec-state-error {
+  color: #b42318;
 }
 
 .cart-section-title {
