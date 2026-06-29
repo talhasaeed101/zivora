@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Testimonials from './components/Testimonials';
-import QuoteBanner from './components/QuoteBanner';
 import TrendingProducts from './components/TrendingProducts';
 import FeaturedCategory from './components/FeaturedCategory';
 import MakeItCustom from './components/MakeItCustom';
@@ -72,7 +71,6 @@ export default function LegacyPages() {
         <PremiumBundles />
         <NewsletterOffer />
         <Testimonials />
-        <QuoteBanner />
       </main>
       <Footer />
     </>
