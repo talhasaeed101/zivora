@@ -66,7 +66,7 @@
 .featured-image-zone {
   position: absolute;
   top: 50%;
-  right: 30%;
+  right: 15%;
   transform: translateY(-50%);
   display: flex;
   justify-content: center;
@@ -80,7 +80,6 @@
   height: 552px;
   border-radius: 300px;
   overflow: hidden;
-  transform: rotate(15deg);
   position: relative;
 }
 
@@ -90,7 +89,6 @@
   object-fit: cover;
   display: block;
   background-color: #2a2a2a;
-  transform: rotate(15deg) scale(1.3);
 }
 
 .featured-circular-badge-container {
@@ -191,11 +189,10 @@
     width: 260px;
     height: 380px;
     border-radius: 180px;
-    transform: rotate(10deg);
   }
 
   .featured-organic-image {
-    transform: rotate(10deg) scale(1.2);
+    /* No transform needed */
   }
 
   .featured-category-name {

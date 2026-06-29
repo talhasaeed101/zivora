@@ -1,7 +1,6 @@
 import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
-import { MARKETING_IMAGE } from '../utils/images.js';
 
 const SHOP_BADGE = (
   <>
@@ -41,7 +40,7 @@ export default function Hero() {
           <div className="hero-left-column-1">
             <div className="hero-pill-image-wrapper">
               <SafeImage
-                src={MARKETING_IMAGE}
+                src="/images/image 1 (3).png"
                 alt="Zivora jewelry collection"
                 className="hero-pill-image"
               />
@@ -75,7 +74,7 @@ export default function Hero() {
             </div>
             <div className="hero-collection-thumbnails-container">
               <SafeImage
-                src={MARKETING_IMAGE}
+                src="/images/image 2.png"
                 alt="Collection preview"
                 className="hero-collection-thumbnails-image"
               />
@@ -86,7 +85,7 @@ export default function Hero() {
         <div className="hero-right-zone-container">
           <div className="hero-arch-image-wrapper">
             <SafeImage
-              src={MARKETING_IMAGE}
+              src="/images/image 3.png"
               alt="Featured jewelry"
               className="hero-arch-image"
             />
@@ -104,7 +103,7 @@ export default function Hero() {
             <div className="hero-left-column-1">
               <div className="hero-pill-image-wrapper">
                 <SafeImage
-                  src={MARKETING_IMAGE}
+                  src="/images/image 1 (3).png"
                   alt="Zivora jewelry collection"
                   className="hero-pill-image"
                 />
@@ -151,7 +150,7 @@ export default function Hero() {
             </a>
             <div className="hero-collection-thumbnails-container">
               <SafeImage
-                src={MARKETING_IMAGE}
+                src="/images/image 2.png"
                 alt="Collection preview"
                 className="hero-collection-thumbnails-image"
               />
@@ -159,7 +158,7 @@ export default function Hero() {
           </div>
           <div className="hero-arch-image-wrapper">
             <SafeImage
-              src={MARKETING_IMAGE}
+              src="/images/image 3.png"
               alt="Featured jewelry"
               className="hero-arch-image"
             />

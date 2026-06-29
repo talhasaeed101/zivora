@@ -47,7 +47,7 @@ export default function TrendingProducts() {
         <div className="trending-header-row">
           <h2 className="trending-heading">Trending</h2>
           <a href={searchPath()} className="trending-view-all-link">
-            View All <ArrowRightIcon className="w-3.5 h-3.5" />
+            View All -&gt;
           </a>
         </div>
 
