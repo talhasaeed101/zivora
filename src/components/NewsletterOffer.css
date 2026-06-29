@@ -1,32 +1,43 @@
 .offer-section {
   position: relative;
   width: 100%;
-  min-height: 280px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f7f0e8 0%, #efe2d4 50%, #e8d5c4 100%);
+  min-height: 480px;
+  background: url('/images/BG.png') center/cover no-repeat;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 64px 24px;
+  justify-content: flex-start;
+  padding: 64px 8%;
 }
 
 .offer-content {
-  max-width: 640px;
-  text-align: center;
+  max-width: 480px;
+  text-align: left;
 }
 
-.offer-kicker {
+.offer-label-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.offer-label-line {
+  flex: 0 0 30px;
+  height: 1px;
+  background-color: #000;
+}
+
+.offer-label-text {
   font-family: Inter, sans-serif;
   font-size: 12px;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: #967259;
-  margin: 0 0 12px;
+  color: #000;
 }
 
 .offer-heading {
   font-family: Teneka, serif;
-  font-size: 42px;
+  font-size: 48px;
   font-weight: 400;
   color: #000;
   margin: 0 0 16px;
@@ -36,22 +47,63 @@
 .offer-text {
   font-family: Inter, sans-serif;
   font-size: 16px;
-  line-height: 1.7;
-  color: #555;
-  margin: 0;
+  color: #333;
+  margin: 0 0 32px;
+}
+
+.offer-form {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.offer-input {
+  flex: 1;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 30px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  outline: none;
+  background-color: #fff;
+}
+
+.offer-submit-btn {
+  padding: 14px 32px;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.offer-submit-btn:hover {
+  background-color: #333;
 }
 
 @media (max-width: 768px) {
   .offer-section {
-    min-height: 240px;
-    padding: 48px 20px;
+    padding: 64px 24px;
+    justify-content: center;
+    background-position: left center;
   }
-
+  .offer-content {
+    text-align: center;
+  }
+  .offer-label-row {
+    justify-content: center;
+  }
   .offer-heading {
-    font-size: 28px;
+    font-size: 36px;
   }
-
-  .offer-text {
-    font-size: 14px;
+  .offer-form {
+    flex-direction: column;
+  }
+  .offer-input, .offer-submit-btn {
+    width: 100%;
   }
 }

@@ -22,7 +22,7 @@ export default function MakeItCustom() {
         <div className="custom-image-grid">
           <div className="custom-left-image-block">
             <SafeImage
-              src={MARKETING_IMAGE}
+              src="/images/necklace image 1.png"
               alt="Minimal necklace close-up"
               className="custom-grid-image"
             />
@@ -41,7 +41,7 @@ export default function MakeItCustom() {
             <div className="custom-right-top-block">
               <a href={ROUTES.collection} className="custom-overlay-link">
                 <SafeImage
-                  src={MARKETING_IMAGE}
+                  src="/images/Minimal Rings.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
                 />
@@ -59,7 +59,7 @@ export default function MakeItCustom() {
             <div className="custom-right-bottom-block">
               <a href={ROUTES.collection} className="custom-overlay-link">
                 <SafeImage
-                  src={MARKETING_IMAGE}
+                  src="/images/Rectangle 3298.png"
                   alt="Minimal earrings close-up"
                   className="custom-grid-image"
                 />
