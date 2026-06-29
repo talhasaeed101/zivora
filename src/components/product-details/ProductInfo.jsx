@@ -6,6 +6,7 @@ import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
 import { formatPrice } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { productNeedsRingSize } from '../../utils/categories.js';
+import { trackAddToCart } from '../../utils/analytics.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
@@ -97,6 +98,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         metalColor: color,
       });
       setCartMessage({ type: 'success', text: 'Added to cart successfully.' });
+      trackAddToCart(product._id);
     } catch (error) {
       setCartMessage({ type: 'error', text: error.message || 'Failed to add item to cart.' });
     } finally {

@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ROUTES } from '../utils/navigation';
+import { publicEngagementApi } from '../services/api.js';
 import './Contact.css';
 
 export default function Contact() {
@@ -10,14 +11,26 @@ export default function Contact() {
 
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
+    setError('');
+    setSaving(true);
+
+    try {
+      await publicEngagementApi.submitContact(form);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message || 'Failed to send message.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -38,6 +51,7 @@ export default function Contact() {
               </div>
             ) : (
               <form className="contact-form" onSubmit={handleSubmit}>
+                {error && <p className="contact-error">{error}</p>}
                 <div className="contact-field">
                   <label htmlFor="contact-name">Name</label>
                   <input
@@ -46,6 +60,7 @@ export default function Contact() {
                     value={form.name}
                     onChange={handleChange('name')}
                     required
+                    disabled={saving}
                   />
                 </div>
                 <div className="contact-field">
@@ -56,6 +71,7 @@ export default function Contact() {
                     value={form.email}
                     onChange={handleChange('email')}
                     required
+                    disabled={saving}
                   />
                 </div>
                 <div className="contact-field">
@@ -65,10 +81,11 @@ export default function Contact() {
                     value={form.message}
                     onChange={handleChange('message')}
                     required
+                    disabled={saving}
                   />
                 </div>
-                <button type="submit" className="contact-submit">
-                  Send Message
+                <button type="submit" className="contact-submit" disabled={saving}>
+                  {saving ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             )}
@@ -81,22 +98,8 @@ export default function Contact() {
               <p className="contact-info-value">support@zivora.com</p>
             </div>
             <div className="contact-info-item">
-              <p className="contact-info-label">Business Hours</p>
-              <p className="contact-info-value">
-                Monday – Saturday: 10:00 AM – 7:00 PM
-                <br />
-                Sunday: Closed
-              </p>
-            </div>
-            <div className="contact-info-item">
-              <p className="contact-info-label">Location</p>
-              <p className="contact-info-value">
-                Zivora Studio
-                <br />
-                Main Boulevard, Gulberg III
-                <br />
-                Lahore, Pakistan
-              </p>
+              <p className="contact-info-label">Hours</p>
+              <p className="contact-info-value">Mon–Sat, 10am–6pm PKT</p>
             </div>
           </aside>
         </div>

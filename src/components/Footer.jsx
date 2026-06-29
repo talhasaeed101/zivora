@@ -1,10 +1,32 @@
+import { useState } from 'react';
 import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons';
 import { FOOTER_LINKS, ROUTES } from '../utils/navigation';
+import { publicEngagementApi } from '../services/api.js';
 import './Footer.css';
 
 const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact', 'About'];
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setMessage('');
+    setSubmitting(true);
+
+    try {
+      await publicEngagementApi.subscribeNewsletter({ email, source: 'footer' });
+      setMessage('Subscribed successfully.');
+      setEmail('');
+    } catch (err) {
+      setMessage(err.message || 'Subscription failed.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <footer id="contact" className="footer-section">
       <div className="footer-inner">
@@ -12,14 +34,21 @@ export default function Footer() {
           <a href={ROUTES.home} className="footer-logo-link">ZIVORA</a>
         </p>
 
-        <form className="footer-newsletter-form" onSubmit={(e) => e.preventDefault()}>
+        <form className="footer-newsletter-form" onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Enter Your Email Address"
             className="footer-email-input"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            disabled={submitting}
           />
-          <button type="submit" className="footer-submit-btn">Submit</button>
+          <button type="submit" className="footer-submit-btn" disabled={submitting}>
+            {submitting ? '...' : 'Submit'}
+          </button>
         </form>
+        {message && <p className="footer-newsletter-message">{message}</p>}
 
         <nav className="footer-nav-row">
           {footerLinks.map((link) => (

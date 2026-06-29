@@ -16,6 +16,7 @@ import {
 } from '../utils/products.js';
 import { FALLBACK_REVIEW_SUMMARY } from '../utils/reviews.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { trackProductView } from '../utils/analytics.js';
 import './ProductDetails.css';
 
 export default function ProductDetails() {
@@ -48,6 +49,7 @@ export default function ProductDetails() {
 
         setProduct(response.data);
         setError('');
+        trackProductView(response.data);
       })
       .catch((err) => {
         if (!isMounted) {

@@ -21,6 +21,7 @@ import Contact from './Pages/Contact.jsx';
 import CartPage from './Pages/CartPage.jsx';
 import SearchResults from './search-results.jsx';
 import LegacyPages from './LegacyPages.jsx';
+import AnalyticsTracker from './components/AnalyticsTracker.jsx';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>
+            <AnalyticsTracker />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

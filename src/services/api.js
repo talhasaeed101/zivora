@@ -167,6 +167,20 @@ export const wishlistApi = {
     }),
 };
 
+export const publicEngagementApi = {
+  submitContact: (payload) =>
+    request('/public/contact', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  subscribeNewsletter: (payload) =>
+    request('/public/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+};
+
 export const reviewApi = {
   getProductReviews: (productId, params = {}) =>
     request(`/public/products/${productId}/reviews${buildQueryString(params)}`),
