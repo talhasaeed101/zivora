@@ -50,7 +50,7 @@ export default function FeaturedCategory() {
 
   const featuredImage = resolveImageSrc(
     categories.find((category) => category.image)?.image,
-    "/images/features categoruy image 1.png"
+    PLACEHOLDER_IMAGE
   );
   const featuredDescription = categories[0]?.description;
 

@@ -66,7 +66,7 @@
 .featured-image-zone {
   position: absolute;
   top: 50%;
-  right: 10%;
+  right: 15%;
   transform: translateY(-50%);
   display: flex;
   justify-content: center;
@@ -76,9 +76,9 @@
 }
 
 .featured-organic-image-wrap {
-  width: 440px;
+  width: 380px;
   height: 552px;
-  border-radius: 50%;
+  border-radius: 300px;
   overflow: hidden;
   position: relative;
 }
@@ -186,9 +186,9 @@
   }
 
   .featured-organic-image-wrap {
-    width: 280px;
+    width: 260px;
     height: 380px;
-    border-radius: 50%;
+    border-radius: 180px;
   }
 
   .featured-organic-image {
@@ -247,7 +247,7 @@
   .featured-image-zone {
     position: absolute;
     top: 40px;
-    right: 5%;
+    right: -8px;
     transform: none;
     opacity: 1;
     z-index: 3;
@@ -255,9 +255,9 @@
   }
 
   .featured-organic-image-wrap {
-    width: 220px;
+    width: 200px;
     height: 300px;
-    border-radius: 50%;
+    border-radius: 150px;
   }
 
   .featured-circular-badge-container {
