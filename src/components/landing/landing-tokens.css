@@ -1,0 +1,28 @@
+/* Landing page design tokens — aligned with Figma Landing Page */
+.landing-page {
+  --landing-max-width: 1440px;
+  --landing-hero-max-width: 1560px;
+  --landing-section-padding-x: 80px;
+  --landing-section-padding-y: 80px;
+  --landing-color-black: #000000;
+  --landing-color-white: #ffffff;
+  --landing-color-muted: #7c7c7c;
+  --landing-color-accent: #c8815f;
+  --landing-color-accent-brown: #967259;
+  --landing-color-border: #eaeaea;
+  --landing-color-soft-bg: #f0ebe4;
+  --landing-font-display: Teneka, serif;
+  --landing-font-body: Cabin, sans-serif;
+  --landing-font-ui: Inter, sans-serif;
+  --landing-heading-size: 46px;
+  --landing-heading-size-mobile: 32px;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    --landing-section-padding-x: 16px;
+    --landing-section-padding-y: 48px;
+  }
+}

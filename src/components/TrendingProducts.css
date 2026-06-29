@@ -175,8 +175,16 @@
     gap: 32px;
   }
 
-  .trending-product-card {
-    width: 100%;
+  .trending-product-name {
+    font-family: Teneka, serif;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .trending-sale-badge {
+    font-family: Teneka, serif;
+    font-style: italic;
   }
 
   .trending-product-image-wrap {

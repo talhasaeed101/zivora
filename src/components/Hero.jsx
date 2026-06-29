@@ -2,6 +2,13 @@ import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
+const THUMBNAIL_IMAGES = [
+  '/images/stack1.png',
+  '/images/stack2.png',
+  '/images/stack3.png',
+  '/images/stack4.png',
+];
+
 const SHOP_BADGE = (
   <>
     <svg viewBox="0 0 100 100" width="120" height="120" className="hero-circular-rotating-svg" aria-hidden="true">
@@ -36,6 +43,7 @@ export default function Hero() {
           From everyday elegance to unforgettable celebrations, discover jewelry
           crafted with exceptional artistry.
         </p>
+
         <div className="hero-left-zone-container">
           <div className="hero-left-column-1">
             <div className="hero-pill-image-wrapper">
@@ -73,11 +81,14 @@ export default function Hero() {
               </svg>
             </div>
             <div className="hero-collection-thumbnails-container">
-              <SafeImage
-                src="/images/image 2.png"
-                alt="Collection preview"
-                className="hero-collection-thumbnails-image"
-              />
+              {THUMBNAIL_IMAGES.map((src, index) => (
+                <SafeImage
+                  key={src}
+                  src={src}
+                  alt={`Collection preview ${index + 1}`}
+                  className="hero-collection-thumbnail"
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -97,8 +108,8 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="mobile___hero___container">
-        <div className="mobile___hero___container_inner">
+      <div className="mobile-hero-container">
+        <div className="mobile-hero-top">
           <div className="hero-left-zone-container">
             <div className="hero-left-column-1">
               <div className="hero-pill-image-wrapper">
@@ -119,43 +130,51 @@ export default function Hero() {
               </div>
             </div>
           </div>
-          <p className="hero-tagline-text">
-            From everyday elegance to unforgettable celebrations, discover
-            jewelry crafted with exceptional artistry.
-          </p>
-        </div>
-        <div className="hero-center-zone-container">
-          <div className="hero-collection-row-container">
-            <div className="hdhdhdhdjjjjjjjjjj_12">
-              <p className="hero-collection-title-text">COLLECTION</p>
-              <div className="hero-collection-separator-line" />
-              <div className="hero-collection-arrow-icon-wrapper">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M5 12H19M19 12L12 5M19 12L12 19"
-                    stroke="black"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            </div>
+
+          <div className="mobile-hero-copy-block">
+            <p className="hero-tagline-text">
+              From everyday elegance to unforgettable celebrations, discover
+              jewelry crafted with exceptional artistry.
+            </p>
+
             <a
               href={ROUTES.collection}
-              className="hero-circular-badge-container"
+              className="hero-circular-badge-container mobile-hero-badge"
               aria-label="Shop the collection"
             >
               {SHOP_BADGE}
             </a>
-            <div className="hero-collection-thumbnails-container">
-              <SafeImage
-                src="/images/image 2.png"
-                alt="Collection preview"
-                className="hero-collection-thumbnails-image"
-              />
+
+            <div className="hero-collection-row-container mobile-collection-row">
+              <div className="hero-collection-meta-row">
+                <p className="hero-collection-title-text">COLLECTION</p>
+                <div className="hero-collection-arrow-icon-wrapper">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M5 12H19M19 12L12 5M19 12L12 19"
+                      stroke="black"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="hero-collection-thumbnails-container">
+                {THUMBNAIL_IMAGES.map((src, index) => (
+                  <SafeImage
+                    key={src}
+                    src={src}
+                    alt={`Collection preview ${index + 1}`}
+                    className="hero-collection-thumbnail"
+                  />
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+
+        <div className="mobile-hero-arch">
           <div className="hero-arch-image-wrapper">
             <SafeImage
               src="/images/image 3.png"

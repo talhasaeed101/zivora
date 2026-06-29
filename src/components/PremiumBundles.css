@@ -157,6 +157,7 @@
 @media (max-width: 768px) {
   .bundles-section {
     padding: 48px 16px;
+    background-color: #f8f6f3;
   }
 
   .bundles-heading {
@@ -177,8 +178,15 @@
     gap: 32px;
   }
 
-  .bundles-product-card {
-    width: 100%;
+  .bundles-product-name {
+    font-family: Teneka, serif;
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  .bundles-sale-badge {
+    font-family: Teneka, serif;
   }
 
   .bundles-product-image-wrap {

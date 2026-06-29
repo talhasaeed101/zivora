@@ -164,6 +164,15 @@
   color: #c8815f;
 }
 
+.footer-newsletter-message {
+  text-align: center;
+  margin: 8px auto 0;
+  font-family: Cabin, sans-serif;
+  font-size: 13px;
+  color: #c8815f;
+  max-width: 420px;
+}
+
 @media (max-width: 768px) {
   .footer-inner {
     padding: 48px 24px 24px;

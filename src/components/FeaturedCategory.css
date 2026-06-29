@@ -218,7 +218,7 @@
 
 @media (max-width: 768px) {
   .featured-section {
-    padding: 48px 16px;
+    padding: 48px 16px 56px;
   }
 
   .featured-heading {
@@ -226,27 +226,62 @@
     margin-bottom: 32px;
   }
 
+  .featured-content-grid {
+    min-height: 420px;
+  }
+
   .featured-category-link {
-    padding: 28px 0;
+    padding: 24px 0;
+    position: relative;
+    z-index: 2;
   }
 
   .featured-category-name {
-    font-size: 20px;
+    font-size: 22px;
+  }
+
+  .featured-category-description {
+    display: none;
   }
 
   .featured-image-zone {
-    right: -20px;
-    opacity: 0.75;
+    position: absolute;
+    top: 40px;
+    right: -8px;
+    transform: none;
+    opacity: 1;
+    z-index: 3;
+    pointer-events: none;
   }
 
   .featured-organic-image-wrap {
-    width: 160px;
-    height: 240px;
-    border-radius: 120px;
+    width: 200px;
+    height: 300px;
+    border-radius: 150px;
   }
 
   .featured-circular-badge-container {
-    display: none;
+    display: flex;
+    right: -24px;
+    top: 50%;
+    width: 100px;
+    height: 100px;
+    transform: translateY(-50%);
+    pointer-events: auto;
+  }
+
+  .featured-circular-badge-container:hover {
+    transform: translateY(-50%) scale(1.04);
+  }
+
+  .featured-circular-rotating-svg {
+    width: 100px;
+    height: 100px;
+  }
+
+  .featured-circular-inner-button {
+    width: 42px;
+    height: 42px;
   }
 }
 

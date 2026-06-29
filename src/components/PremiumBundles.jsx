@@ -45,7 +45,7 @@ export default function PremiumBundles() {
     <section id="bundles" className="bundles-section">
       <div className="bundles-inner">
         <div className="bundles-header-row">
-          <h2 className="bundles-heading">Premium Bundles</h2>
+          <h2 className="bundles-heading">Bundles</h2>
           <a href={searchPath()} className="bundles-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </a>

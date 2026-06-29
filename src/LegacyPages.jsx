@@ -9,6 +9,7 @@ import PremiumBundles from './components/PremiumBundles';
 import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
+import './components/landing/landing-tokens.css';
 import SearchResults from './search-results';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';
@@ -60,8 +61,8 @@ export default function LegacyPages() {
   }
 
   return (
-    <>
-      <Navbar />
+    <div className="landing-page">
+      <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
         <BrandQuote />
@@ -73,6 +74,6 @@ export default function LegacyPages() {
         <Testimonials />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

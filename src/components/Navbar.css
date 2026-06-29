@@ -12,10 +12,11 @@
   max-width: 1440px;
   margin: 0 auto;
   height: 100%;
-  /* padding: 0 80px; */
+  padding: 0 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
 }
 
 .navbar-logo {
@@ -266,34 +267,47 @@
   .navbar-logo {
     font-size: 20px;
     letter-spacing: 1px;
+    flex: 1;
   }
 
   .navbar-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
   }
 
   .navbar-search-wrap {
-    width: auto;
-    border-bottom: none;
-    padding-bottom: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
   }
 
   .navbar-search-input {
     display: none;
   }
 
-  .navbar-user-btn {
+  .navbar-user-btn,
+  .navbar-wishlist-btn,
+  .navbar-cart-btn {
     display: none;
   }
 
-  .navbar-cart-btn {
-    width: 32px;
-    height: 32px;
+  .navbar-mobile-toggle {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
   }
 
-  .navbar-mobile-toggle {
-    padding: 4px;
+  .navbar-mobile-bar {
+    width: 16px;
   }
 
   .navbar-mobile-menu {

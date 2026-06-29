@@ -1,7 +1,27 @@
 import './MakeItCustom.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
-import { MARKETING_IMAGE } from '../utils/images.js';
+
+const CUSTOM_CARDS = [
+  {
+    label: 'NECKLACES',
+    title: 'Minimal Necklace',
+    image: '/images/necklace image 1.png',
+    alt: 'Minimal necklace close-up',
+  },
+  {
+    label: 'RINGS',
+    title: 'Minimal Rings',
+    image: '/images/Minimal Rings.png',
+    alt: 'Minimal rings on hand',
+  },
+  {
+    label: 'EARRINGS',
+    title: 'Minimal Earrings',
+    image: '/images/Rectangle 3298.png',
+    alt: 'Minimal earrings close-up',
+  },
+];
 
 export default function MakeItCustom() {
   return (
@@ -18,6 +38,23 @@ export default function MakeItCustom() {
             Experience premium comfort designed to help you relax, recharge, and feel your best every day.
           </p>
         </header>
+
+        <div className="custom-mobile-stack">
+          {CUSTOM_CARDS.map((card) => (
+            <a key={card.label} href={ROUTES.collection} className="custom-overlay-card">
+              <SafeImage src={card.image} alt={card.alt} className="custom-overlay-image" />
+              <div className="custom-overlay">
+                <div className="custom-overlay-label-row">
+                  <span className="custom-overlay-line" />
+                  <span className="custom-overlay-label">{card.label}</span>
+                  <span className="custom-overlay-line" />
+                </div>
+                <h3 className="custom-overlay-title">{card.title}</h3>
+                <span className="custom-shop-btn">Shop Collection</span>
+              </div>
+            </a>
+          ))}
+        </div>
 
         <div className="custom-image-grid">
           <div className="custom-left-image-block">

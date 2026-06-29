@@ -81,8 +81,22 @@
   transition: background-color 0.2s ease;
 }
 
-.offer-submit-btn:hover {
+.offer-submit-btn:hover:not(:disabled) {
   background-color: #333;
+}
+
+.offer-feedback {
+  margin: 12px 0 0;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+}
+
+.offer-feedback-success {
+  color: #166534;
+}
+
+.offer-feedback-error {
+  color: #b91c1c;
 }
 
 @media (max-width: 768px) {
