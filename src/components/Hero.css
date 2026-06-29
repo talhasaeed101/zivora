@@ -20,7 +20,8 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 15px;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
   padding-bottom: 80px;
 }
 
@@ -55,12 +56,13 @@
 }
 
 .hero-vertical-text {
-  font-size: 120px;
+  font-size: clamp(60px, 8vw, 120px);
   font-weight: 400;
   letter-spacing: 5px;
   line-height: 1;
   color: #000;
   margin: 0;
+  white-space: nowrap;
 }
 
 .hero-center-zone-container {
@@ -82,15 +84,15 @@
 
 .hero-tagline-text {
   font-family: Teneka, serif;
-  font-size: 20px;
+  font-size: clamp(16px, 1.5vw, 20px);
   font-weight: 400;
   color: #7c7c7c;
   line-height: 1.4;
-  width: 865px;
-  max-width: 865px;
+  width: 100%;
+  max-width: 600px;
   position: absolute;
   top: 180px;
-  left: 530px;
+  left: 42%;
   margin: 0;
   z-index: 10;
 }
@@ -111,10 +113,9 @@
   margin: 0;
 }
 
-.hero-collection-separator-line {
-  width: 60px;
-  height: 1px;
-  background-color: #000;
+.hero-collection-arrow-image {
+  height: auto;
+  width: 130px;
   margin: 0 20px;
 }
 
@@ -149,7 +150,8 @@
   justify-content: flex-end;
   align-items: flex-end;
   margin-top: 120px;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .hero-arch-image-wrapper {
@@ -353,8 +355,9 @@
     gap: 10px;
   }
 
-  .hero-collection-separator-line {
-    display: none;
+  .hero-collection-arrow-image {
+    width: 60px;
+    margin: 0;
   }
 
   .hero-collection-title-text {

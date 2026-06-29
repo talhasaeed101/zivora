@@ -68,27 +68,8 @@ export default function Hero() {
         <div className="hero-center-zone-container">
           <div className="hero-collection-row-container">
             <p className="hero-collection-title-text">COLLECTION</p>
-            <div className="hero-collection-separator-line" />
             <div className="hero-collection-arrow-icon-wrapper">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M5 12H19M19 12L12 5M19 12L12 19"
-                  stroke="black"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <div className="hero-collection-thumbnails-container">
-              {THUMBNAIL_IMAGES.map((src, index) => (
-                <SafeImage
-                  key={src}
-                  src={src}
-                  alt={`Collection preview ${index + 1}`}
-                  className="hero-collection-thumbnail"
-                />
-              ))}
+              <img src="/images/pp.svg" alt="arrow" className="hero-collection-arrow-image" />
             </div>
           </div>
         </div>
@@ -149,26 +130,8 @@ export default function Hero() {
               <div className="hero-collection-meta-row">
                 <p className="hero-collection-title-text">COLLECTION</p>
                 <div className="hero-collection-arrow-icon-wrapper">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M5 12H19M19 12L12 5M19 12L12 19"
-                      stroke="black"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img src="/images/pp.svg" alt="arrow" className="hero-collection-arrow-image" />
                 </div>
-              </div>
-              <div className="hero-collection-thumbnails-container">
-                {THUMBNAIL_IMAGES.map((src, index) => (
-                  <SafeImage
-                    key={src}
-                    src={src}
-                    alt={`Collection preview ${index + 1}`}
-                    className="hero-collection-thumbnail"
-                  />
-                ))}
               </div>
             </div>
           </div>
