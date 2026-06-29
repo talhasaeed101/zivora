@@ -10,6 +10,7 @@ import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
 import './components/landing/landing-tokens.css';
+import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';

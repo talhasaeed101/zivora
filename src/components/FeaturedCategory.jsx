@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import './FeaturedCategory.css';
-import { PLACEHOLDER_IMAGE, resolveImageSrc } from '../utils/images.js';
 import SafeImage from './SafeImage.jsx';
 import { categoryPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import { SectionMessage } from './ProductSectionStates.jsx';
+
+const FEATURED_IMAGE = '/images/features categoruy image 1.png';
 
 const FALLBACK_CATEGORIES = [
   { name: 'Rings', slug: 'rings' },
@@ -48,10 +49,6 @@ export default function FeaturedCategory() {
     };
   }, []);
 
-  const featuredImage = resolveImageSrc(
-    categories.find((category) => category.image)?.image,
-    PLACEHOLDER_IMAGE
-  );
   const featuredDescription = categories[0]?.description;
 
   return (
@@ -102,7 +99,7 @@ export default function FeaturedCategory() {
           <div className="featured-image-zone">
             <div className="featured-organic-image-wrap">
               <SafeImage
-                src={featuredImage}
+                src={FEATURED_IMAGE}
                 alt={categories[0]?.name || 'Featured category'}
                 className="featured-organic-image"
               />
@@ -132,7 +129,7 @@ export default function FeaturedCategory() {
                 </defs>
                 <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#000">
                   <textPath href="#featuredCirclePath" startOffset="0%">
-                    JOIN THE COLLECTION • JOIN THE COLLECTION •
+                    SHOP THE COLLECTION • SHOP THE COLLECTION •
                   </textPath>
                 </text>
               </svg>

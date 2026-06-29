@@ -70,10 +70,15 @@
   gap: 20px;
 }
 
-.custom-left-image-block {
+.custom-left-image-block,
+.custom-right-top-block,
+.custom-right-bottom-block {
   position: relative;
-  aspect-ratio: 1226 / 720;
   overflow: hidden;
+}
+
+.custom-left-image-block {
+  aspect-ratio: 1226 / 720;
 }
 
 .custom-right-column {
@@ -84,25 +89,26 @@
 
 .custom-right-top-block,
 .custom-right-bottom-block {
-  position: relative;
   aspect-ratio: 674 / 350;
-  overflow: hidden;
-}
-
-.custom-grid-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  inset: 0;
-  background-color: #f0ebe4;
 }
 
 .custom-image-link {
   display: block;
   width: 100%;
   height: 100%;
+  position: relative;
   text-decoration: none;
+  color: inherit;
+}
+
+.custom-grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  position: absolute;
+  inset: 0;
+  background-color: #f0ebe4;
 }
 
 .custom-overlay-card {
@@ -120,6 +126,7 @@
   height: 100%;
   min-height: 420px;
   object-fit: cover;
+  object-position: center;
   display: block;
   background: #f0ebe4;
 }
@@ -128,16 +135,17 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 0;
-  padding: 40px;
-  text-align: center;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.92), transparent);
+  right: auto;
+  padding: 32px 40px;
+  text-align: left;
+  background: none;
+  pointer-events: none;
 }
 
 .custom-overlay-label-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -146,6 +154,11 @@
   width: 24px;
   height: 1px;
   background-color: #000;
+  flex-shrink: 0;
+}
+
+.custom-overlay-line-right {
+  display: none;
 }
 
 .custom-overlay-label {
@@ -161,7 +174,7 @@
   font-size: 32px;
   font-weight: 400;
   color: #000;
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   line-height: 1.2;
 }
 
@@ -181,6 +194,14 @@
   height: 55px;
   cursor: pointer;
   box-sizing: border-box;
+  pointer-events: auto;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-shop-btn:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 1024px) {
@@ -203,6 +224,10 @@
   .custom-right-top-block,
   .custom-right-bottom-block {
     min-height: 250px;
+  }
+
+  .custom-overlay-title {
+    font-size: 28px;
   }
 }
 
@@ -250,8 +275,19 @@
     min-height: 360px;
   }
 
-  .custom-overlay {
+  .custom-overlay-mobile {
     padding: 24px;
+    text-align: center;
+    width: 100%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.92), transparent);
+  }
+
+  .custom-overlay-mobile .custom-overlay-label-row {
+    justify-content: center;
+  }
+
+  .custom-overlay-mobile .custom-overlay-line-right {
+    display: block;
   }
 
   .custom-overlay-title {

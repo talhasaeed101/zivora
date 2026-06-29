@@ -2,6 +2,9 @@ import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
+const HERO_ARCH_IMAGE = '/images/image 3.png';
+const HERO_PILL_IMAGE = '/images/image 1 (3).png';
+
 const THUMBNAIL_IMAGES = [
   '/images/stack1.png',
   '/images/stack2.png',
@@ -35,20 +38,45 @@ const SHOP_BADGE = (
   </>
 );
 
+function CollectionRow() {
+  return (
+    <div className="hero-collection-row-container">
+      <p className="hero-collection-title-text">COLLECTION</p>
+      <div className="hero-collection-separator-line" />
+      <div className="hero-collection-arrow-icon-wrapper">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M5 12H19M19 12L12 5M19 12L12 19"
+            stroke="black"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="hero-collection-thumbnails-container">
+        {THUMBNAIL_IMAGES.map((src, index) => (
+          <SafeImage
+            key={src}
+            src={src}
+            alt={`Collection preview ${index + 1}`}
+            className="hero-collection-thumbnail"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-main-wrapper">
-        <p className="hero-tagline-text">
-          From everyday elegance to unforgettable celebrations, discover jewelry
-          crafted with exceptional artistry.
-        </p>
-
         <div className="hero-left-zone-container">
           <div className="hero-left-column-1">
             <div className="hero-pill-image-wrapper">
               <SafeImage
-                src="/images/image 1 (3).png"
+                src={HERO_PILL_IMAGE}
                 alt="Zivora jewelry collection"
                 className="hero-pill-image"
               />
@@ -65,38 +93,19 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="hero-center-zone-container">
-          <div className="hero-collection-row-container">
-            <p className="hero-collection-title-text">COLLECTION</p>
-            <div className="hero-collection-separator-line" />
-            <div className="hero-collection-arrow-icon-wrapper">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M5 12H19M19 12L12 5M19 12L12 19"
-                  stroke="black"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <div className="hero-collection-thumbnails-container">
-              {THUMBNAIL_IMAGES.map((src, index) => (
-                <SafeImage
-                  key={src}
-                  src={src}
-                  alt={`Collection preview ${index + 1}`}
-                  className="hero-collection-thumbnail"
-                />
-              ))}
-            </div>
-          </div>
+        <div className="hero-content-column">
+          <p className="hero-tagline-text">
+            From everyday elegance to unforgettable celebrations, discover jewelry
+            crafted with exceptional artistry.
+          </p>
+
+          <CollectionRow />
         </div>
 
         <div className="hero-right-zone-container">
           <div className="hero-arch-image-wrapper">
             <SafeImage
-              src="/images/image 3.png"
+              src={HERO_ARCH_IMAGE}
               alt="Featured jewelry"
               className="hero-arch-image"
             />
@@ -114,7 +123,7 @@ export default function Hero() {
             <div className="hero-left-column-1">
               <div className="hero-pill-image-wrapper">
                 <SafeImage
-                  src="/images/image 1 (3).png"
+                  src={HERO_PILL_IMAGE}
                   alt="Zivora jewelry collection"
                   className="hero-pill-image"
                 />
@@ -145,31 +154,8 @@ export default function Hero() {
               {SHOP_BADGE}
             </a>
 
-            <div className="hero-collection-row-container mobile-collection-row">
-              <div className="hero-collection-meta-row">
-                <p className="hero-collection-title-text">COLLECTION</p>
-                <div className="hero-collection-arrow-icon-wrapper">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M5 12H19M19 12L12 5M19 12L12 19"
-                      stroke="black"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="hero-collection-thumbnails-container">
-                {THUMBNAIL_IMAGES.map((src, index) => (
-                  <SafeImage
-                    key={src}
-                    src={src}
-                    alt={`Collection preview ${index + 1}`}
-                    className="hero-collection-thumbnail"
-                  />
-                ))}
-              </div>
+            <div className="mobile-collection-row">
+              <CollectionRow />
             </div>
           </div>
         </div>
@@ -177,7 +163,7 @@ export default function Hero() {
         <div className="mobile-hero-arch">
           <div className="hero-arch-image-wrapper">
             <SafeImage
-              src="/images/image 3.png"
+              src={HERO_ARCH_IMAGE}
               alt="Featured jewelry"
               className="hero-arch-image"
             />

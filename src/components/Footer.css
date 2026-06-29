@@ -72,7 +72,7 @@
   letter-spacing: 0.005em;
   padding: 13px 28px;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color 0.3s ease;
 }
 
 .footer-submit-btn:hover {

@@ -1,0 +1,69 @@
+/* Landing page — consistent interactive hover states */
+.landing-page a,
+.landing-page button {
+  cursor: pointer;
+}
+
+.landing-page .navbar-link,
+.landing-page .navbar-logo,
+.landing-page .navbar-cart-btn,
+.landing-page .navbar-user-btn,
+.landing-page .navbar-wishlist-btn,
+.landing-page .navbar-mobile-toggle,
+.landing-page .footer-logo-link,
+.landing-page .footer-nav-link,
+.landing-page .footer-legal-link,
+.landing-page .footer-social-link,
+.landing-page .trending-view-all-link,
+.landing-page .bundles-view-all-link,
+.landing-page .featured-category-link,
+.landing-page .hero-circular-badge-container,
+.landing-page .featured-circular-badge-container,
+.landing-page .custom-shop-btn,
+.landing-page .custom-image-link,
+.landing-page .custom-overlay-card,
+.landing-page .offer-submit-btn,
+.landing-page .footer-submit-btn,
+.landing-page .testimonial-nav-btn,
+.landing-page .trending-product-card-link,
+.landing-page .bundles-product-card-link,
+.landing-page .trending-wishlist-btn,
+.landing-page .bundles-wishlist-btn {
+  transition: color 0.3s ease, background-color 0.3s ease, opacity 0.3s ease,
+    transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.landing-page .custom-image-link:hover,
+.landing-page .custom-overlay-card:hover {
+  opacity: 0.95;
+}
+
+.landing-page .custom-image-link:hover .custom-grid-image,
+.landing-page .custom-overlay-card:hover .custom-overlay-image {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+.landing-page .custom-grid-image,
+.landing-page .custom-overlay-image {
+  transition: transform 0.3s ease;
+}
+
+.landing-page .offer-submit-btn:hover:not(:disabled),
+.landing-page .footer-submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.landing-page .featured-category-link:hover {
+  opacity: 0.75;
+}
+
+.landing-page .trending-view-all-link:hover,
+.landing-page .bundles-view-all-link:hover {
+  transform: translateX(2px);
+}
+
+.landing-page .featured-circular-badge-container:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
