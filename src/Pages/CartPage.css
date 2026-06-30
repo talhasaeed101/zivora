@@ -1277,3 +1277,161 @@
     border-top-right-radius: 180px;
   }
 }
+
+/* ── Payment Method Selector ── */
+.checkout-payment-section {
+  background: var(--cart-white);
+  border: 1px solid var(--cart-border);
+  padding: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.checkout-payment-title {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  color: var(--cart-black);
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+
+.checkout-payment-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.checkout-payment-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--cart-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkout-payment-option:hover {
+  border-color: var(--cart-gold);
+}
+
+.checkout-payment-option.active {
+  border-color: var(--cart-gold);
+  background: #fdfbf7;
+}
+
+.checkout-payment-option input[type="radio"] {
+  margin-top: 4px;
+  accent-color: var(--cart-gold);
+}
+
+.payment-option-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.payment-option-name {
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cart-black);
+}
+
+.payment-option-desc {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--cart-gray);
+}
+
+/* Bank Details Card */
+.checkout-bank-details-card {
+  border: 1px dashed var(--cart-gold);
+  background: #fdfcf9;
+  padding: 20px;
+  margin-top: 16px;
+}
+
+.bank-details-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.bank-badge {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #fef3c7;
+  color: #d97706;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.bank-details-header h4 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  margin: 0;
+  color: var(--cart-black);
+}
+
+.bank-details-body {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bank-detail-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+}
+
+.bank-detail-row .label {
+  color: var(--cart-gray);
+}
+
+.bank-detail-row .value {
+  font-weight: 500;
+  color: var(--cart-black);
+}
+
+.bank-detail-row .value.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  background: transparent;
+  border: 1px solid var(--cart-border);
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.copy-btn:hover {
+  background: #f5f5f5;
+  border-color: var(--cart-gold);
+}
+
+.bank-details-footer {
+  border-top: 1px solid var(--cart-border);
+  padding-top: 12px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  color: var(--cart-gray);
+  line-height: 1.5;
+}
+
+.bank-details-footer p {
+  margin: 0;
+}

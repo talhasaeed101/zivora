@@ -32,6 +32,7 @@ export default function BuyNowCheckoutModal({
   const [addressModalError, setAddressModalError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   const selectedAddress = useMemo(
     () => addresses.find((address) => address.id === selectedAddressId) || null,
@@ -114,7 +115,7 @@ export default function BuyNowCheckoutModal({
     try {
       const response = await orderApi.checkout({
         addressId: selectedAddress.id,
-        paymentMethod: 'cod',
+        paymentMethod,
         buyNowItem: {
           productId: product._id,
           quantity,
@@ -217,6 +218,77 @@ export default function BuyNowCheckoutModal({
               )}
             </section>
 
+            <section className="buy-now-payment-selector-section">
+              <h3 className="buy-now-section-title">Payment Method</h3>
+              <div className="buy-now-payment-options">
+                <label className={`buy-now-payment-option-card ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="buyNowPaymentMethod"
+                    value="cod"
+                    checked={paymentMethod === 'cod'}
+                    onChange={() => setPaymentMethod('cod')}
+                  />
+                  <div className="option-label-text">
+                    <strong>Cash on Delivery (COD)</strong>
+                    <span>Pay with cash upon delivery.</span>
+                  </div>
+                </label>
+                <label className={`buy-now-payment-option-card ${paymentMethod === 'bank_transfer' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="buyNowPaymentMethod"
+                    value="bank_transfer"
+                    checked={paymentMethod === 'bank_transfer'}
+                    onChange={() => setPaymentMethod('bank_transfer')}
+                  />
+                  <div className="option-label-text">
+                    <strong>Direct Bank Transfer</strong>
+                    <span>Transfer to Meezan Bank account.</span>
+                  </div>
+                </label>
+              </div>
+
+              {paymentMethod === 'bank_transfer' && (
+                <div className="buy-now-bank-details-box">
+                  <div className="buy-now-bank-badge">Meezan Bank</div>
+                  <div className="buy-now-bank-info">
+                    <p><strong>Bank:</strong> Meezan Bank</p>
+                    <p><strong>Title:</strong> TALHA SAEED</p>
+                    <p className="copyable-row">
+                      <strong>Account:</strong> <span>03380113919907</span>
+                      <button
+                        type="button"
+                        className="buy-now-copy-btn"
+                        onClick={() => {
+                          navigator.clipboard.writeText('03380113919907');
+                          alert('Account Number copied!');
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </p>
+                    <p className="copyable-row">
+                      <strong>IBAN:</strong> <span>PK62MEZN0003380113919907</span>
+                      <button
+                        type="button"
+                        className="buy-now-copy-btn"
+                        onClick={() => {
+                          navigator.clipboard.writeText('PK62MEZN0003380113919907');
+                          alert('IBAN copied!');
+                        }}
+                      >
+                        Copy
+                      </button>
+                    </p>
+                  </div>
+                  <p className="buy-now-bank-note">
+                    After placing the order, you will be prompted to send the transfer screenshot on WhatsApp for verification.
+                  </p>
+                </div>
+              )}
+            </section>
+
             <section className="buy-now-total-section">
               <div className="buy-now-total-row">
                 <span>Subtotal</span>
@@ -226,7 +298,9 @@ export default function BuyNowCheckoutModal({
                 <span>Total</span>
                 <span>{formatPrice(lineTotal)}</span>
               </div>
-              <p className="buy-now-payment-note">Payment: Cash on delivery</p>
+              <p className="buy-now-payment-note">
+                Payment: {paymentMethod === 'bank_transfer' ? 'Direct Bank Transfer' : 'Cash on delivery'}
+              </p>
             </section>
 
             {checkoutError && <p className="cart-modal-error">{checkoutError}</p>}

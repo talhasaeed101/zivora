@@ -21,6 +21,25 @@ function formatOrderDate(value) {
   });
 }
 
+function getPaymentStatusLabel(status) {
+  if (status === 'Pending Payment Verification') {
+    return 'Pending Verification';
+  }
+  if (status === 'Rejected') {
+    return 'Rejected';
+  }
+  if (status === 'paid') {
+    return 'Paid';
+  }
+  if (status === 'pending') {
+    return 'Pending';
+  }
+  if (status === 'failed') {
+    return 'Failed';
+  }
+  return status;
+}
+
 export default function Orders() {
   usePageTitle('My Orders | Zivora');
 
@@ -94,6 +113,9 @@ export default function Orders() {
                       <span>{formatPrice(order.total)}</span>
                       <span>{order.totalItems} items</span>
                       <span className="orders-card-status">{order.orderStatus}</span>
+                      <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                        {getPaymentStatusLabel(order.paymentStatus)}
+                      </span>
                     </div>
                   </div>
                   <Link to={orderPath(order._id)} className="orders-view-btn">

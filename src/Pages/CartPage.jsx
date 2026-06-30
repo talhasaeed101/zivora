@@ -50,6 +50,7 @@ export default function CartPage() {
   const [clearing, setClearing] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [promoInput, setPromoInput] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoCartSignature, setPromoCartSignature] = useState('');
@@ -289,7 +290,7 @@ export default function CartPage() {
     try {
       const response = await orderApi.checkout({
         addressId: selectedAddress.id,
-        paymentMethod: 'cod',
+        paymentMethod,
         promoCode: activePromo?.code,
       });
 
@@ -366,6 +367,95 @@ export default function CartPage() {
                   }}
                   onSelectAddress={handleSelectAddress}
                 />
+              )}
+
+              {showCartContent && (
+                <div className="checkout-payment-section">
+                  <h3 className="checkout-payment-title">PAYMENT METHOD</h3>
+                  <div className="checkout-payment-options">
+                    <label className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
+                      />
+                      <div className="payment-option-details">
+                        <span className="payment-option-name">Cash on Delivery (COD)</span>
+                        <span className="payment-option-desc">Pay with cash upon delivery.</span>
+                      </div>
+                    </label>
+
+                    <label className={`checkout-payment-option ${paymentMethod === 'bank_transfer' ? 'active' : ''}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="bank_transfer"
+                        checked={paymentMethod === 'bank_transfer'}
+                        onChange={() => setPaymentMethod('bank_transfer')}
+                      />
+                      <div className="payment-option-details">
+                        <span className="payment-option-name">Direct Bank Transfer</span>
+                        <span className="payment-option-desc">Transfer directly to our Meezan Bank account.</span>
+                      </div>
+                    </label>
+                  </div>
+
+                  {paymentMethod === 'bank_transfer' && (
+                    <div className="checkout-bank-details-card">
+                      <div className="bank-details-header">
+                        <span className="bank-badge">Meezan Bank</span>
+                        <h4>Direct Bank Transfer Details</h4>
+                      </div>
+                      <div className="bank-details-body">
+                        <div className="bank-detail-row">
+                          <span className="label">Bank Name</span>
+                          <span className="value">Meezan Bank</span>
+                        </div>
+                        <div className="bank-detail-row">
+                          <span className="label">Account Title</span>
+                          <span className="value">TALHA SAEED</span>
+                        </div>
+                        <div className="bank-detail-row">
+                          <span className="label">Account Number</span>
+                          <span className="value flex-row">
+                            <strong>03380113919907</strong>
+                            <button
+                              type="button"
+                              className="copy-btn"
+                              onClick={() => {
+                                navigator.clipboard.writeText('03380113919907');
+                                alert('Account Number copied!');
+                              }}
+                            >
+                              Copy
+                            </button>
+                          </span>
+                        </div>
+                        <div className="bank-detail-row">
+                          <span className="label">IBAN</span>
+                          <span className="value flex-row">
+                            <strong>PK62MEZN0003380113919907</strong>
+                            <button
+                              type="button"
+                              className="copy-btn"
+                              onClick={() => {
+                                navigator.clipboard.writeText('PK62MEZN0003380113919907');
+                                alert('IBAN copied!');
+                              }}
+                            >
+                              Copy
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="bank-details-footer">
+                        <p><strong>Please note:</strong> Transfer the total order amount to this account. After checkout, you will see a button to send the receipt screenshot to our WhatsApp to confirm your order.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
 
               {showCartContent && (

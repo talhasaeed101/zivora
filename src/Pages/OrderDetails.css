@@ -200,3 +200,141 @@
     text-align: left;
   }
 }
+
+/* ── Payment Status Badges & Bank Transfer ── */
+.payment-status-badge {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.payment-status-badge.pending-payment-verification {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.payment-status-badge.paid {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.payment-status-badge.rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.payment-status-badge.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.payment-status-badge.failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.success-bank-card {
+  border: 1px dashed #967259;
+  background: #fdfcf9;
+  padding: 20px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.success-bank-card h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 15px;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #000;
+}
+
+.success-bank-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.success-bank-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  align-items: center;
+}
+
+.success-bank-row .label {
+  color: #767676;
+}
+
+.success-bank-row .value {
+  color: #000;
+  font-weight: 500;
+}
+
+.success-bank-row .value.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn-success {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 1px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.copy-btn-success:hover {
+  background: #f5f5f5;
+  border-color: #967259;
+}
+
+.whatsapp-verification-box {
+  background: #f4fbf7;
+  border: 1px solid #c7eed8;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.whatsapp-note-text {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #27623f;
+  margin-top: 0;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.order-success-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #25d366;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
+  transition: all 0.2s ease;
+}
+
+.order-success-whatsapp-btn:hover {
+  background: #20ba56;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.25);
+}

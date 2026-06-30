@@ -154,3 +154,114 @@
 .buy-now-place-order-btn {
   width: 100%;
 }
+
+/* Buy Now Payment Selection styling */
+.buy-now-payment-selector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 16px;
+}
+
+.buy-now-payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.buy-now-payment-option-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  cursor: pointer;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.buy-now-payment-option-card:hover {
+  border-color: #967259;
+}
+
+.buy-now-payment-option-card.active {
+  border-color: #967259;
+  background: #fdfcfb;
+}
+
+.buy-now-payment-option-card input[type="radio"] {
+  margin-top: 3px;
+  accent-color: #967259;
+}
+
+.option-label-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option-label-text strong {
+  font-size: 13px;
+  color: #111;
+}
+
+.option-label-text span {
+  font-size: 11px;
+  color: #767676;
+}
+
+/* Buy Now Bank Details Box */
+.buy-now-bank-details-box {
+  border: 1px dashed #967259;
+  background: #fdfcfb;
+  padding: 14px;
+  margin-top: 8px;
+}
+
+.buy-now-bank-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #fef3c7;
+  color: #d97706;
+  padding: 2px 6px;
+  margin-bottom: 8px;
+}
+
+.buy-now-bank-info p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #333;
+}
+
+.copyable-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.buy-now-copy-btn {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 1px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.buy-now-copy-btn:hover {
+  background: #f5f5f5;
+  border-color: #967259;
+}
+
+.buy-now-bank-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #767676;
+  line-height: 1.4;
+  border-top: 1px solid #eee;
+  padding-top: 8px;
+}

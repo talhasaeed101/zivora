@@ -159,3 +159,39 @@
     align-items: flex-start;
   }
 }
+
+/* ── Payment Status Badges ── */
+.payment-status-badge {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.payment-status-badge.pending-payment-verification {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.payment-status-badge.paid {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.payment-status-badge.rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.payment-status-badge.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.payment-status-badge.failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}

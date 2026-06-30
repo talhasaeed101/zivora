@@ -140,3 +140,110 @@
     width: 100%;
   }
 }
+
+/* ── Bank Details and WhatsApp Verification ── */
+.success-bank-card {
+  border: 1px dashed #967259;
+  background: #fdfcf9;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.success-bank-card h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.success-bank-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.success-bank-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  align-items: center;
+}
+
+.success-bank-row .label {
+  color: #767676;
+}
+
+.success-bank-row .value {
+  color: #000;
+  font-weight: 500;
+}
+
+.success-bank-row .value.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn-success {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  padding: 2px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.copy-btn-success:hover {
+  background: #f5f5f5;
+  border-color: #967259;
+}
+
+.whatsapp-verification-box {
+  background: #f4fbf7;
+  border: 1px solid #c7eed8;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.whatsapp-note-text {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #27623f;
+  margin-top: 0;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.order-success-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #25d366;
+  color: #ffffff;
+  padding: 12px 24px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+  transition: all 0.2s ease;
+}
+
+.order-success-whatsapp-btn:hover {
+  background: #20ba56;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-icon {
+  flex-shrink: 0;
+}

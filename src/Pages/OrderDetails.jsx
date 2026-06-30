@@ -34,6 +34,10 @@ function formatPaymentMethod(method) {
     return 'Online Payment';
   }
 
+  if (method === 'bank_transfer') {
+    return 'Direct Bank Transfer (Meezan Bank)';
+  }
+
   return method || '—';
 }
 
@@ -99,7 +103,9 @@ export default function OrderDetails() {
               </div>
               <div className="order-details-badges">
                 <span className="order-details-badge">{order.orderStatus}</span>
-                <span className="order-details-badge">{order.paymentStatus}</span>
+                <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
+                  {order.paymentStatus === 'Pending Payment Verification' ? 'Pending Verification' : order.paymentStatus}
+                </span>
               </div>
             </div>
 
@@ -107,6 +113,76 @@ export default function OrderDetails() {
               <h2 className="order-details-section-title">Payment</h2>
               <p className="order-details-address">{formatPaymentMethod(order.paymentMethod)}</p>
             </section>
+
+            {order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'Pending Payment Verification' && (
+              <section className="order-details-section order-details-bank-section">
+                <h2 className="order-details-section-title">Verify Your Payment</h2>
+                <p className="order-details-help-text" style={{ fontSize: '13px', color: '#767676', marginBottom: '14px', fontFamily: 'Inter, sans-serif' }}>
+                  Please transfer the total amount of <strong>{formatPrice(order.total)}</strong> to the bank account below and click the button to send the screenshot on WhatsApp.
+                </p>
+                <div className="success-bank-card">
+                  <h3>Meezan Bank Account Details</h3>
+                  <div className="success-bank-grid">
+                    <div className="success-bank-row">
+                      <span className="label">Bank Name</span>
+                      <strong className="value">Meezan Bank</strong>
+                    </div>
+                    <div className="success-bank-row">
+                      <span className="label">Account Title</span>
+                      <strong className="value">TALHA SAEED</strong>
+                    </div>
+                    <div className="success-bank-row">
+                      <span className="label">Account Number</span>
+                      <strong className="value flex-row">
+                        <span>03380113919907</span>
+                        <button
+                          type="button"
+                          className="copy-btn-success"
+                          onClick={() => {
+                            navigator.clipboard.writeText('03380113919907');
+                            alert('Account Number copied!');
+                          }}
+                        >
+                          Copy
+                        </button>
+                      </strong>
+                    </div>
+                    <div className="success-bank-row">
+                      <span className="label">IBAN</span>
+                      <strong className="value flex-row">
+                        <span>PK62MEZN0003380113919907</span>
+                        <button
+                          type="button"
+                          className="copy-btn-success"
+                          onClick={() => {
+                            navigator.clipboard.writeText('PK62MEZN0003380113919907');
+                            alert('IBAN copied!');
+                          }}
+                        >
+                          Copy
+                        </button>
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="whatsapp-verification-box">
+                  <p className="whatsapp-note-text">
+                    Send your screenshot and Order ID via WhatsApp to confirm your order.
+                  </p>
+                  <a
+                    href={`https://wa.me/923380113919?text=${encodeURIComponent(
+                      `Hello Zivora,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="order-success-whatsapp-btn"
+                  >
+                    Send Payment Screenshot
+                  </a>
+                </div>
+              </section>
+            )}
 
             <section className="order-details-section order-details-address">
               <h2 className="order-details-section-title">Delivery Address</h2>
