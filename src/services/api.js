@@ -64,6 +64,18 @@ export const customerAuthApi = {
     }),
 
   getProfile: () => request('/auth/profile'),
+
+  forgotPassword: (email) =>
+    request('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token, password, confirmPassword) =>
+    request(`/auth/reset-password/${encodeURIComponent(token)}`, {
+      method: 'POST',
+      body: JSON.stringify({ password, confirmPassword }),
+    }),
 };
 
 export const publicCatalogApi = {
@@ -179,6 +191,28 @@ export const publicEngagementApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+};
+
+export const uploadApi = {
+  uploadCustomizationImage: async (file) => {
+    const token = getStoredToken();
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_BASE_URL}/uploads/customization-image`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Unable to upload image');
+    }
+
+    return data;
+  },
 };
 
 export const reviewApi = {

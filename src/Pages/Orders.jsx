@@ -21,8 +21,11 @@ function formatOrderDate(value) {
   });
 }
 
-function getPaymentStatusLabel(status) {
+function getPaymentStatusLabel(status, paymentMethod) {
   if (status === 'Pending Payment Verification') {
+    return 'Pending Verification';
+  }
+  if (status === 'pending' && paymentMethod === 'bank_transfer') {
     return 'Pending Verification';
   }
   if (status === 'Rejected') {
@@ -114,7 +117,7 @@ export default function Orders() {
                       <span>{order.totalItems} items</span>
                       <span className="orders-card-status">{order.orderStatus}</span>
                       <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                        {getPaymentStatusLabel(order.paymentStatus)}
+                        {getPaymentStatusLabel(order.paymentStatus, order.paymentMethod)}
                       </span>
                     </div>
                   </div>

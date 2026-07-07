@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
+import CustomizationModal from './CustomizationModal.jsx';
 import { formatPrice } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { productNeedsRingSize } from '../../utils/categories.js';
@@ -57,6 +58,9 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [adding, setAdding] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
   const [buyNowOpen, setBuyNowOpen] = useState(false);
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+
+  const isCustomizable = Boolean(product?.isCustomizable);
 
   useEffect(() => {
     if (showRingSize && ringSizes.length > 0) {
@@ -104,6 +108,32 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     } finally {
       setAdding(false);
     }
+  };
+
+  const handleCustomizeNow = () => {
+    setCartMessage(null);
+
+    if (!inStock) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    if (!product?._id) {
+      setCartMessage({ type: 'error', text: 'This product cannot be customized yet.' });
+      return;
+    }
+
+    setCustomizeOpen(true);
+  };
+
+  const handleCustomizedAddToCart = async (payload) => {
+    await addToCart(payload);
+    setCartMessage({ type: 'success', text: 'Customized item added to cart successfully.' });
+    trackAddToCart(product._id);
   };
 
   const handleBuyNow = () => {
@@ -201,29 +231,31 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         </div>
       )}
 
-      <div className="pd-info-field">
-        <span className="pd-info-label">Quantity</span>
-        <div className="pd-info-quantity">
-          <button
-            type="button"
-            className="pd-info-qty-btn"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            aria-label="Decrease quantity"
-          >
-            −
-          </button>
-          <span className="pd-info-qty-value">{quantity}</span>
-          <button
-            type="button"
-            className="pd-info-qty-btn"
-            onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
-            aria-label="Increase quantity"
-            disabled={!inStock}
-          >
-            +
-          </button>
+      {!isCustomizable && (
+        <div className="pd-info-field">
+          <span className="pd-info-label">Quantity</span>
+          <div className="pd-info-quantity">
+            <button
+              type="button"
+              className="pd-info-qty-btn"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="pd-info-qty-value">{quantity}</span>
+            <button
+              type="button"
+              className="pd-info-qty-btn"
+              onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
+              aria-label="Increase quantity"
+              disabled={!inStock}
+            >
+              +
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {cartMessage && (
         <p className={`pd-cart-message pd-cart-message-${cartMessage.type}`}>
@@ -232,22 +264,35 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       )}
 
       <div className="pd-info-actions">
-        <button
-          type="button"
-          className="pd-btn pd-btn-primary"
-          onClick={handleBuyNow}
-          disabled={!inStock}
-        >
-          Buy Now
-        </button>
-        <button
-          type="button"
-          className="pd-btn pd-btn-secondary"
-          onClick={handleAddToCart}
-          disabled={!inStock || adding}
-        >
-          {adding ? 'Adding...' : 'Add To Cart'}
-        </button>
+        {isCustomizable ? (
+          <button
+            type="button"
+            className="pd-btn pd-btn-primary"
+            onClick={handleCustomizeNow}
+            disabled={!inStock}
+          >
+            Customize Now
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="pd-btn pd-btn-primary"
+            onClick={handleBuyNow}
+            disabled={!inStock}
+          >
+            Buy Now
+          </button>
+        )}
+        {!isCustomizable && (
+          <button
+            type="button"
+            className="pd-btn pd-btn-secondary"
+            onClick={handleAddToCart}
+            disabled={!inStock || adding}
+          >
+            {adding ? 'Adding...' : 'Add To Cart'}
+          </button>
+        )}
         <WishlistButton
           productId={product?._id}
           className="pd-btn pd-btn-wishlist"
@@ -264,6 +309,14 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         quantity={quantity}
         ringSize={showRingSize ? size : undefined}
         metalColor={color}
+      />
+
+      <CustomizationModal
+        isOpen={customizeOpen}
+        onClose={() => setCustomizeOpen(false)}
+        product={product}
+        ringSize={showRingSize ? size : undefined}
+        onAddToCart={handleCustomizedAddToCart}
       />
     </div>
   );

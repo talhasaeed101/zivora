@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { orderApi } from '../services/api.js';
 import { ROUTES } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
+import { buildCustomizationSummaryLines } from '../utils/customizationSummary.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ShimmerOrderDetails } from '../components/Shimmer.jsx';
 import SafeImage from '../components/SafeImage.jsx';
@@ -39,6 +40,30 @@ function formatPaymentMethod(method) {
   }
 
   return method || '—';
+}
+
+function getPaymentStatusLabel(status, paymentMethod) {
+  if (status === 'Pending Payment Verification') {
+    return 'Pending Verification';
+  }
+
+  if (status === 'pending' && paymentMethod === 'bank_transfer') {
+    return 'Pending Verification';
+  }
+
+  if (status === 'paid') {
+    return 'Paid';
+  }
+
+  if (status === 'pending') {
+    return 'Pending';
+  }
+
+  if (status === 'failed') {
+    return 'Failed';
+  }
+
+  return status;
 }
 
 export default function OrderDetails() {
@@ -104,7 +129,7 @@ export default function OrderDetails() {
               <div className="order-details-badges">
                 <span className="order-details-badge">{order.orderStatus}</span>
                 <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
-                  {order.paymentStatus === 'Pending Payment Verification' ? 'Pending Verification' : order.paymentStatus}
+                  {getPaymentStatusLabel(order.paymentStatus, order.paymentMethod)}
                 </span>
               </div>
             </div>
@@ -114,7 +139,9 @@ export default function OrderDetails() {
               <p className="order-details-address">{formatPaymentMethod(order.paymentMethod)}</p>
             </section>
 
-            {order.paymentMethod === 'bank_transfer' && order.paymentStatus === 'Pending Payment Verification' && (
+            {order.paymentMethod === 'bank_transfer' &&
+              (order.paymentStatus === 'pending' ||
+                order.paymentStatus === 'Pending Payment Verification') && (
               <section className="order-details-section order-details-bank-section">
                 <h2 className="order-details-section-title">Verify Your Payment</h2>
                 <p className="order-details-help-text" style={{ fontSize: '13px', color: '#767676', marginBottom: '14px', fontFamily: 'Inter, sans-serif' }}>
@@ -171,7 +198,7 @@ export default function OrderDetails() {
                     Send your screenshot and Order ID via WhatsApp to confirm your order.
                   </p>
                   <a
-                    href={`https://wa.me/923380113919?text=${encodeURIComponent(
+                    href={`https://wa.me/923392215181?text=${encodeURIComponent(
                       `Hello Zivora,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
                     )}`}
                     target="_blank"
@@ -211,7 +238,17 @@ export default function OrderDetails() {
                         Qty: {item.quantity}
                         {item.ringSize ? ` · Size: ${item.ringSize}` : ''}
                         {item.metalColor ? ` · ${item.metalColor}` : ''}
+                        {item.extraPrice > 0 ? ` · Extras: ${formatPrice(item.extraPrice)}` : ''}
                       </p>
+                      {item.isCustomized && (
+                        <ul className="order-details-customization">
+                          {buildCustomizationSummaryLines(null, item.customization).map((line) => (
+                            <li key={`${line.label}-${line.value}`}>
+                              <strong>{line.label}:</strong> {line.value}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                     <div className="order-details-item-price">
                       {formatPrice(item.price * item.quantity)}

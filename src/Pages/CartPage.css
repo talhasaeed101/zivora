@@ -554,6 +554,24 @@
   margin: 0 0 12px;
 }
 
+.cart-item-customization {
+  margin: 0 0 8px;
+  padding-left: 16px;
+  color: #5f5f5f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cart-item-customization li {
+  margin-bottom: 2px;
+}
+
+.cart-item-extra-price {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #967259;
+}
+
 .cart-item-meta {
   display: flex;
   flex-wrap: wrap;

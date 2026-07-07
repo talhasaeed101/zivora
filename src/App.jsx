@@ -1,10 +1,12 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Login from './Pages/Login.jsx';
 import Register from './Pages/Register.jsx';
+import ForgetPassword from './Pages/ForgetPassword.jsx';
+import ResetPassword from './Pages/ResetPassword.jsx';
 import AuthComingSoon from './Pages/AuthComingSoon.jsx';
 import Profile from './Pages/Profile.jsx';
 import ProductDetails from './Pages/ProductDetails.jsx';
@@ -33,6 +35,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forget-password" element={<ForgetPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route
               path="/verify-email"
               element={
@@ -52,31 +56,12 @@ function App() {
               }
             />
             <Route
-              path="/forget-password"
-              element={
-                <AuthComingSoon
-                  title="Forgot Password"
-                  message="Password reset is coming soon. Please contact support@zivora.com and our team will assist you."
-                />
-              }
-            />
-            <Route
               path="/forget-password/email"
-              element={
-                <AuthComingSoon
-                  title="Forgot Password"
-                  message="Password reset is coming soon. Please contact support@zivora.com and our team will assist you."
-                />
-              }
+              element={<ForgetPassword />}
             />
             <Route
               path="/create-new-password"
-              element={
-                <AuthComingSoon
-                  title="Create New Password"
-                  message="Password reset is coming soon. Please contact support@zivora.com and our team will assist you."
-                />
-              }
+              element={<Navigate to="/forget-password" replace />}
             />
 
             <Route element={<ProtectedRoute />}>
