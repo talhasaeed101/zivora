@@ -1,5 +1,6 @@
 import { ROUTES, productPath } from '../../utils/navigation';
 import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
+import { buildCustomizationSummaryLines } from '../../utils/customizationSummary.js';
 import SafeImage from '../SafeImage.jsx';
 
 function CalendarIcon() {
@@ -36,6 +37,9 @@ export default function CartItem({ item, onQuantityChange, onRemove, updating = 
   const lineTotal = item.unitPrice * item.quantity;
   const productHref = item.slug ? productPath(item.slug) : ROUTES.product;
   const imageSrc = item.image || PLACEHOLDER_IMAGE;
+  const customizationLines = item.isCustomized
+    ? buildCustomizationSummaryLines(item.product, item.customization)
+    : [];
 
   return (
     <article className="cart-item">
@@ -48,6 +52,20 @@ export default function CartItem({ item, onQuantityChange, onRemove, updating = 
             <a href={productHref} className="cart-item-title-link">{item.title}</a>
           </h3>
           <p className="cart-item-material">{item.material}</p>
+          {item.isCustomized && customizationLines.length > 0 && (
+            <ul className="cart-item-customization">
+              {customizationLines.map((line) => (
+                <li key={`${line.label}-${line.value}`}>
+                  <strong>{line.label}:</strong> {line.value}
+                </li>
+              ))}
+            </ul>
+          )}
+          {item.isCustomized && item.extraPrice > 0 && (
+            <p className="cart-item-extra-price">
+              Includes extras: {formatPrice(item.extraPrice)} per item
+            </p>
+          )}
           <div className="cart-item-meta">
             <span className="cart-item-meta-item">
               <CalendarIcon />

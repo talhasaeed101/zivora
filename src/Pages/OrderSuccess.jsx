@@ -144,7 +144,7 @@ export default function OrderSuccess() {
                     Have you completed the payment? Click the button below to send your payment screenshot and Order ID via WhatsApp.
                   </p>
                   <a
-                    href={`https://wa.me/923380113919?text=${encodeURIComponent(
+                    href={`https://wa.me/923392215181?text=${encodeURIComponent(
                       `Hello Zivora,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
                     )}`}
                     target="_blank"

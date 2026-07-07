@@ -9,6 +9,8 @@ export const ROUTES = {
   contact: '/contact',
   login: '/login',
   register: '/register',
+  forgetPassword: '/forget-password',
+  resetPassword: '/reset-password',
   profile: '/profile',
   wishlist: '/wishlist',
   privacyPolicy: '/privacy-policy',

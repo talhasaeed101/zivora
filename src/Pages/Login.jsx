@@ -17,6 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '');
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
@@ -49,8 +50,11 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setApiError('');
+    setSuccessMessage('');
 
     if (!validate()) return;
+
+    if (loading) return;
 
     setLoading(true);
 
@@ -74,6 +78,7 @@ export default function Login() {
           <p className="auth-subheading">Sign in to your Zivora account</p>
 
           <form onSubmit={handleSubmit} noValidate>
+            {successMessage && <div className="auth-success-banner">{successMessage}</div>}
             {apiError && <div className="auth-error-banner">{apiError}</div>}
 
             <div className="auth-field">
@@ -91,7 +96,12 @@ export default function Login() {
             </div>
 
             <div className="auth-field">
-              <label htmlFor="login-password">Password</label>
+              <div className="auth-field-row">
+                <label htmlFor="login-password">Password</label>
+                <Link to="/forget-password" className="auth-forgot-link">
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 id="login-password"
                 type="password"
