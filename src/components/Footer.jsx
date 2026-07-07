@@ -59,6 +59,12 @@ export default function Footer() {
           ))}
         </nav>
 
+        <div className="footer-support-row">
+          <a href="tel:+923392215181" className="footer-support-link">+92 339 2215181</a>
+          <span className="footer-support-dot">•</span>
+          <a href="mailto:Zivorah.store@gmail.com" className="footer-support-link">Zivorah.store@gmail.com</a>
+        </div>
+
         <div className="footer-bottom-bar">
           <p className="footer-copyright">© 2026 ZIVORA. ALL RIGHTS RESERVED.</p>
           <div className="footer-legal-links">
@@ -66,13 +72,31 @@ export default function Footer() {
             <a href={ROUTES.termsOfUse} className="footer-legal-link">Terms of Use</a>
           </div>
           <div className="footer-social-row">
-            <a href="#" className="footer-social-link" aria-label="Instagram">
+            <a
+              href="https://www.instagram.com/zivorah.store?igsh=b2kxcmZrYjlxc2hn&utm_source=qr"
+              className="footer-social-link"
+              aria-label="Instagram"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <InstagramIcon />
             </a>
-            <a href="#" className="footer-social-link" aria-label="TikTok">
+            <a
+              href="https://vt.tiktok.com/ZSCvChaAS/"
+              className="footer-social-link"
+              aria-label="TikTok"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <TikTokIcon />
             </a>
-            <a href="#" className="footer-social-link" aria-label="Facebook">
+            <a
+              href="https://www.facebook.com"
+              className="footer-social-link"
+              aria-label="Facebook"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <FacebookIcon />
             </a>
           </div>

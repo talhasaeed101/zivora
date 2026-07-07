@@ -157,11 +157,41 @@
 
 .footer-social-link {
   color: #fff;
-  transition: color 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, color 0.25s ease;
 }
 
 .footer-social-link:hover {
   color: #c8815f;
+  transform: scale(1.2);
+}
+
+.footer-support-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 40px;
+  font-family: Cabin, sans-serif;
+  font-size: 16px;
+}
+
+.footer-support-link {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.footer-support-link:hover {
+  color: #c8815f;
+}
+
+.footer-support-dot {
+  color: #fff;
+  opacity: 0.4;
 }
 
 .footer-newsletter-message {
