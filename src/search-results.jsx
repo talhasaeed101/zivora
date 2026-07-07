@@ -1588,7 +1588,7 @@ export default function SearchResults() {
 
         <footer className="sr-footer">
           <div className="sr-footer-inner">
-            <a href={ROUTES.home} className="sr-footer-logo">ZIVORA</a>
+            <a href={ROUTES.home} className="sr-footer-logo">ZIVORAH</a>
 
             <form className="sr-footer-form" onSubmit={(e) => e.preventDefault()}>
               <input type="email" placeholder="Enter Your Email Address" className="sr-footer-email" />
@@ -1612,7 +1612,7 @@ export default function SearchResults() {
             </nav>
 
             <div className="sr-footer-bottom">
-              <p>©2026 ZIVORA. ALL RIGHTS RESERVED</p>
+              <p>©2026 ZIVORAH. ALL RIGHTS RESERVED</p>
               <div className="sr-footer-legal">
                 <a href="/privacy-policy">PRIVACY POLICY</a>
                 <a href="/terms-of-use">TERMS OF USE</a>
@@ -1634,7 +1634,7 @@ export default function SearchResults() {
                 <a href="/privacy-policy">PRIVACY POLICY</a>
                 <a href="/terms-of-use">TERMS OF USE</a>
               </div>
-              <p className="sr-footer-copyright-mobile">©2026 ZIVORA. ALL RIGHTS RESERVED</p>
+              <p className="sr-footer-copyright-mobile">©2026 ZIVORAH. ALL RIGHTS RESERVED</p>
             </div>
           </div>
         </footer>

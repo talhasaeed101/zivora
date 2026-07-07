@@ -19,7 +19,7 @@ import {
 import './Wishlist.css';
 
 export default function Wishlist() {
-  usePageTitle('Wishlist | Zivora');
+  usePageTitle('Wishlist | Zivorah');
 
   const { products, loading, error, removeFromWishlist, refreshWishlist } = useWishlist();
   const { addToCart } = useCart();

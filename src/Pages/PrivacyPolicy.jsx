@@ -5,7 +5,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Legal.css';
 
 export default function PrivacyPolicy() {
-  usePageTitle('Privacy Policy | Zivora');
+  usePageTitle('Privacy Policy | Zivorah');
   return (
     <>
       <Navbar homeHref={ROUTES.home} />
@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
           <section className="legal-section">
             <h2>Introduction</h2>
             <p>
-              Zivora (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) respects your privacy and is committed to protecting
+              Zivorah (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) respects your privacy and is committed to protecting
               your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when
               you visit our website or purchase our jewelry products.
             </p>

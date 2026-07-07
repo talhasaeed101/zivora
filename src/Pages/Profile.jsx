@@ -51,7 +51,7 @@ function getInitials(name) {
 }
 
 export default function Profile() {
-  usePageTitle('My Profile | Zivora');
+  usePageTitle('My Profile | Zivorah');
 
   const navigate = useNavigate();
   const { customer, logout, loading: authLoading } = useAuth();

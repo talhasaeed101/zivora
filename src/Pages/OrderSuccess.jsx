@@ -9,7 +9,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './OrderSuccess.css';
 
 export default function OrderSuccess() {
-  usePageTitle('Order Confirmed | Zivora');
+  usePageTitle('Order Confirmed | Zivorah');
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -145,7 +145,7 @@ export default function OrderSuccess() {
                   </p>
                   <a
                     href={`https://wa.me/923392215181?text=${encodeURIComponent(
-                      `Hello Zivora,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
+                      `Hello Zivorah,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

@@ -8,7 +8,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
 
 export default function Register() {
-  usePageTitle('Create Account | Zivora');
+  usePageTitle('Create Account | Zivorah');
   const navigate = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
 
@@ -93,7 +93,7 @@ export default function Register() {
       <main className="auth-page">
         <div className="auth-card">
           <h1 className="auth-heading">Create account</h1>
-          <p className="auth-subheading">Join Zivora for a personalized jewelry experience</p>
+          <p className="auth-subheading">Join Zivorah for a personalized jewelry experience</p>
 
           <form onSubmit={handleSubmit} noValidate>
             {apiError && <div className="auth-error-banner">{apiError}</div>}

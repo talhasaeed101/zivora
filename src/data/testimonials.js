@@ -3,7 +3,7 @@ export const TESTIMONIALS = [
     name: 'Sarah Mitchell',
     rating: 5,
     quote:
-      'My gold ring from Zivora is even more beautiful in person. The finish is refined, the fit is perfect, and it has become the piece I reach for every day.',
+      'My gold ring from Zivorah is even more beautiful in person. The finish is refined, the fit is perfect, and it has become the piece I reach for every day.',
   },
   {
     name: 'Ayesha Khan',
@@ -21,6 +21,6 @@ export const TESTIMONIALS = [
     name: 'Olivia Parker',
     rating: 5,
     quote:
-      'Zivora understands modern luxury. The pieces feel timeless, the quality is exceptional, and every detail reflects the care that went into making them.',
+      'Zivorah understands modern luxury. The pieces feel timeless, the quality is exceptional, and every detail reflects the care that went into making them.',
   },
 ];

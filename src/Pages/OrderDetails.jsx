@@ -67,7 +67,7 @@ function getPaymentStatusLabel(status, paymentMethod) {
 }
 
 export default function OrderDetails() {
-  usePageTitle('Order Details | Zivora');
+  usePageTitle('Order Details | Zivorah');
 
   const { id } = useParams();
   const [order, setOrder] = useState(null);
@@ -199,7 +199,7 @@ export default function OrderDetails() {
                   </p>
                   <a
                     href={`https://wa.me/923392215181?text=${encodeURIComponent(
-                      `Hello Zivora,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
+                      `Hello Zivorah,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${order.deliveryAddress?.name || ''}\n\nPlease find my payment screenshot attached.`
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"

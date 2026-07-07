@@ -31,7 +31,7 @@ export default function Footer() {
     <footer id="contact" className="footer-section">
       <div className="footer-inner">
         <p className="footer-logo">
-          <a href={ROUTES.home} className="footer-logo-link">ZIVORA</a>
+          <a href={ROUTES.home} className="footer-logo-link">ZIVORAH</a>
         </p>
 
         <form className="footer-newsletter-form" onSubmit={handleSubmit}>

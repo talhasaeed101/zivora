@@ -77,7 +77,7 @@ export default function Hero() {
             <div className="hero-pill-image-wrapper">
               <SafeImage
                 src={HERO_PILL_IMAGE}
-                alt="Zivora jewelry collection"
+                alt="Zivorah jewelry collection"
                 className="hero-pill-image"
               />
             </div>
@@ -124,7 +124,7 @@ export default function Hero() {
               <div className="hero-pill-image-wrapper">
                 <SafeImage
                   src={HERO_PILL_IMAGE}
-                  alt="Zivora jewelry collection"
+                  alt="Zivorah jewelry collection"
                   className="hero-pill-image"
                 />
               </div>

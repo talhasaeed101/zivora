@@ -97,7 +97,7 @@ export default function CategoryPage() {
 
   const categoryImage = category?.image || PLACEHOLDER_IMAGE;
 
-  usePageTitle(category?.name ? `${category.name} | Zivora` : 'Category | Zivora');
+  usePageTitle(category?.name ? `${category.name} | Zivorah` : 'Category | Zivorah');
 
   return (
     <div className="catalog-page">

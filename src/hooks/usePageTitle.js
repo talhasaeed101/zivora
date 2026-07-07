@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const DEFAULT_TITLE = 'Zivora | Premium Jewelry';
+const DEFAULT_TITLE = 'Zivorah | Premium Jewelry';
 
 export function usePageTitle(title) {
   useEffect(() => {

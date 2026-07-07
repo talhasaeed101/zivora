@@ -13,7 +13,7 @@ const INVALID_TOKEN_MESSAGE =
   'This reset link is invalid or has expired. Please request a new one.';
 
 export default function ResetPassword() {
-  usePageTitle('Reset Password | Zivora');
+  usePageTitle('Reset Password | Zivorah');
 
   const navigate = useNavigate();
   const { token } = useParams();

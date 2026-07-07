@@ -112,7 +112,7 @@ export default function ProductDetails() {
   const activeProduct = product || LEGACY_STATIC_PRODUCT;
   const categoryName = getCategoryName(activeProduct.category) || 'Rings';
 
-  usePageTitle(`${activeProduct.title || 'Product'} | Zivora`);
+  usePageTitle(`${activeProduct.title || 'Product'} | Zivorah`);
   const galleryImages = activeProduct.images?.length
     ? activeProduct.images
     : [PLACEHOLDER_IMAGE];

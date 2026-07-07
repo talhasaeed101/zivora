@@ -6,7 +6,7 @@ import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function AuthComingSoon({ title, message }) {
-  usePageTitle(`${title} | Zivora`);
+  usePageTitle(`${title} | Zivorah`);
 
   return (
     <>

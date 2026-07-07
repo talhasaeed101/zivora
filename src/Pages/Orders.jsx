@@ -44,7 +44,7 @@ function getPaymentStatusLabel(status, paymentMethod) {
 }
 
 export default function Orders() {
-  usePageTitle('My Orders | Zivora');
+  usePageTitle('My Orders | Zivorah');
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);

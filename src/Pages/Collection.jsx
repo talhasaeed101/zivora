@@ -36,7 +36,7 @@ function Checkbox({ checked }) {
 }
 
 export default function Collection() {
-  usePageTitle('Zivora Collection');
+  usePageTitle('Zivorah Collection');
 
   const [searchParams, setSearchParams] = useSearchParams();
 

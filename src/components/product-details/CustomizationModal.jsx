@@ -283,7 +283,7 @@ export default function CustomizationModal({
                       className={`cm-font-card ${customization.font === font.id ? 'cm-font-card-active' : ''}`}
                       onClick={() => updateField('font', font.id)}
                     >
-                      <div className={`cm-font-preview ${font.previewClass}`}>Zivora</div>
+                      <div className={`cm-font-preview ${font.previewClass}`}>Zivorah</div>
                       <div className="cm-font-label">{font.label}</div>
                     </button>
                   ))}

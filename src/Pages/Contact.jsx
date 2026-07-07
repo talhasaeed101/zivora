@@ -7,7 +7,7 @@ import { publicEngagementApi } from '../services/api.js';
 import './Contact.css';
 
 export default function Contact() {
-  usePageTitle('Contact Zivora');
+  usePageTitle('Contact Zivorah');
 
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);

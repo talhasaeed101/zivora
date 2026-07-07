@@ -20,7 +20,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './CartPage.css';
 
 export default function CartPage() {
-  usePageTitle('Shopping Cart | Zivora');
+  usePageTitle('Shopping Cart | Zivorah');
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();

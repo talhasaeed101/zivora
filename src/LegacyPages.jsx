@@ -40,12 +40,12 @@ export default function LegacyPages() {
 
   const pageTitle =
     page === 'home'
-      ? 'Zivora | Premium Jewelry'
+      ? 'Zivorah | Premium Jewelry'
       : page === 'search'
-        ? 'Search | Zivora'
+        ? 'Search | Zivorah'
         : page === 'cart'
-          ? 'Shopping Cart | Zivora'
-          : 'Zivora';
+          ? 'Shopping Cart | Zivorah'
+          : 'Zivorah';
 
   usePageTitle(pageTitle);
 

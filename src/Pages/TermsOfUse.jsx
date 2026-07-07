@@ -5,7 +5,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Legal.css';
 
 export default function TermsOfUse() {
-  usePageTitle('Terms of Use | Zivora');
+  usePageTitle('Terms of Use | Zivorah');
   return (
     <>
       <Navbar homeHref={ROUTES.home} />
@@ -17,7 +17,7 @@ export default function TermsOfUse() {
           <section className="legal-section">
             <h2>Agreement to Terms</h2>
             <p>
-              By accessing or using the Zivora website, you agree to be bound by these Terms of Use. If you do not
+              By accessing or using the Zivorah website, you agree to be bound by these Terms of Use. If you do not
               agree with any part of these terms, please do not use our website or services.
             </p>
           </section>
@@ -56,7 +56,7 @@ export default function TermsOfUse() {
             <h2>Intellectual Property</h2>
             <p>
               All content on this website, including product photography, branding, text, and design elements, is
-              owned by or licensed to Zivora and is protected by applicable intellectual property laws. You may not
+              owned by or licensed to Zivorah and is protected by applicable intellectual property laws. You may not
               reproduce or distribute our content without prior written consent.
             </p>
           </section>
@@ -64,7 +64,7 @@ export default function TermsOfUse() {
           <section className="legal-section">
             <h2>Limitation of Liability</h2>
             <p>
-              To the fullest extent permitted by law, Zivora shall not be liable for any indirect, incidental, or
+              To the fullest extent permitted by law, Zivorah shall not be liable for any indirect, incidental, or
               consequential damages arising from your use of the website or purchase of our products.
             </p>
           </section>

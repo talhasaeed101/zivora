@@ -8,7 +8,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
 
 export default function Login() {
-  usePageTitle('Sign In | Zivora');
+  usePageTitle('Sign In | Zivorah');
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
@@ -75,7 +75,7 @@ export default function Login() {
       <main className="auth-page">
         <div className="auth-card">
           <h1 className="auth-heading">Welcome back</h1>
-          <p className="auth-subheading">Sign in to your Zivora account</p>
+          <p className="auth-subheading">Sign in to your Zivorah account</p>
 
           <form onSubmit={handleSubmit} noValidate>
             {successMessage && <div className="auth-success-banner">{successMessage}</div>}

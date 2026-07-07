@@ -11,7 +11,7 @@ import './Auth.css';
 const GENERIC_SUCCESS_MESSAGE = 'If this email exists, a reset link has been sent.';
 
 export default function ForgetPassword() {
-  usePageTitle('Forgot Password | Zivora');
+  usePageTitle('Forgot Password | Zivorah');
 
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});

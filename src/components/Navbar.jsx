@@ -42,7 +42,7 @@ export default function Navbar({ activeLink = 'HOME', homeHref = '#' }) {
   return (
     <header className="navbar-header">
       <div className="navbar-inner">
-        <a href={homeHref} className="navbar-logo">ZIVORA</a>
+        <a href={homeHref} className="navbar-logo">ZIVORAH</a>
 
         <nav className="navbar-links">
           {navLinks.map((link) => (
