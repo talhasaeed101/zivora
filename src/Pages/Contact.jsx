@@ -95,7 +95,11 @@ export default function Contact() {
             <h2>Customer Care</h2>
             <div className="contact-info-item">
               <p className="contact-info-label">Support Email</p>
-              <p className="contact-info-value">support@zivora.com</p>
+              <p className="contact-info-value">zivorah.store@gmail.com</p>
+            </div>
+            <div className="contact-info-item">
+              <p className="contact-info-label">Phone</p>
+              <p className="contact-info-value">03392215181</p>
             </div>
             <div className="contact-info-item">
               <p className="contact-info-label">Hours</p>

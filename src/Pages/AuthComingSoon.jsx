@@ -16,7 +16,7 @@ export default function AuthComingSoon({ title, message }) {
           <h1 className="auth-heading">{title}</h1>
           <p className="auth-subheading">
             {message ||
-              'This feature is coming soon. For account help, please contact support@zivora.com.'}
+              'This feature is coming soon. For account help, please contact zivorah.store@gmail.com.'}
           </p>
           <p className="auth-switch">
             <Link to={ROUTES.login}>Back to Sign In</Link>
