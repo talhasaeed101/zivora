@@ -164,6 +164,14 @@ export const promoCodeApi = {
     }),
 };
 
+export const publicEngagementApi = {
+  submitContact: (payload) =>
+    request('/public/engagement/contact', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+};
+
 export const wishlistApi = {
   getWishlist: () => request('/wishlist'),
 
