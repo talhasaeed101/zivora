@@ -83,6 +83,7 @@
   overflow: hidden;
   position: relative;
   background-color: #000;
+  transform: rotate(15deg);
 }
 
 .featured-organic-image {
@@ -240,7 +241,7 @@
   }
 
   .featured-category-name {
-    font-size: 22px;
+    font-size: 19px;
     max-width: calc(100% - 120px);
   }
 

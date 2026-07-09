@@ -13,7 +13,7 @@ const CUSTOM_CARDS = [
   {
     label: 'RINGS',
     title: 'Minimal Rings',
-    image: '/images/Minimal Rings.png',
+    image: '/images/aaa.png',
     alt: 'Minimal rings on hand',
     showButton: false,
   },
@@ -84,7 +84,7 @@ export default function MakeItCustom() {
             <div className="custom-right-top-block">
               <a href={ROUTES.collection} className="custom-image-link">
                 <SafeImage
-                  src="/images/Minimal Rings.png"
+                  src="/images/aaa.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
                 />

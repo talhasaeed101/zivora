@@ -249,6 +249,10 @@
   display: block;
 }
 
+.catalog-product-card {
+  position: relative;
+}
+
 .catalog-product-image-wrap {
   position: relative;
   overflow: hidden;
@@ -278,6 +282,7 @@
   font-size: 11px;
   padding: 4px 10px;
   letter-spacing: 0.5px;
+  z-index: 10;
 }
 
 .catalog-product-info-row {

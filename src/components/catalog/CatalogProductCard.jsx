@@ -10,9 +10,9 @@ export default function CatalogProductCard({ product, variant = 'desktop' }) {
 
   const cardContent = variant === 'mobile' ? (
     <>
+      {showSale && <span className="catalog-sale-badge">Sale!</span>}
       <div className="catalog-product-image-wrap catalog-product-image-wrap-mobile">
         <SafeImage src={image} alt={product.title} className="catalog-product-image" />
-        {showSale && <span className="catalog-sale-badge">Sale!</span>}
         <div className="catalog-product-overlay">
           <div className="catalog-product-info-row">
             <h3 className="catalog-product-name catalog-product-name-mobile">{product.title}</h3>
@@ -33,9 +33,9 @@ export default function CatalogProductCard({ product, variant = 'desktop' }) {
     </>
   ) : (
     <>
+      {showSale && <span className="catalog-sale-badge">Sale!</span>}
       <div className="catalog-product-image-wrap">
         <SafeImage src={image} alt={product.title} className="catalog-product-image" />
-        {showSale && <span className="catalog-sale-badge">Sale!</span>}
       </div>
       <div className="catalog-product-info-row">
         <h3 className="catalog-product-name">{product.title}</h3>

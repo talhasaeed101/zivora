@@ -249,7 +249,7 @@ export default function Collection() {
             </li>
           ))}
         </ul>
-        <div className="catalog-price-inputs">
+        {/* <div className="catalog-price-inputs">
           <input
             type="number"
             min="0"
@@ -266,7 +266,7 @@ export default function Collection() {
             value={customMaxPrice}
             onChange={(event) => setCustomMaxPrice(event.target.value)}
           />
-        </div>
+        </div> */}
         <button type="button" className="catalog-price-apply" onClick={handleApplyCustomPrice}>
           Apply Price
         </button>

@@ -94,7 +94,8 @@
 .hero-collection-row-container {
   display: flex;
   align-items: center;
-  margin: 0 0 0 68px;
+  margin:0px;
+  justify-content: center;
 }
 
 .hero-collection-title-text {
@@ -152,7 +153,7 @@
   justify-content: flex-end;
   align-items: flex-end;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-left: -200px;
 }
 
 .hero-arch-image-wrapper {
@@ -192,7 +193,10 @@
   color: inherit;
   border: none;
 }
-
+.djdjdjdjdjdjddj
+{
+  display:flex
+}
 .hero-circular-badge-container:hover {
   transform: translateY(-50%) scale(1.04);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
@@ -434,9 +438,20 @@
 
   .mobile-collection-row .hero-collection-row-container {
     margin: 0;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     gap: 8px;
+  }
+  .djdjdjdjdjdjddj
+  {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-collection-thumbnails-container
+  {
+        position: absolute;
+    left: 40%;
+    top: 36%;
   }
 
   .hero-collection-meta-row {

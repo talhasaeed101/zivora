@@ -115,9 +115,9 @@ export default function FeaturedCategory() {
               />
             </div>
 
-            {featuredDescription && (
+            {/* {featuredDescription && (
               <p className="featured-category-description">{featuredDescription}</p>
-            )}
+            )} */}
 
             <a
               href={categoryPath(displaySlug)}

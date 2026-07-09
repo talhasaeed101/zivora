@@ -194,7 +194,6 @@
 
   .bundles-product-name {
     font-family: Teneka, serif;
-    font-style: italic;
     font-size: 18px;
     font-weight: 400;
   }
@@ -209,3 +208,10 @@
   }
 }
 
+@media(max-width:600px)
+{
+  .bundles-heading
+  {
+    font-size: 25px;
+  }
+}
