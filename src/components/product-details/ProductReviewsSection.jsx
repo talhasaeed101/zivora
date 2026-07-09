@@ -9,12 +9,27 @@ import { FALLBACK_REVIEWS, FALLBACK_REVIEW_SUMMARY } from '../../utils/reviews.j
 
 const REVIEWS_PER_PAGE = 4;
 
+const normalizeProductId = (productId) => {
+  if (!productId) {
+    return null;
+  }
+
+  const value = String(productId);
+
+  if (/^[a-f\d]{24}$/i.test(value)) {
+    return value;
+  }
+
+  return null;
+};
+
 export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  const useApi = Boolean(productId);
+  const resolvedProductId = normalizeProductId(productId);
+  const useApi = Boolean(resolvedProductId);
   const [summary, setSummary] = useState(useApi ? null : FALLBACK_REVIEW_SUMMARY);
   const [reviews, setReviews] = useState(useApi ? [] : FALLBACK_REVIEWS);
   const [customerReview, setCustomerReview] = useState(null);
@@ -30,7 +45,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const [reactingReviewId, setReactingReviewId] = useState(null);
 
   const loadSummary = useCallback(async () => {
-    if (!productId) {
+    if (!resolvedProductId) {
       setSummary(FALLBACK_REVIEW_SUMMARY);
       onSummaryChange?.(FALLBACK_REVIEW_SUMMARY);
       return;
@@ -39,7 +54,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     setLoadingSummary(true);
 
     try {
-      const response = await reviewApi.getProductReviewSummary(productId);
+      const response = await reviewApi.getProductReviewSummary(resolvedProductId);
       setSummary(response.data);
       onSummaryChange?.(response.data);
       setError('');
@@ -50,10 +65,10 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     } finally {
       setLoadingSummary(false);
     }
-  }, [productId, onSummaryChange]);
+  }, [resolvedProductId, onSummaryChange]);
 
   const loadReviews = useCallback(async () => {
-    if (!productId) {
+    if (!resolvedProductId) {
       setReviews(FALLBACK_REVIEWS);
       setPagination(null);
       return;
@@ -62,7 +77,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     setLoadingReviews(true);
 
     try {
-      const response = await reviewApi.getProductReviews(productId, {
+      const response = await reviewApi.getProductReviews(resolvedProductId, {
         page: currentPage,
         limit: REVIEWS_PER_PAGE,
         sort: 'newest',
@@ -76,21 +91,21 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     } finally {
       setLoadingReviews(false);
     }
-  }, [productId, currentPage]);
+  }, [resolvedProductId, currentPage]);
 
   const loadCustomerReview = useCallback(async () => {
-    if (!productId || !isAuthenticated) {
+    if (!resolvedProductId || !isAuthenticated) {
       setCustomerReview(null);
       return;
     }
 
     try {
-      const response = await reviewApi.getMyReviewForProduct(productId);
+      const response = await reviewApi.getMyReviewForProduct(resolvedProductId);
       setCustomerReview(response.data || null);
     } catch {
       setCustomerReview(null);
     }
-  }, [productId, isAuthenticated]);
+  }, [resolvedProductId, isAuthenticated]);
 
   useEffect(() => {
     loadSummary();
@@ -109,7 +124,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   };
 
   const handleWriteReview = () => {
-    if (!productId) {
+    if (!resolvedProductId) {
       return;
     }
 
@@ -284,7 +299,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
       <ReviewModal
         open={modalOpen}
-        productId={productId}
+        productId={resolvedProductId}
         review={customerReview}
         onClose={() => {
           setModalOpen(false);

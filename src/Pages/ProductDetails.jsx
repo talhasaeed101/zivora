@@ -250,7 +250,7 @@ export default function ProductDetails() {
         </section>
 
         <ProductReviewsSection
-          productId={activeProduct._id}
+          productId={activeProduct._id || activeProduct.id}
           onSummaryChange={setReviewSummary}
         />
       </main>

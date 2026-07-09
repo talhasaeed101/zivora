@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://zivorabackend.vercel.app/api/v1';
+import { resolveApiBaseUrl } from '../utils/apiBaseUrl.js';
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 const TOKEN_KEY = 'zivora_customer_token';
 
@@ -44,11 +46,14 @@ async function request(endpoint, options = {}) {
       headers,
     });
   } catch (networkError) {
-    const message =
+    const hint =
       networkError?.message?.includes('Failed to fetch')
-        ? 'Unable to reach the server. Please check your connection and try again.'
+        ? 'Unable to reach the server.'
         : networkError.message || 'Network request failed';
-    throw new Error(message, { cause: networkError });
+
+    throw new Error(`${hint} [${options.method || 'GET'} ${API_BASE_URL}${endpoint}]`, {
+      cause: networkError,
+    });
   }
 
   const data = await response.json().catch(() => ({}));
@@ -58,10 +63,12 @@ async function request(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-    const details = data.errors?.length
-      ? `: ${data.errors.map((item) => item.msg || item.message).filter(Boolean).join(', ')}`
-      : '';
-    throw new Error((data.message || 'Something went wrong') + details);
+    const validationErrors = data.errors || (Array.isArray(data.data) ? data.data : null);
+    const details = validationErrors?.length
+      ? validationErrors.map((item) => item.msg || item.message).filter(Boolean).join(', ')
+      : data.errorMessage || '';
+    const message = details || data.message || `Request failed (${response.status})`;
+    throw new Error(message);
   }
 
   return data;

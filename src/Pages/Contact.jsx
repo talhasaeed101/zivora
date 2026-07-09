@@ -92,7 +92,9 @@ export default function Contact() {
                     value={form.message}
                     onChange={handleChange('message')}
                     required
+                    minLength={10}
                     disabled={saving}
+                    placeholder="Tell us how we can help (at least 10 characters)"
                   />
                 </div>
                 <button type="submit" className="contact-submit" disabled={saving}>
