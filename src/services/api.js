@@ -191,19 +191,19 @@ export const wishlistApi = {
     }),
 };
 
-export const publicEngagementApi = {
-  submitContact: (payload) =>
-    request('/public/contact', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+// export const publicEngagementApi = {
+//   submitContact: (payload) =>
+//     request('/public/contact', {
+//       method: 'POST',
+//       body: JSON.stringify(payload),
+//     }),
 
-  subscribeNewsletter: (payload) =>
-    request('/public/newsletter/subscribe', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-};
+//   subscribeNewsletter: (payload) =>
+//     request('/public/newsletter/subscribe', {
+//       method: 'POST',
+//       body: JSON.stringify(payload),
+//     }),
+// };
 
 export const uploadApi = {
   uploadCustomizationImage: async (file) => {
