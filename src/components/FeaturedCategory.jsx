@@ -19,6 +19,7 @@ export default function FeaturedCategory() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hoveredCategory, setHoveredCategory] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,7 +50,11 @@ export default function FeaturedCategory() {
     };
   }, []);
 
-  const featuredDescription = categories[0]?.description;
+  const activeCategory = hoveredCategory || categories[0];
+  const featuredDescription = activeCategory?.description;
+  const displayImage = activeCategory?.image || FEATURED_IMAGE;
+  const displayName = activeCategory?.name || 'Featured category';
+  const displaySlug = activeCategory?.slug;
 
   return (
     <section className="featured-section">
@@ -71,7 +76,12 @@ export default function FeaturedCategory() {
               </li>
             ) : (
               categories.map((category) => (
-                <li key={category._id || category.slug || category.name} className="featured-category-item">
+                <li 
+                  key={category._id || category.slug || category.name} 
+                  className="featured-category-item"
+                  onMouseEnter={() => setHoveredCategory(category)}
+                  onMouseLeave={() => setHoveredCategory(null)}
+                >
                   <a href={categoryPath(category.slug)} className="featured-category-link">
                     <span className="featured-category-name">{category.name}</span>
                     <svg
@@ -99,8 +109,8 @@ export default function FeaturedCategory() {
           <div className="featured-image-zone">
             <div className="featured-organic-image-wrap">
               <SafeImage
-                src={FEATURED_IMAGE}
-                alt={categories[0]?.name || 'Featured category'}
+                src={displayImage}
+                alt={displayName}
                 className="featured-organic-image"
               />
             </div>
@@ -110,7 +120,7 @@ export default function FeaturedCategory() {
             )}
 
             <a
-              href={categoryPath(categories[0]?.slug)}
+              href={categoryPath(displaySlug)}
               className="featured-circular-badge-container"
               aria-label="Shop the collection"
             >
