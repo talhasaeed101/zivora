@@ -36,10 +36,20 @@ async function request(endpoint, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    const message =
+      networkError?.message?.includes('Failed to fetch')
+        ? 'Unable to reach the server. Please check your connection and try again.'
+        : networkError.message || 'Network request failed';
+    throw new Error(message, { cause: networkError });
+  }
 
   const data = await response.json().catch(() => ({}));
 
@@ -48,7 +58,10 @@ async function request(endpoint, options = {}) {
   }
 
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    const details = data.errors?.length
+      ? `: ${data.errors.map((item) => item.msg || item.message).filter(Boolean).join(', ')}`
+      : '';
+    throw new Error((data.message || 'Something went wrong') + details);
   }
 
   return data;
@@ -170,6 +183,12 @@ export const publicEngagementApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+
+  subscribeNewsletter: (payload) =>
+    request('/public/engagement/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };
 
 export const wishlistApi = {
@@ -190,20 +209,6 @@ export const wishlistApi = {
       method: 'POST',
     }),
 };
-
-// export const publicEngagementApi = {
-//   submitContact: (payload) =>
-//     request('/public/contact', {
-//       method: 'POST',
-//       body: JSON.stringify(payload),
-//     }),
-
-//   subscribeNewsletter: (payload) =>
-//     request('/public/newsletter/subscribe', {
-//       method: 'POST',
-//       body: JSON.stringify(payload),
-//     }),
-// };
 
 export const uploadApi = {
   uploadCustomizationImage: async (file) => {

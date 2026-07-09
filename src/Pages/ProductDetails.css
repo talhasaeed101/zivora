@@ -315,6 +315,64 @@
   color: var(--pd-gray);
 }
 
+.pd-size-chart-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--pd-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.pd-size-chart-link:hover {
+  color: var(--pd-accent-hover);
+}
+
+.pd-size-chart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.pd-size-chart-modal {
+  position: relative;
+  max-width: min(720px, 100%);
+  max-height: calc(100vh - 48px);
+  background: #fff;
+  border-radius: 12px;
+  overflow: auto;
+  padding: 16px;
+}
+
+.pd-size-chart-modal img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pd-size-chart-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--pd-border-input);
+  background: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+}
+
 .pd-info-quantity {
   display: inline-flex;
   align-items: center;
@@ -1029,15 +1087,35 @@
 
 .pd-review-rating-select {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pd-review-rating-btn {
   background: none;
   border: none;
-  padding: 0;
+  padding: 4px;
   cursor: pointer;
   color: var(--pd-gray-light);
+  line-height: 0;
+  border-radius: 4px;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.pd-review-rating-btn:hover:not(:disabled) {
+  color: var(--pd-accent-hover);
+  transform: scale(1.08);
+}
+
+.pd-review-rating-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pd-review-rating-btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  pointer-events: none;
 }
 
 .pd-review-rating-btn-active {

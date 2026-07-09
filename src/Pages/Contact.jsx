@@ -23,8 +23,19 @@ export default function Contact() {
     setError('');
     setSaving(true);
 
+    const trimmedMessage = form.message.trim();
+    if (trimmedMessage.length < 10) {
+      setError('Message must be at least 10 characters.');
+      setSaving(false);
+      return;
+    }
+
     try {
-      await publicEngagementApi.submitContact(form);
+      await publicEngagementApi.submitContact({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: trimmedMessage,
+      });
       setSubmitted(true);
     } catch (err) {
       setError(err.message || 'Failed to send message.');

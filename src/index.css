@@ -25,6 +25,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -34,10 +35,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #000;
   background: #fff;
+  overflow-x: hidden;
 }
 
 /* Premium Global Hover Effects */
-button:not(.navbar-button):not(.sr-nav-link),
+button:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close),
 .btn,
 .product-card,
 .category-card {
@@ -45,13 +47,13 @@ button:not(.navbar-button):not(.sr-nav-link),
   will-change: transform, box-shadow;
 }
 
-button:not(.navbar-button):not(.sr-nav-link):hover,
+button:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close):hover,
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-button:active:not(.navbar-button):not(.sr-nav-link),
+button:active:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close),
 .btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
