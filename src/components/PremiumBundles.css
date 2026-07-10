@@ -1,7 +1,7 @@
 .bundles-section {
   width: 100%;
   background-color: #fff;
-  padding: 80px 80px;
+  padding: 56px 80px 64px;
 }
 
 .bundles-inner {
@@ -11,9 +11,10 @@
 
 .bundles-header-row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 .bundles-heading {
@@ -22,23 +23,36 @@
   font-weight: 400;
   color: #000;
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.1;
   letter-spacing: 0.005em;
 }
 
 .bundles-view-all-link {
   font-family: Cabin, sans-serif;
-  font-size: 14px;
-  color: #000;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #967259;
   text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: color 0.3s ease;
+  gap: 6px;
+  padding: 8px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.25s ease, border-color 0.25s ease;
+  flex-shrink: 0;
 }
 
 .bundles-view-all-link:hover {
   color: #c8815f;
+  border-bottom-color: #c8815f;
+}
+
+.bundles-view-all-link svg {
+  width: 14px;
+  height: 14px;
 }
 
 .bundles-products-row {
@@ -180,7 +194,6 @@
 
   .bundles-product-name {
     font-family: Teneka, serif;
-    font-style: italic;
     font-size: 18px;
     font-weight: 400;
   }
@@ -195,3 +208,10 @@
   }
 }
 
+@media(max-width:600px)
+{
+  .bundles-heading
+  {
+    font-size: 25px;
+  }
+}

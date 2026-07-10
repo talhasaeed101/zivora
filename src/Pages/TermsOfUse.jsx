@@ -80,7 +80,7 @@ export default function TermsOfUse() {
           <section className="legal-section">
             <h2>Contact</h2>
             <p>
-              For questions regarding these Terms of Use, please contact us at support@zivora.com.
+              For questions regarding these Terms of Use, please contact us at zivorah.store@gmail.com.
             </p>
           </section>
         </div>

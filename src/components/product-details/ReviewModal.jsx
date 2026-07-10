@@ -2,22 +2,30 @@ import { useEffect, useState } from 'react';
 import { StarIcon } from '../icons';
 
 function RatingSelector({ label, value, onChange, disabled = false }) {
+  const [hoverValue, setHoverValue] = useState(0);
+  const displayValue = hoverValue || value;
+
   return (
     <div className="pd-review-field">
       <label className="pd-review-field-label">{label}</label>
-      <div className="pd-review-rating-select">
+      <div
+        className="pd-review-rating-select"
+        onMouseLeave={() => setHoverValue(0)}
+      >
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
-            className={`pd-review-rating-btn ${star <= value ? 'pd-review-rating-btn-active' : ''}`}
+            className={`pd-review-rating-btn ${star <= displayValue ? 'pd-review-rating-btn-active' : ''}`}
             onClick={() => onChange(star)}
+            onMouseEnter={() => !disabled && setHoverValue(star)}
             disabled={disabled}
             aria-label={`${star} star${star > 1 ? 's' : ''}`}
+            aria-pressed={star <= value}
           >
             <StarIcon
-              filled={star <= value}
-              className={`w-4 h-4 ${star <= value ? 'pd-star-filled' : 'pd-star-empty'}`}
+              filled={star <= displayValue}
+              className={star <= displayValue ? 'pd-star-filled' : 'pd-star-empty'}
             />
           </button>
         ))}
@@ -71,6 +79,10 @@ export default function ReviewModal({
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if (!form.comment.trim()) {
+      return;
+    }
 
     onSubmit({
       productId,
@@ -137,6 +149,7 @@ export default function ReviewModal({
               onChange={(event) => setForm((prev) => ({ ...prev, comment: event.target.value }))}
               placeholder="Tell others what you liked about this product"
               disabled={saving}
+              required
             />
           </div>
 

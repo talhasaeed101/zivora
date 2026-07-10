@@ -234,6 +234,7 @@
 @media (max-width: 768px) {
   .custom-section {
     padding: 48px 16px 0;
+    overflow-x: hidden;
   }
 
   .custom-header {
@@ -269,21 +270,27 @@
 
   .custom-overlay-card {
     min-height: 360px;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .custom-overlay-image {
     min-height: 360px;
   }
 
+  .custom-overlay,
   .custom-overlay-mobile {
-    padding: 24px;
-    text-align: center;
+    padding: 20px 24px;
+    left: 0;
+    right: 0;
     width: 100%;
-    background: linear-gradient(to top, rgba(255, 255, 255, 0.92), transparent);
+    box-sizing: border-box;
+    text-align: left;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.55) 55%, transparent 100%);
   }
 
   .custom-overlay-mobile .custom-overlay-label-row {
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .custom-overlay-mobile .custom-overlay-line-right {
@@ -293,6 +300,7 @@
   .custom-overlay-title {
     font-size: 24px;
     margin-bottom: 8px;
+    word-break: break-word;
   }
 
   .custom-shop-btn {

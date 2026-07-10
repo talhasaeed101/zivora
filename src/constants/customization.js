@@ -45,7 +45,7 @@ export const SYMBOL_OPTIONS = [
   { id: 'star', label: 'Star', icon: '★' },
   { id: 'moon', label: 'Moon', icon: '☾' },
   { id: 'cross', label: 'Cross', icon: '✝' },
-  { id: 'butterfly', label: 'Butterfly', icon: '❋' },
+  { id: 'butterfly', label: 'Butterfly', icon: '🦋' },
 ];
 
 export const GIFT_OPTION_DEFAULTS = [

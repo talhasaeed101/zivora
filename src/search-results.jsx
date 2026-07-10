@@ -409,8 +409,14 @@ export default function SearchResults() {
           align-items: center;
           border-bottom: 1px solid var(--sr-border-input);
           padding-bottom: 4px;
-          width: 180px;
+          width: 160px;
           gap: 8px;
+          transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease;
+        }
+
+        .sr-search-wrap:focus-within {
+          width: 240px;
+          border-bottom-color: var(--sr-black);
         }
 
         .sr-search-input {
@@ -422,6 +428,7 @@ export default function SearchResults() {
           background: transparent;
           color: var(--sr-black);
           font-family: inherit;
+          transition: opacity 0.3s ease;
         }
 
         .sr-icon-btn {
@@ -1303,7 +1310,7 @@ export default function SearchResults() {
         {/* Desktop Header */}
         <header className="sr-header-desktop">
           <div className="sr-header-inner">
-            <a href={ROUTES.home} className="sr-logo">ZIVORA</a>
+            <a href={ROUTES.home} className="sr-logo">ZIVORAH</a>
             <nav className="sr-nav">
               <a href={NAV_ROUTES.HOME} className="sr-nav-link">HOME</a>
               <a href={NAV_ROUTES.COLLECTION} className="sr-nav-link sr-nav-link-active">COLLECTION</a>
@@ -1317,6 +1324,11 @@ export default function SearchResults() {
                   type="search"
                   value={searchInput}
                   onChange={(event) => setSearchInput(event.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      e.target.blur();
+                    }
+                  }}
                   className="sr-search-input"
                   aria-label="Search"
                 />

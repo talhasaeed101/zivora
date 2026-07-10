@@ -23,8 +23,19 @@ export default function Contact() {
     setError('');
     setSaving(true);
 
+    const trimmedMessage = form.message.trim();
+    if (trimmedMessage.length < 10) {
+      setError('Message must be at least 10 characters.');
+      setSaving(false);
+      return;
+    }
+
     try {
-      await publicEngagementApi.submitContact(form);
+      await publicEngagementApi.submitContact({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: trimmedMessage,
+      });
       setSubmitted(true);
     } catch (err) {
       setError(err.message || 'Failed to send message.');
@@ -81,7 +92,9 @@ export default function Contact() {
                     value={form.message}
                     onChange={handleChange('message')}
                     required
+                    minLength={10}
                     disabled={saving}
+                    placeholder="Tell us how we can help (at least 10 characters)"
                   />
                 </div>
                 <button type="submit" className="contact-submit" disabled={saving}>
@@ -95,7 +108,11 @@ export default function Contact() {
             <h2>Customer Care</h2>
             <div className="contact-info-item">
               <p className="contact-info-label">Support Email</p>
-              <p className="contact-info-value">support@zivora.com</p>
+              <p className="contact-info-value">zivorah.store@gmail.com</p>
+            </div>
+            <div className="contact-info-item">
+              <p className="contact-info-label">Phone</p>
+              <p className="contact-info-value">03392215181</p>
             </div>
             <div className="contact-info-item">
               <p className="contact-info-label">Hours</p>

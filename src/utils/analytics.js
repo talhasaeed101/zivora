@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+import { resolveApiBaseUrl } from './apiBaseUrl.js';
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 const SESSION_KEY = 'zivora_session_id';
 

@@ -59,6 +59,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [cartMessage, setCartMessage] = useState(null);
   const [buyNowOpen, setBuyNowOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
+  const [sizeChartOpen, setSizeChartOpen] = useState(false);
 
   const isCustomizable = Boolean(product?.isCustomizable);
 
@@ -228,6 +229,45 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           <span className="pd-info-swatch-label">
             {metalColors.find((metal) => metal.id === color)?.label}
           </span>
+        </div>
+      )}
+
+      {product?.sizeChart?.enabled && product?.sizeChart?.imageUrl && (
+        <div className="pd-info-field">
+          <span className="pd-info-label">Size Chart</span>
+          <button
+            type="button"
+            className="pd-size-chart-link"
+            onClick={() => setSizeChartOpen(true)}
+          >
+            View Size Chart
+          </button>
+        </div>
+      )}
+
+      {sizeChartOpen && product?.sizeChart?.imageUrl && (
+        <div
+          className="pd-size-chart-overlay"
+          onClick={() => setSizeChartOpen(false)}
+          role="presentation"
+        >
+          <div
+            className="pd-size-chart-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Size chart"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="pd-size-chart-close"
+              onClick={() => setSizeChartOpen(false)}
+              aria-label="Close size chart"
+            >
+              ×
+            </button>
+            <img src={product.sizeChart.imageUrl} alt="Product size chart" />
+          </div>
         </div>
       )}
 

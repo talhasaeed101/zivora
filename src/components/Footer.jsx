@@ -59,12 +59,6 @@ export default function Footer() {
           ))}
         </nav>
 
-        <div className="footer-support-row">
-          <a href="tel:+923392215181" className="footer-support-link">+92 339 2215181</a>
-          <span className="footer-support-dot">•</span>
-          <a href="mailto:Zivorah.store@gmail.com" className="footer-support-link">Zivorah.store@gmail.com</a>
-        </div>
-
         <div className="footer-bottom-bar">
           <p className="footer-copyright">© 2026 ZIVORA. ALL RIGHTS RESERVED.</p>
           <div className="footer-legal-links">

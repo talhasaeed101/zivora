@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://zivorabackend.vercel.app/api/v1';
+import { resolveApiBaseUrl } from '../utils/apiBaseUrl.js';
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 const TOKEN_KEY = 'zivora_customer_token';
 
@@ -36,15 +38,37 @@ async function request(endpoint, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    const hint =
+      networkError?.message?.includes('Failed to fetch')
+        ? 'Unable to reach the server.'
+        : networkError.message || 'Network request failed';
+
+    throw new Error(`${hint} [${options.method || 'GET'} ${API_BASE_URL}${endpoint}]`, {
+      cause: networkError,
+    });
+  }
 
   const data = await response.json().catch(() => ({}));
 
+  if (response.status === 401) {
+    setStoredToken(null);
+  }
+
   if (!response.ok) {
-    throw new Error(data.message || 'Something went wrong');
+    const validationErrors = data.errors || (Array.isArray(data.data) ? data.data : null);
+    const details = validationErrors?.length
+      ? validationErrors.map((item) => item.msg || item.message).filter(Boolean).join(', ')
+      : data.errorMessage || '';
+    const message = details || data.message || `Request failed (${response.status})`;
+    throw new Error(message);
   }
 
   return data;
@@ -160,6 +184,20 @@ export const promoCodeApi = {
     }),
 };
 
+export const publicEngagementApi = {
+  submitContact: (payload) =>
+    request('/public/engagement/contact', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  subscribeNewsletter: (payload) =>
+    request('/public/engagement/newsletter/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+};
+
 export const wishlistApi = {
   getWishlist: () => request('/wishlist'),
 
@@ -176,20 +214,6 @@ export const wishlistApi = {
   toggleWishlist: (productId) =>
     request(`/wishlist/${productId}/toggle`, {
       method: 'POST',
-    }),
-};
-
-export const publicEngagementApi = {
-  submitContact: (payload) =>
-    request('/public/contact', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-
-  subscribeNewsletter: (payload) =>
-    request('/public/newsletter/subscribe', {
-      method: 'POST',
-      body: JSON.stringify(payload),
     }),
 };
 

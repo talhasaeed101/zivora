@@ -25,6 +25,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -34,4 +35,46 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #000;
   background: #fff;
+  overflow-x: hidden;
 }
+
+/* Premium Global Hover Effects */
+button:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close),
+.btn,
+.product-card,
+.category-card {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s ease, border-color 0.3s ease;
+  will-change: transform, box-shadow;
+}
+
+button:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close):hover,
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+button:active:not(.navbar-button):not(.sr-nav-link):not(.pd-review-rating-btn):not(.cm-submit-btn):not(.customization-modal-close),
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.product-card:hover,
+.category-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Navbar and Footer subtle text hovers (no scale/shadow to avoid jumpiness) */
+.sr-nav-link,
+.footer a,
+.navbar-link {
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.sr-nav-link:hover,
+.footer a:hover,
+.navbar-link:hover {
+  opacity: 0.7;
+}
+

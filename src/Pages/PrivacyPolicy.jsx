@@ -77,7 +77,7 @@ export default function PrivacyPolicy() {
             <h2>Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy or how we handle your data, please contact us at
-              support@zivora.com.
+              zivorah.store@gmail.com.
             </p>
           </section>
         </div>

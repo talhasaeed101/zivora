@@ -42,7 +42,7 @@ function App() {
               element={
                 <AuthComingSoon
                   title="Email Verification"
-                  message="Email verification is coming soon. Please sign in with your registered account or contact support@zivora.com for assistance."
+                  message="Email verification is coming soon. Please sign in with your registered account or contact zivorah.store@gmail.com for assistance."
                 />
               }
             />
@@ -51,7 +51,7 @@ function App() {
               element={
                 <AuthComingSoon
                   title="Resend Verification"
-                  message="Verification resend is coming soon. Please contact support@zivora.com if you need help accessing your account."
+                  message="Verification resend is coming soon. Please contact zivorah.store@gmail.com if you need help accessing your account."
                 />
               }
             />

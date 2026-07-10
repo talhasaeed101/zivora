@@ -43,6 +43,8 @@ function CollectionRow() {
     <div className="hero-collection-row-container">
       <p className="hero-collection-title-text">COLLECTION</p>
       <div className="hero-collection-separator-line" />
+
+      <div className='djdjdjdjdjdjddj'>
       <div className="hero-collection-arrow-icon-wrapper">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -63,6 +65,7 @@ function CollectionRow() {
             className="hero-collection-thumbnail"
           />
         ))}
+      </div>
       </div>
     </div>
   );

@@ -13,10 +13,9 @@ const CUSTOM_CARDS = [
   {
     label: 'RINGS',
     title: 'Minimal Rings',
-    image: '/images/Minimal Rings.png',
+    image: '/images/aaa.png',
     alt: 'Minimal rings on hand',
     showButton: false,
-    bakedText: true,
   },
   {
     label: 'EARRINGS',
@@ -47,19 +46,17 @@ export default function MakeItCustom() {
           {CUSTOM_CARDS.map((card) => (
             <a key={card.label} href={ROUTES.collection} className="custom-overlay-card">
               <SafeImage src={card.image} alt={card.alt} className="custom-overlay-image" />
-              {!card.bakedText && (
-                <div className="custom-overlay custom-overlay-mobile">
-                  <div className="custom-overlay-label-row">
-                    <span className="custom-overlay-line" />
-                    <span className="custom-overlay-label">{card.label}</span>
-                    {card.showButton && <span className="custom-overlay-line custom-overlay-line-right" />}
-                  </div>
-                  <h3 className="custom-overlay-title">{card.title}</h3>
-                  {card.showButton && (
-                    <span className="custom-shop-btn">Shop Collection</span>
-                  )}
+              <div className="custom-overlay custom-overlay-mobile">
+                <div className="custom-overlay-label-row">
+                  <span className="custom-overlay-line" />
+                  <span className="custom-overlay-label">{card.label}</span>
+                  {card.showButton && <span className="custom-overlay-line custom-overlay-line-right" />}
                 </div>
-              )}
+                <h3 className="custom-overlay-title">{card.title}</h3>
+                {card.showButton && (
+                  <span className="custom-shop-btn">Shop Collection</span>
+                )}
+              </div>
             </a>
           ))}
         </div>
@@ -87,7 +84,7 @@ export default function MakeItCustom() {
             <div className="custom-right-top-block">
               <a href={ROUTES.collection} className="custom-image-link">
                 <SafeImage
-                  src="/images/Minimal Rings.png"
+                  src="/images/aaa.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
                 />
