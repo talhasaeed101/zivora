@@ -68,7 +68,11 @@ async function request(endpoint, options = {}) {
       ? validationErrors.map((item) => item.msg || item.message).filter(Boolean).join(', ')
       : data.errorMessage || '';
     const message = details || data.message || `Request failed (${response.status})`;
-    throw new Error(message);
+    const error = new Error(message);
+    // Attach additional data to the error object for frontend handling
+    error.data = data;
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -99,6 +103,17 @@ export const customerAuthApi = {
     request(`/auth/reset-password/${encodeURIComponent(token)}`, {
       method: 'POST',
       body: JSON.stringify({ password, confirmPassword }),
+    }),
+
+  verifyEmail: (token) =>
+    request(`/auth/verify-email/${encodeURIComponent(token)}`, {
+      method: 'POST',
+    }),
+
+  resendVerificationEmail: (email) =>
+    request('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     }),
 };
 

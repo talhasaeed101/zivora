@@ -63,7 +63,11 @@ export default function Login() {
       const redirectTo = location.state?.from || ROUTES.home;
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      setApiError(error.message || 'Login failed');
+      if (error.data?.errorCode === 'EMAIL_NOT_VERIFIED' || error.message === 'Email not verified') {
+        navigate(ROUTES.verifyEmail, { state: { email: email.trim() } });
+      } else {
+        setApiError(error.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }

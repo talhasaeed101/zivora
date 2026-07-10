@@ -79,7 +79,10 @@ export default function Register() {
         phone: form.phone.trim() || undefined,
         password: form.password,
       });
-      navigate(ROUTES.home, { replace: true });
+      navigate(ROUTES.verifyEmail, { 
+        replace: true, 
+        state: { email: form.email.trim() } 
+      });
     } catch (error) {
       setApiError(error.message || 'Registration failed');
     } finally {

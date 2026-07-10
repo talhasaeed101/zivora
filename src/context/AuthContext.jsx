@@ -50,10 +50,10 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (payload) => {
     const response = await customerAuthApi.register(payload);
-    const { customer: customerData, token: authToken } = response.data;
-    persistSession(customerData, authToken);
+    const { customer: customerData } = response.data;
+    // We intentionally do not persist the session here so the user has to log in
     return customerData;
-  }, [persistSession]);
+  }, []);
 
   useEffect(() => {
     const initAuth = async () => {

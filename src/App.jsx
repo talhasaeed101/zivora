@@ -7,7 +7,7 @@ import Login from './Pages/Login.jsx';
 import Register from './Pages/Register.jsx';
 import ForgetPassword from './Pages/ForgetPassword.jsx';
 import ResetPassword from './Pages/ResetPassword.jsx';
-import AuthComingSoon from './Pages/AuthComingSoon.jsx';
+import VerifyEmail from './Pages/VerifyEmail.jsx';
 import Profile from './Pages/Profile.jsx';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import OrderSuccess from './Pages/OrderSuccess.jsx';
@@ -37,23 +37,11 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route
-              path="/verify-email"
-              element={
-                <AuthComingSoon
-                  title="Email Verification"
-                  message="Email verification is coming soon. Please sign in with your registered account or contact zivorah.store@gmail.com for assistance."
-                />
-              }
-            />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route
               path="/resend-verification"
-              element={
-                <AuthComingSoon
-                  title="Resend Verification"
-                  message="Verification resend is coming soon. Please contact zivorah.store@gmail.com if you need help accessing your account."
-                />
-              }
+              element={<Navigate to="/verify-email" replace />}
             />
             <Route
               path="/forget-password/email"

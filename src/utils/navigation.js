@@ -11,6 +11,7 @@ export const ROUTES = {
   register: '/register',
   forgetPassword: '/forget-password',
   resetPassword: '/reset-password',
+  verifyEmail: '/verify-email',
   profile: '/profile',
   wishlist: '/wishlist',
   privacyPolicy: '/privacy-policy',
