@@ -17,7 +17,7 @@ const getSessionId = () => {
 
 export const trackEvent = async (eventType, payload = {}) => {
   try {
-    await fetch(`${API_BASE_URL}/public/analytics/track`, {
+    await fetch(`${API_BASE_URL}/public/engagement/analytics/track`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
