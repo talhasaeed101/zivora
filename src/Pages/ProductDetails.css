@@ -1028,7 +1028,7 @@
 .pd-review-modal {
   width: 100%;
   max-width: 560px;
-  background: var(--pd-white);
+  background: #fff;
   border: 1px solid var(--pd-border);
   box-shadow: var(--pd-shadow);
   padding: 32px;
