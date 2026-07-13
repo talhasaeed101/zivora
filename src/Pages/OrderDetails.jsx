@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { orderApi } from '../services/api.js';
-import { ROUTES } from '../utils/navigation';
+import { orderApi, reviewApi } from '../services/api.js';
+import { ROUTES, productPath } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
 import { buildCustomizationSummaryLines } from '../utils/customizationSummary.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ShimmerOrderDetails } from '../components/Shimmer.jsx';
 import SafeImage from '../components/SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../utils/products.js';
+import ReviewModal from '../components/product-details/ReviewModal.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import './OrderDetails.css';
 
 function formatOrderDate(value) {
@@ -68,21 +70,91 @@ function getPaymentStatusLabel(status, paymentMethod) {
 
 export default function OrderDetails() {
   usePageTitle('Order Details | Zivorah');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Review state
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [currentProductForReview, setCurrentProductForReview] = useState(null);
+  const [customerReviewForProduct, setCustomerReviewForProduct] = useState(null);
+  const [customerReviews, setCustomerReviews] = useState({}); // key: productId, value: review
+  const [savingReview, setSavingReview] = useState(false);
+  const [reviewModalError, setReviewModalError] = useState('');
+
+  // Load all reviews for the order's products
+  const loadProductReviews = useCallback(async (items) => {
+    if (!isAuthenticated || !items.length) return;
+
+    const reviews = {};
+    await Promise.all(
+      items.map(async (item) => {
+        try {
+          const response = await reviewApi.getMyReviewForProduct(item.product);
+          if (response.data) {
+            reviews[item.product] = response.data;
+          }
+        } catch {
+          // No review, ignore
+        }
+      })
+    );
+    setCustomerReviews(reviews);
+  }, [isAuthenticated]);
+
+  const openReviewModal = async (productId) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    setCurrentProductForReview(productId);
+    setReviewModalError('');
+    setCustomerReviewForProduct(customerReviews[productId] || null);
+    setReviewModalOpen(true);
+  };
+
+  const handleSubmitReview = async (payload) => {
+    setSavingReview(true);
+    setReviewModalError('');
+
+    try {
+      if (customerReviewForProduct?._id) {
+        await reviewApi.updateReview(customerReviewForProduct._id, payload);
+      } else {
+        await reviewApi.createReview(payload);
+      }
+
+      setReviewModalOpen(false);
+      // Refresh all product reviews in the order
+      if (order) {
+        await loadProductReviews(order.items);
+      }
+    } catch (err) {
+      setReviewModalError(err.message || 'Failed to save review.');
+    } finally {
+      setSavingReview(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
 
     orderApi
       .getOrder(id)
-      .then((response) => {
+      .then(async (response) => {
         if (isMounted) {
-          setOrder(response.data);
+          const orderData = response.data;
+          setOrder(orderData);
           setError('');
+          // Load reviews for items if order is delivered
+          if (orderData.orderStatus === 'delivered') {
+            await loadProductReviews(orderData.items);
+          }
         }
       })
       .catch((err) => {
@@ -100,7 +172,7 @@ export default function OrderDetails() {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [id, loadProductReviews]);
 
   return (
     <div className="order-details-page">
@@ -232,7 +304,7 @@ export default function OrderDetails() {
                       alt={item.title}
                       className="order-details-item-image"
                     />
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <p className="order-details-item-title">{item.title}</p>
                       <p className="order-details-item-meta">
                         Qty: {item.quantity}
@@ -248,6 +320,29 @@ export default function OrderDetails() {
                             </li>
                           ))}
                         </ul>
+                      )}
+                      {order.orderStatus === 'delivered' && (
+                        <div style={{ marginTop: '0.5rem' }}>
+                          {customerReviews[item.product] ? (
+                            <button
+                              type="button"
+                              className="order-details-btn"
+                              style={{ padding: '0.3rem 0.8rem', fontSize: '0.875rem' }}
+                              onClick={() => openReviewModal(item.product)}
+                            >
+                              Edit Review
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="order-details-btn"
+                              style={{ padding: '0.3rem 0.8rem', fontSize: '0.875rem' }}
+                              onClick={() => openReviewModal(item.product)}
+                            >
+                              Write a Review
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                     <div className="order-details-item-price">
@@ -287,6 +382,19 @@ export default function OrderDetails() {
           </div>
         )}
       </main>
+
+      <ReviewModal
+        open={reviewModalOpen}
+        productId={currentProductForReview}
+        review={customerReviewForProduct}
+        onClose={() => {
+          setReviewModalOpen(false);
+          setReviewModalError('');
+        }}
+        onSubmit={handleSubmitReview}
+        saving={savingReview}
+        error={reviewModalError}
+      />
 
       <Footer />
     </div>
