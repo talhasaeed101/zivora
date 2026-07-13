@@ -1030,10 +1030,11 @@
   max-width: 560px;
   background: var(--pd-white);
   border: 1px solid var(--pd-border);
-  box-shadow: var(--pd-shadow-soft);
-  padding: 28px;
+  box-shadow: var(--pd-shadow);
+  padding: 32px;
   max-height: 90vh;
   overflow-y: auto;
+  border-radius: 12px;
 }
 
 .pd-review-modal-header {
