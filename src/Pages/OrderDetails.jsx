@@ -11,6 +11,8 @@ import { ShimmerOrderDetails } from '../components/Shimmer.jsx';
 import SafeImage from '../components/SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../utils/products.js';
 import ReviewModal from '../components/product-details/ReviewModal.jsx';
+import OrderProgressTracker from '../components/OrderProgressTracker.jsx';
+import { ORDER_STATUS } from '../constants/orderConstants.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './OrderDetails.css';
 
@@ -77,6 +79,7 @@ export default function OrderDetails() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   // Review state
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -141,38 +144,44 @@ export default function OrderDetails() {
     }
   };
 
+  const fetchOrder = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError('');
+
+    try {
+      const response = await orderApi.getOrder(id);
+      setOrder(response.data);
+      if (response.data.orderStatus === 'delivered') {
+        await loadProductReviews(response.data.items);
+      }
+    } catch (err) {
+      setError(err.message || 'Unable to load order details.');
+      setOrder(null);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [id, loadProductReviews]);
+
   useEffect(() => {
     let isMounted = true;
+    
+    // Initial fetch
+    fetchOrder();
 
-    orderApi
-      .getOrder(id)
-      .then(async (response) => {
-        if (isMounted) {
-          const orderData = response.data;
-          setOrder(orderData);
-          setError('');
-          // Load reviews for items if order is delivered
-          if (orderData.orderStatus === 'delivered') {
-            await loadProductReviews(orderData.items);
-          }
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setError(err.message || 'Unable to load order details.');
-          setOrder(null);
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setLoading(false);
-        }
-      });
+    // Refetch on window focus
+    const handleFocus = () => {
+      fetchOrder(true);
+    };
+    
+    window.addEventListener('focus', handleFocus);
 
     return () => {
       isMounted = false;
+      window.removeEventListener('focus', handleFocus);
     };
-  }, [id, loadProductReviews]);
+  }, [fetchOrder]);
 
   return (
     <div className="order-details-page">
@@ -198,13 +207,59 @@ export default function OrderDetails() {
                 <h1 className="order-details-title">Order {order.orderNumber}</h1>
                 <p className="order-details-date">Placed on {formatOrderDate(order.createdAt)}</p>
               </div>
-              <div className="order-details-badges">
-                <span className="order-details-badge">{order.orderStatus}</span>
+              <div className="order-details-badges" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
                   {getPaymentStatusLabel(order.paymentStatus, order.paymentMethod)}
                 </span>
+                <button 
+                  onClick={() => fetchOrder(true)} 
+                  disabled={refreshing}
+                  className="order-details-btn"
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.875rem' }}
+                >
+                  {refreshing ? 'Refreshing...' : 'Refresh Status'}
+                </button>
               </div>
             </div>
+            
+            <section className="order-details-section">
+               <OrderProgressTracker order={order} />
+            </section>
+            
+            {order.orderStatus === ORDER_STATUS.SHIPPED && (order.trackingNumber || order.courierName) && (
+               <section className="order-details-section">
+                  <h2 className="order-details-section-title">Tracking Details</h2>
+                  <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb' }}>
+                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                        {order.courierName && (
+                          <div>
+                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Courier</span>
+                            <strong>{order.courierName}</strong>
+                          </div>
+                        )}
+                        {order.trackingNumber && (
+                          <div>
+                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Tracking Number</span>
+                            <strong>{order.trackingNumber}</strong>
+                          </div>
+                        )}
+                        {order.estimatedDeliveryDate && (
+                          <div>
+                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Estimated Delivery</span>
+                            <strong>{formatOrderDate(order.estimatedDeliveryDate)}</strong>
+                          </div>
+                        )}
+                     </div>
+                     {order.trackingUrl && (
+                        <div style={{ marginTop: '1rem' }}>
+                           <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="order-details-btn" style={{ display: 'inline-block' }}>
+                             Track Package
+                           </a>
+                        </div>
+                     )}
+                  </div>
+               </section>
+            )}
 
             <section className="order-details-section">
               <h2 className="order-details-section-title">Payment</h2>

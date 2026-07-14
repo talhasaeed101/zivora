@@ -6,6 +6,7 @@ import { orderApi } from '../services/api.js';
 import { ROUTES } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { ORDER_STATUS_LABELS } from '../constants/orderConstants.js';
 import './OrderSuccess.css';
 
 export default function OrderSuccess() {
@@ -87,7 +88,7 @@ export default function OrderSuccess() {
               </div>
               <div className="order-success-row">
                 <span>Status</span>
-                <strong>{order.orderStatus}</strong>
+                <strong>{ORDER_STATUS_LABELS[order.orderStatus] || order.orderStatus}</strong>
               </div>
             </div>
 
@@ -172,12 +173,15 @@ export default function OrderSuccess() {
             </div>
 
             <div className="order-success-actions">
-            <Link to="/collection" className="order-success-btn order-success-btn-primary">
-              Continue Shopping
-            </Link>
-            <Link to="/profile" className="order-success-btn order-success-btn-secondary">
-              View Orders
-            </Link>
+              <Link to="/collection" className="order-success-btn order-success-btn-primary">
+                Continue Shopping
+              </Link>
+              <Link to={`/orders/${order._id}`} className="order-success-btn order-success-btn-secondary" style={{ background: '#967259', color: '#fff', borderColor: '#967259' }}>
+                Track Order
+              </Link>
+              <Link to="/profile" className="order-success-btn order-success-btn-secondary">
+                View All Orders
+              </Link>
             </div>
           </div>
         )}

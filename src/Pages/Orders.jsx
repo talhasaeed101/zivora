@@ -7,6 +7,7 @@ import { orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { ShimmerTableRows } from '../components/Shimmer.jsx';
 import { formatPrice } from '../utils/products.js';
+import { ORDER_STATUS_LABELS, ORDER_STATUS } from '../constants/orderConstants.js';
 import './Orders.css';
 
 function formatOrderDate(value) {
@@ -115,14 +116,14 @@ export default function Orders() {
                       <span>{formatOrderDate(order.createdAt)}</span>
                       <span>{formatPrice(order.total)}</span>
                       <span>{order.totalItems} items</span>
-                      <span className="orders-card-status">{order.orderStatus}</span>
+                      <span className="orders-card-status">{ORDER_STATUS_LABELS[order.orderStatus] || order.orderStatus}</span>
                       <span className={`payment-status-badge ${(order.paymentStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
                         {getPaymentStatusLabel(order.paymentStatus, order.paymentMethod)}
                       </span>
                     </div>
                   </div>
                   <Link to={orderPath(order._id)} className="orders-view-btn">
-                    View Details
+                    {order.orderStatus === ORDER_STATUS.SHIPPED ? 'Track / View' : 'View Details'}
                   </Link>
                 </article>
               ))}
