@@ -51,7 +51,6 @@ export default function FeaturedCategory() {
   }, []);
 
   const activeCategory = hoveredCategory || categories[0];
-  const featuredDescription = activeCategory?.description;
   const displayImage = activeCategory?.image || FEATURED_IMAGE;
   const displayName = activeCategory?.name || 'Featured category';
   const displaySlug = activeCategory?.slug;

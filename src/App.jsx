@@ -13,6 +13,7 @@ import ProductDetails from './Pages/ProductDetails.jsx';
 import OrderSuccess from './Pages/OrderSuccess.jsx';
 import OrderDetails from './Pages/OrderDetails.jsx';
 import Orders from './Pages/Orders.jsx';
+import Notifications from './Pages/Notifications.jsx';
 import Wishlist from './Pages/Wishlist.jsx';
 import PrivacyPolicy from './Pages/PrivacyPolicy.jsx';
 import TermsOfUse from './Pages/TermsOfUse.jsx';
@@ -55,6 +56,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<Profile />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/order-success/:id" element={<OrderSuccess />} />
               <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />

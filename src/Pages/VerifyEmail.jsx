@@ -21,6 +21,17 @@ export default function VerifyEmail() {
   
   const hasCalledAPI = useRef(false);
 
+  const verify = async (verificationToken) => {
+    try {
+      await customerAuthApi.verifyEmail(verificationToken);
+      setStatus('success');
+      setMessage('Your email has been successfully verified! You can now sign in.');
+    } catch (error) {
+      setStatus('error');
+      setMessage(error.message || 'The verification link is invalid or has expired.');
+    }
+  };
+
   useEffect(() => {
     if (token && !hasCalledAPI.current) {
       hasCalledAPI.current = true;

@@ -254,6 +254,13 @@ export const uploadApi = {
   },
 };
 
+export const notificationApi = {
+  getNotifications: (params = {}) => request(`/users/notifications${buildQueryString(params)}`),
+  getUnreadCount: () => request('/users/notifications/unread-count'),
+  markAsRead: (id) => request(`/users/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllAsRead: () => request('/users/notifications/read-all', { method: 'PATCH' }),
+};
+
 export const reviewApi = {
   getProductReviews: (productId, params = {}) =>
     request(`/public/products/${productId}/reviews${buildQueryString(params)}`),
