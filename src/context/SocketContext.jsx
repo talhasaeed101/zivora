@@ -13,6 +13,7 @@ export function SocketProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [orderUpdatedHandlers, setOrderUpdatedHandlers] = useState([]);
+  const [ticketUpdatedHandlers, setTicketUpdatedHandlers] = useState([]);
 
   const refreshNotifications = useCallback(async () => {
     try {
@@ -31,6 +32,13 @@ export function SocketProvider({ children }) {
     setOrderUpdatedHandlers((prev) => [...prev, handler]);
     return () => {
       setOrderUpdatedHandlers((prev) => prev.filter((h) => h !== handler));
+    };
+  }, []);
+
+  const onTicketUpdated = useCallback((handler) => {
+    setTicketUpdatedHandlers((prev) => [...prev, handler]);
+    return () => {
+      setTicketUpdatedHandlers((prev) => prev.filter((h) => h !== handler));
     };
   }, []);
 
@@ -67,12 +75,16 @@ export function SocketProvider({ children }) {
       orderUpdatedHandlers.forEach((handler) => handler(order));
     });
 
+    socketInstance.on('ticket:updated', (ticket) => {
+      ticketUpdatedHandlers.forEach((handler) => handler(ticket));
+    });
+
     setSocket(socketInstance);
 
     return () => {
       socketInstance.disconnect();
     };
-  }, [refreshNotifications, orderUpdatedHandlers]);
+  }, [refreshNotifications, orderUpdatedHandlers, ticketUpdatedHandlers]);
 
   const markRead = async (id) => {
     await notificationApi.markAsRead(id);
@@ -90,7 +102,7 @@ export function SocketProvider({ children }) {
 
   return (
     <SocketContext.Provider
-      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated }}
+      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated, onTicketUpdated }}
     >
       {children}
     </SocketContext.Provider>
