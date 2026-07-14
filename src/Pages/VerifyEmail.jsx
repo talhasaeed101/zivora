@@ -47,17 +47,6 @@ export default function VerifyEmail() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  const verify = async (verificationToken) => {
-    try {
-      await customerAuthApi.verifyEmail(verificationToken);
-      setStatus('success');
-      setMessage('Your email has been successfully verified! You can now sign in.');
-    } catch (error) {
-      setStatus('error');
-      setMessage(error.message || 'The verification link is invalid or has expired.');
-    }
-  };
-
   const handleResend = async () => {
     if (!email) {
       setMessage('Please enter your email on the login page to resend the link.');

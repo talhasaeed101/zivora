@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { usePageTitle } from '../hooks/usePageTitle.js';
-import { notificationApi } from '../services/api.js';
+import { useSocket } from '../context/SocketContext.jsx';
 import { ROUTES } from '../utils/navigation';
 import { ShimmerTableRows } from '../components/Shimmer.jsx';
 import './Notifications.css';
@@ -25,38 +25,30 @@ function formatNotificationDate(value) {
 export default function Notifications() {
   usePageTitle('My Notifications | Zivorah');
 
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { notifications, unreadCount, refreshNotifications, markRead, markAllRead } = useSocket();
   const [loading, setLoading] = useState(true);
   const [markingRead, setMarkingRead] = useState(null);
   const [markingAllRead, setMarkingAllRead] = useState(false);
   const [error, setError] = useState('');
 
-  const loadNotifications = async () => {
-    setLoading(true);
-    try {
-      const [notificationsResponse, countResponse] = await Promise.all([
-        notificationApi.getNotifications(),
-        notificationApi.getUnreadCount(),
-      ]);
-      setNotifications(notificationsResponse.data?.notifications || []);
-      setUnreadCount(countResponse.data?.count || 0);
-    } catch (err) {
-      setError(err.message || 'Unable to load notifications.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadNotifications();
-  }, []);
+    const load = async () => {
+      setLoading(true);
+      try {
+        await refreshNotifications();
+      } catch (err) {
+        setError(err.message || 'Unable to load notifications.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [refreshNotifications]);
 
   const handleMarkAsRead = async (id) => {
     setMarkingRead(id);
     try {
-      await notificationApi.markAsRead(id);
-      await loadNotifications();
+      await markRead(id);
     } catch (err) {
       console.error('Failed to mark notification as read:', err);
     } finally {
@@ -67,8 +59,7 @@ export default function Notifications() {
   const handleMarkAllAsRead = async () => {
     setMarkingAllRead(true);
     try {
-      await notificationApi.markAllAsRead();
-      await loadNotifications();
+      await markAllRead();
     } catch (err) {
       console.error('Failed to mark all notifications as read:', err);
     } finally {

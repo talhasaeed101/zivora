@@ -5,7 +5,7 @@ import { NAV_ROUTES, ROUTES, getAccountRoute, searchPath } from '../utils/naviga
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { notificationApi } from '../services/api.js';
+import { useSocket } from '../context/SocketContext.jsx';
 import './Navbar.css';
 
 const NAV_ITEMS = [
@@ -20,39 +20,13 @@ export default function Navbar({ activeLink = 'HOME', homeHref = '#' }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const { isAuthenticated } = useAuth();
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
+  const { unreadCount: unreadNotificationCount } = useSocket();
   const accountPath = getAccountRoute(isAuthenticated);
   const cartCount = isAuthenticated ? totalItems : 0;
   const wishlistBadgeCount = isAuthenticated ? wishlistCount : 0;
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setUnreadNotificationCount(0);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchUnreadCount = async () => {
-      try {
-        const response = await notificationApi.getUnreadCount();
-        if (isMounted) {
-          setUnreadNotificationCount(response.data?.count || 0);
-        }
-      } catch (err) {
-        console.error('Failed to fetch unread notifications:', err);
-      }
-    };
-
-    fetchUnreadCount();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated]);
 
   const navLinks = NAV_ITEMS.map((item) => ({
     ...item,

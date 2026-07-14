@@ -261,6 +261,15 @@ export const notificationApi = {
   markAllAsRead: () => request('/users/notifications/read-all', { method: 'PATCH' }),
 };
 
+export const ticketApi = {
+  submitTicket: (data) => request('/users/support/tickets', {
+    method: 'POST', body: JSON.stringify(data) }),
+  getTickets: (params = {}) => request(`/users/support/tickets${buildQueryString(params)}`),
+  getTicket: (id) => request(`/users/support/tickets/${id}`),
+  replyToTicket: (id, message) => request(`/users/support/tickets/${id}/reply`, {
+    method: 'POST', body: JSON.stringify({ message }) }),
+};
+
 export const reviewApi = {
   getProductReviews: (productId, params = {}) =>
     request(`/public/products/${productId}/reviews${buildQueryString(params)}`),
