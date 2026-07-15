@@ -91,6 +91,18 @@ export const customerAuthApi = {
       body: JSON.stringify({ email, password }),
     }),
 
+  googleLogin: (token) =>
+    request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+
+  facebookLogin: (accessToken) =>
+    request('/auth/facebook', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken }),
+    }),
+
   getProfile: () => request('/auth/profile'),
 
   forgotPassword: (email) =>

@@ -29,9 +29,12 @@ import SearchResults from './search-results.jsx';
 import LegacyPages from './LegacyPages.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 function App() {
   return (
     <BrowserRouter>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'dummy_client_id'}>
       <AuthProvider>
         <SocketProvider>
           <CartProvider>
@@ -82,6 +85,7 @@ function App() {
         </CartProvider>
         </SocketProvider>
       </AuthProvider>
+      </GoogleOAuthProvider>
     </BrowserRouter>
   );
 }
