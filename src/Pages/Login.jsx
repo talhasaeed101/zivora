@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext.jsx';
+import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { ROUTES } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
@@ -81,9 +82,20 @@ export default function Login() {
           <h1 className="auth-heading">Welcome back</h1>
           <p className="auth-subheading">Sign in to your Zivorah account</p>
 
+          {successMessage && <div className="auth-success-banner">{successMessage}</div>}
+          {apiError && <div className="auth-error-banner">{apiError}</div>}
+
+          <SocialLoginButtons 
+            onSuccess={() => {
+              const redirectTo = location.state?.from || ROUTES.home;
+              navigate(redirectTo, { replace: true });
+            }}
+            onError={(msg) => setApiError(msg)}
+          />
+
+          <div className="auth-divider">OR</div>
+
           <form onSubmit={handleSubmit} noValidate>
-            {successMessage && <div className="auth-success-banner">{successMessage}</div>}
-            {apiError && <div className="auth-error-banner">{apiError}</div>}
 
             <div className="auth-field">
               <label htmlFor="login-email">Email</label>

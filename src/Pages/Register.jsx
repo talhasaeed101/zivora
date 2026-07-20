@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext.jsx';
+import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { ROUTES } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
@@ -98,8 +99,16 @@ export default function Register() {
           <h1 className="auth-heading">Create account</h1>
           <p className="auth-subheading">Join Zivorah for a personalized jewelry experience</p>
 
+          {apiError && <div className="auth-error-banner">{apiError}</div>}
+
+          <SocialLoginButtons 
+            onSuccess={() => navigate(ROUTES.home, { replace: true })}
+            onError={(msg) => setApiError(msg)}
+          />
+
+          <div className="auth-divider">OR</div>
+
           <form onSubmit={handleSubmit} noValidate>
-            {apiError && <div className="auth-error-banner">{apiError}</div>}
 
             <div className="auth-field">
               <label htmlFor="register-name">Name</label>

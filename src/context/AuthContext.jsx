@@ -48,6 +48,20 @@ export function AuthProvider({ children }) {
     return customerData;
   }, [persistSession]);
 
+  const googleLogin = useCallback(async (tokenPayload) => {
+    const response = await customerAuthApi.googleLogin(tokenPayload);
+    const { customer: customerData, token: authToken } = response.data;
+    persistSession(customerData, authToken);
+    return customerData;
+  }, [persistSession]);
+
+  const facebookLogin = useCallback(async (accessToken) => {
+    const response = await customerAuthApi.facebookLogin(accessToken);
+    const { customer: customerData, token: authToken } = response.data;
+    persistSession(customerData, authToken);
+    return customerData;
+  }, [persistSession]);
+
   const register = useCallback(async (payload) => {
     const response = await customerAuthApi.register(payload);
     const { customer: customerData } = response.data;
@@ -89,10 +103,12 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: Boolean(token),
       login,
+      googleLogin,
+      facebookLogin,
       register,
       logout,
     }),
-    [customer, token, loading, login, register, logout]
+    [customer, token, loading, login, googleLogin, facebookLogin, register, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

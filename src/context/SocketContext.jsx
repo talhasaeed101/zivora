@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { getStoredToken } from '../services/api.js';
 import { notificationApi } from '../services/api.js';
@@ -12,7 +12,8 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [orderUpdatedHandlers, setOrderUpdatedHandlers] = useState([]);
+  const orderUpdatedHandlers = React.useRef([]);
+  const ticketUpdatedHandlers = React.useRef([]);
 
   const refreshNotifications = useCallback(async () => {
     try {
@@ -28,9 +29,16 @@ export function SocketProvider({ children }) {
   }, []);
 
   const onOrderUpdated = useCallback((handler) => {
-    setOrderUpdatedHandlers((prev) => [...prev, handler]);
+    orderUpdatedHandlers.current.push(handler);
     return () => {
-      setOrderUpdatedHandlers((prev) => prev.filter((h) => h !== handler));
+      orderUpdatedHandlers.current = orderUpdatedHandlers.current.filter((h) => h !== handler);
+    };
+  }, []);
+
+  const onTicketUpdated = useCallback((handler) => {
+    ticketUpdatedHandlers.current.push(handler);
+    return () => {
+      ticketUpdatedHandlers.current = ticketUpdatedHandlers.current.filter((h) => h !== handler);
     };
   }, []);
 
@@ -64,7 +72,11 @@ export function SocketProvider({ children }) {
     });
 
     socketInstance.on('order:updated', (order) => {
-      orderUpdatedHandlers.forEach((handler) => handler(order));
+      orderUpdatedHandlers.current.forEach((handler) => handler(order));
+    });
+
+    socketInstance.on('ticket:updated', (ticket) => {
+      ticketUpdatedHandlers.current.forEach((handler) => handler(ticket));
     });
 
     setSocket(socketInstance);
@@ -72,7 +84,7 @@ export function SocketProvider({ children }) {
     return () => {
       socketInstance.disconnect();
     };
-  }, [refreshNotifications, orderUpdatedHandlers]);
+  }, [refreshNotifications]);
 
   const markRead = async (id) => {
     await notificationApi.markAsRead(id);
@@ -90,7 +102,7 @@ export function SocketProvider({ children }) {
 
   return (
     <SocketContext.Provider
-      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated }}
+      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated, onTicketUpdated }}
     >
       {children}
     </SocketContext.Provider>
