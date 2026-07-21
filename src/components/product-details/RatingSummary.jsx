@@ -1,9 +1,6 @@
 import { StarIcon } from '../icons';
 import { getFilledStars } from '../../utils/reviews.js';
 
-const FALLBACK_INSIGHT =
-  'Customers love the elegant design and comfortable fit of these minimal stacked rings. Most reviewers highlight the premium craftsmanship and how effortlessly the rings complement everyday outfits.';
-
 export default function RatingSummary({
   summary,
   usingFallback = false,
@@ -54,9 +51,9 @@ export default function RatingSummary({
         <h3 className="pd-rating-insights-title">Customers Say</h3>
         <p className="pd-rating-insights-text">
           {usingFallback
-            ? FALLBACK_INSIGHT
+            ? 'Customer feedback will appear here for catalog products.'
             : reviewCount > 0
-              ? `Customers rate this product ${averageRating.toFixed(1)} out of 5 across ${reviewCount} verified reviews, with strong scores for sizing and quality.`
+              ? `Customers rate this product ${averageRating.toFixed(1)} out of 5 across ${reviewCount} reviews.`
               : 'Be the first to share your experience with this product.'}
         </p>
 

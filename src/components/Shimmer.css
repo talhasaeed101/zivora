@@ -17,8 +17,8 @@
 
 .shimmer-product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 36px 22px;
 }
 
 .shimmer-product-grid-mobile {
@@ -45,6 +45,43 @@
 .shimmer-product-line-short {
   width: 55%;
   height: 14px;
+}
+
+@media (max-width: 1200px) {
+  .shimmer-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .shimmer-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .shimmer-product-grid {
+    display: none;
+  }
+
+  .shimmer-product-grid-mobile {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+
+  .shimmer-product-image {
+    border-top-left-radius: 90px;
+    border-top-right-radius: 90px;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+    background: #eee;
+  }
 }
 
 .shimmer-table {

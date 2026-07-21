@@ -1,49 +1,87 @@
-import { useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { useId, useState } from 'react';
+import { Link } from 'react-router-dom';
+import InfoPageShell from '../components/info/InfoPageShell.jsx';
+import Reveal from '../components/Reveal.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { STORE_CONTACT } from '../constants/storeContact.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
-import { ROUTES } from '../utils/navigation';
 import { publicEngagementApi } from '../services/api.js';
+import { ROUTES } from '../utils/navigation';
 import './Contact.css';
 
 export default function Contact() {
-  usePageTitle('Contact Zivorah');
+  usePageTitle('Contact Zivorah | Customer Care');
 
+  const { isAuthenticated } = useAuth();
+  const formId = useId();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
+  const nameId = `${formId}-name`;
+  const emailId = `${formId}-email`;
+  const messageId = `${formId}-message`;
+  const errorId = `${formId}-error`;
+
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validate = () => {
+    const next = {};
+    if (!form.name.trim()) {
+      next.name = 'Please enter your name.';
+    }
+    if (!form.email.trim()) {
+      next.email = 'Please enter your email.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      next.email = 'Please enter a valid email address.';
+    }
+    if (form.message.trim().length < 10) {
+      next.message = 'Message must be at least 10 characters.';
+    }
+    setFieldErrors(next);
+    return Object.keys(next).length === 0;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
-    setSaving(true);
-
-    const trimmedMessage = form.message.trim();
-    if (trimmedMessage.length < 10) {
-      setError('Message must be at least 10 characters.');
-      setSaving(false);
+    if (saving) {
       return;
     }
+
+    setError('');
+    if (!validate()) {
+      return;
+    }
+
+    setSaving(true);
 
     try {
       await publicEngagementApi.submitContact({
         name: form.name.trim(),
         email: form.email.trim(),
-        message: trimmedMessage,
+        message: form.message.trim(),
       });
       setSubmitted(true);
+      setForm({ name: '', email: '', message: '' });
+      setFieldErrors({});
     } catch (err) {
       if (err.status === 429) {
         setError(
           'You have sent too many messages. Please wait about 15 minutes, then try again — or reach us on WhatsApp or email.'
         );
       } else {
-        setError(err.message || 'Failed to send message. Please try again.');
+        setError('We could not send your message right now. Please try again, or contact us by email or WhatsApp.');
       }
     } finally {
       setSaving(false);
@@ -51,97 +89,199 @@ export default function Contact() {
   };
 
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="contact-page">
-        <div className="contact-inner">
-          <div>
-            <h1 className="contact-title">Contact Us</h1>
-            <p className="contact-intro">
-              Have a question about an order, a piece from our collection, or a custom request?
-              Send us a message and our team will get back to you.
-            </p>
+    <InfoPageShell
+      title="Contact Us"
+      breadcrumbCurrent="Contact"
+      intro="Questions about an order, a piece from our collection, or something else? Reach out and we will help."
+      variant="wide"
+      cta={
+        isAuthenticated ? (
+          <>
+            <Link to={ROUTES.supportTickets} className="info-btn info-btn-primary">
+              View Support Tickets
+            </Link>
+            <Link
+              to={ROUTES.supportTickets}
+              state={{ openForm: true }}
+              className="info-btn info-btn-secondary"
+            >
+              Create Support Ticket
+            </Link>
+          </>
+        ) : (
+          <Link to={ROUTES.collection} className="info-btn info-btn-secondary">
+            Browse Collection
+          </Link>
+        )
+      }
+    >
+      <div className="contact-layout">
+        <Reveal className="contact-main" variant="fade-up">
+          <p className="contact-note">
+            For help with an existing order, include your order number in your message
+            {isAuthenticated ? ', or create a support ticket from your account.' : '.'}
+          </p>
 
-            {submitted ? (
-              <div className="contact-success">
-                Thank you. Our team will contact you shortly.
+          {isAuthenticated ? (
+            <div className="contact-support-banner">
+              <p>
+                Signed in? For order-specific help, use support tickets so our team can follow up in
+                one place.
+              </p>
+              <div className="contact-support-actions">
+                <Link to={ROUTES.supportTickets} className="contact-support-link">
+                  View tickets
+                </Link>
+                <span aria-hidden="true">·</span>
+                <Link
+                  to={ROUTES.supportTickets}
+                  state={{ openForm: true }}
+                  className="contact-support-link"
+                >
+                  Create ticket
+                </Link>
               </div>
-            ) : (
-              <form className="contact-form" onSubmit={handleSubmit}>
-                {error && <p className="contact-error">{error}</p>}
-                <div className="contact-field">
-                  <label htmlFor="contact-name">Name</label>
-                  <input
-                    id="contact-name"
-                    type="text"
-                    value={form.name}
-                    onChange={handleChange('name')}
-                    required
-                    disabled={saving}
-                  />
-                </div>
-                <div className="contact-field">
-                  <label htmlFor="contact-email">Email</label>
-                  <input
-                    id="contact-email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange('email')}
-                    required
-                    disabled={saving}
-                  />
-                </div>
-                <div className="contact-field">
-                  <label htmlFor="contact-message">Message</label>
-                  <textarea
-                    id="contact-message"
-                    value={form.message}
-                    onChange={handleChange('message')}
-                    required
-                    minLength={10}
-                    disabled={saving}
-                    placeholder="Tell us how we can help (at least 10 characters)"
-                  />
-                </div>
-                <button type="submit" className="contact-submit" disabled={saving}>
-                  {saving ? 'Sending...' : 'Send Message'}
-                </button>
-              </form>
-            )}
-          </div>
+            </div>
+          ) : null}
 
-          <aside className="contact-info-block">
-            <h2>Customer Care</h2>
-            <div className="contact-info-item">
-              <p className="contact-info-label">Support Email</p>
-              <p className="contact-info-value">zivorah.store@gmail.com</p>
-            </div>
-            <div className="contact-info-item">
-              <p className="contact-info-label">Phone</p>
-              <p className="contact-info-value">03392215181</p>
-            </div>
-            <div className="contact-info-item">
-              <p className="contact-info-label">Hours</p>
-              <p className="contact-info-value">Mon–Sat, 10am–6pm PKT</p>
-            </div>
-            <div className="contact-info-item">
-              <a
-                id="contact-whatsapp-btn"
-                href="https://wa.me/923392215181"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-whatsapp-btn"
+          {submitted ? (
+            <div className="contact-success" role="status" aria-live="polite">
+              <p className="contact-success-title">Message sent</p>
+              <p>
+                Thank you. Our team will review your message and get back to you. For urgent order
+                questions, you can also reach us by email or WhatsApp.
+              </p>
+              <button
+                type="button"
+                className="contact-success-reset"
+                onClick={() => setSubmitted(false)}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                Chat on WhatsApp
+                Send another message
+              </button>
+            </div>
+          ) : (
+            <form className="contact-form" onSubmit={handleSubmit} noValidate>
+              <div className="contact-live" aria-live="polite" aria-atomic="true">
+                {error ? (
+                  <p id={errorId} className="contact-error" role="alert">
+                    {error}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="contact-field">
+                <label htmlFor={nameId}>
+                  Name <span className="contact-required" aria-hidden="true">*</span>
+                  <span className="visually-hidden"> (required)</span>
+                </label>
+                <input
+                  id={nameId}
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  value={form.name}
+                  onChange={handleChange('name')}
+                  required
+                  disabled={saving}
+                  aria-invalid={Boolean(fieldErrors.name)}
+                  aria-describedby={fieldErrors.name ? `${nameId}-error` : undefined}
+                />
+                {fieldErrors.name ? (
+                  <p id={`${nameId}-error`} className="contact-field-error">
+                    {fieldErrors.name}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="contact-field">
+                <label htmlFor={emailId}>
+                  Email <span className="contact-required" aria-hidden="true">*</span>
+                  <span className="visually-hidden"> (required)</span>
+                </label>
+                <input
+                  id={emailId}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={form.email}
+                  onChange={handleChange('email')}
+                  required
+                  disabled={saving}
+                  aria-invalid={Boolean(fieldErrors.email)}
+                  aria-describedby={fieldErrors.email ? `${emailId}-error` : undefined}
+                />
+                {fieldErrors.email ? (
+                  <p id={`${emailId}-error`} className="contact-field-error">
+                    {fieldErrors.email}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="contact-field">
+                <label htmlFor={messageId}>
+                  Message <span className="contact-required" aria-hidden="true">*</span>
+                  <span className="visually-hidden"> (required)</span>
+                </label>
+                <textarea
+                  id={messageId}
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange('message')}
+                  required
+                  minLength={10}
+                  disabled={saving}
+                  placeholder="Tell us how we can help (at least 10 characters)"
+                  aria-invalid={Boolean(fieldErrors.message)}
+                  aria-describedby={fieldErrors.message ? `${messageId}-error` : undefined}
+                />
+                {fieldErrors.message ? (
+                  <p id={`${messageId}-error`} className="contact-field-error">
+                    {fieldErrors.message}
+                  </p>
+                ) : null}
+              </div>
+
+              <button type="submit" className="contact-submit" disabled={saving}>
+                {saving ? 'Sending…' : 'Send Message'}
+              </button>
+            </form>
+          )}
+        </Reveal>
+
+        <Reveal className="contact-aside" variant="fade-up" delay={80} as="aside" aria-label="Customer care details">
+          <h2 className="contact-aside-title">Customer care</h2>
+
+          <div className="contact-methods">
+            <div className="contact-method">
+              <p className="contact-info-label">Support email</p>
+              <a className="contact-info-value contact-info-link" href={`mailto:${STORE_CONTACT.email}`}>
+                {STORE_CONTACT.email}
               </a>
             </div>
-          </aside>
-        </div>
-      </main>
-      <Footer />
-    </>
+            <div className="contact-method">
+              <p className="contact-info-label">Phone</p>
+              <a className="contact-info-value contact-info-link" href={`tel:${STORE_CONTACT.phoneTel}`}>
+                {STORE_CONTACT.phoneDisplay}
+              </a>
+            </div>
+            <div className="contact-method">
+              <p className="contact-info-label">Hours</p>
+              <p className="contact-info-value">{STORE_CONTACT.hours}</p>
+            </div>
+          </div>
+
+          <a
+            href={`https://wa.me/${STORE_CONTACT.whatsappNumber}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="contact-whatsapp-btn"
+          >
+            Chat on WhatsApp
+            <span className="visually-hidden"> (opens in a new tab)</span>
+          </a>
+        </Reveal>
+      </div>
+    </InfoPageShell>
   );
 }

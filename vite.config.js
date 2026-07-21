@@ -4,4 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    sourcemap: false,
+  },
+  server: {
+    // Prefer localhost binding in local development unless explicitly overridden.
+    host: process.env.VITE_DEV_HOST || 'localhost',
+  },
 })

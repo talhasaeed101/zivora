@@ -54,10 +54,6 @@ export function SocketProvider({ children }) {
       transports: ['websocket', 'polling'],
     });
 
-    socketInstance.on('connect', () => {
-      console.log('Customer socket connected');
-    });
-
     socketInstance.on('notification:new', (notification) => {
       setNotifications((current) => [notification, ...current].slice(0, 50));
       setUnreadCount((count) => count + 1);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon } from '../icons';
 import { EMPTY_ADDRESS_FORM } from '../../utils/addresses.js';
 
@@ -41,9 +41,12 @@ export default function DeliveryAddressModal({
   error = '',
 }) {
   const [form, setForm] = useState(EMPTY_ADDRESS_FORM);
+  const firstFieldRef = useRef(null);
+  const previouslyFocused = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
+      previouslyFocused.current = document.activeElement;
       setForm({
         name: address?.name || '',
         email: address?.email || '',
@@ -54,14 +57,35 @@ export default function DeliveryAddressModal({
         postalCode: address?.postalCode || '',
       });
       document.body.style.overflow = 'hidden';
+      window.requestAnimationFrame(() => {
+        firstFieldRef.current?.focus?.();
+      });
     } else {
       document.body.style.overflow = '';
+      if (previouslyFocused.current && typeof previouslyFocused.current.focus === 'function') {
+        previouslyFocused.current.focus();
+      }
     }
 
     return () => {
       document.body.style.overflow = '';
     };
   }, [isOpen, address]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape' && !saving) {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose, saving]);
 
   if (!isOpen) {
     return null;
@@ -73,6 +97,10 @@ export default function DeliveryAddressModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) {
+      return;
+    }
+
     await onSave({
       name: form.name.trim(),
       email: form.email.trim(),
@@ -84,10 +112,16 @@ export default function DeliveryAddressModal({
     });
   };
 
-  const title = address?.id ? 'Update Delivery Address' : 'Add Delivery Address';
+  const handleOverlayClick = () => {
+    if (!saving) {
+      onClose();
+    }
+  };
+
+  const title = address?.id ? 'Edit delivery address' : 'Add delivery address';
 
   return (
-    <div className="cart-modal-overlay" onClick={onClose} role="presentation">
+    <div className="cart-modal-overlay" onClick={handleOverlayClick} role="presentation">
       <div
         className="cart-modal cart-address-modal"
         onClick={(e) => e.stopPropagation()}
@@ -97,23 +131,37 @@ export default function DeliveryAddressModal({
       >
         <div className="cart-modal-header">
           <h2 id="address-modal-title" className="cart-modal-title">{title}</h2>
-          <button type="button" className="cart-modal-close" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            className="cart-modal-close"
+            onClick={onClose}
+            disabled={saving}
+            aria-label="Close"
+          >
             <CloseIcon />
           </button>
         </div>
 
-        {error && <p className="cart-modal-error">{error}</p>}
+        {error ? (
+          <p className="cart-modal-error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-        <form className="cart-address-form" onSubmit={handleSubmit}>
+        <form className="cart-address-form" onSubmit={handleSubmit} noValidate={false}>
           <div className="cart-form-group">
-            <label htmlFor="addr-name" className="cart-form-label">Name</label>
+            <label htmlFor="addr-name" className="cart-form-label">
+              Name <span aria-hidden="true">*</span>
+            </label>
             <input
               id="addr-name"
+              ref={firstFieldRef}
               type="text"
               className="cart-form-input"
               placeholder="Enter your Name"
               value={form.name}
               onChange={handleChange('name')}
+              autoComplete="name"
               required
               disabled={saving}
             />
@@ -121,7 +169,9 @@ export default function DeliveryAddressModal({
 
           <div className="cart-form-row">
             <div className="cart-form-group">
-              <label htmlFor="addr-email" className="cart-form-label">Email</label>
+              <label htmlFor="addr-email" className="cart-form-label">
+                Email <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="addr-email"
                 type="email"
@@ -129,12 +179,15 @@ export default function DeliveryAddressModal({
                 placeholder="Enter your Email"
                 value={form.email}
                 onChange={handleChange('email')}
+                autoComplete="email"
                 required
                 disabled={saving}
               />
             </div>
             <div className="cart-form-group">
-              <label htmlFor="addr-phone" className="cart-form-label">Phone Number</label>
+              <label htmlFor="addr-phone" className="cart-form-label">
+                Phone Number <span aria-hidden="true">*</span>
+              </label>
               <div className="cart-phone-input-wrap">
                 <span className="cart-phone-prefix">
                   <PakistanFlag />
@@ -148,6 +201,7 @@ export default function DeliveryAddressModal({
                   placeholder="Phone Number"
                   value={form.phone}
                   onChange={handleChange('phone')}
+                  autoComplete="tel-national"
                   required
                   disabled={saving}
                 />
@@ -157,26 +211,35 @@ export default function DeliveryAddressModal({
 
           <div className="cart-form-row">
             <div className="cart-form-group">
-              <label htmlFor="addr-province" className="cart-form-label">Province</label>
+              <label htmlFor="addr-province" className="cart-form-label">
+                Province <span aria-hidden="true">*</span>
+              </label>
               <div className="cart-select-wrap">
                 <select
                   id="addr-province"
                   className="cart-form-input cart-form-select"
                   value={form.province}
                   onChange={handleChange('province')}
+                  autoComplete="address-level1"
                   required
                   disabled={saving}
                 >
-                  <option value="" disabled>Select Province</option>
+                  <option value="" disabled>
+                    Select Province
+                  </option>
                   {PROVINCES.map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
                   ))}
                 </select>
                 <ChevronDownIcon className="cart-select-chevron w-3.5 h-3.5" />
               </div>
             </div>
             <div className="cart-form-group">
-              <label htmlFor="addr-city" className="cart-form-label">City</label>
+              <label htmlFor="addr-city" className="cart-form-label">
+                City <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="addr-city"
                 type="text"
@@ -184,6 +247,7 @@ export default function DeliveryAddressModal({
                 placeholder="Enter your City"
                 value={form.city}
                 onChange={handleChange('city')}
+                autoComplete="address-level2"
                 required
                 disabled={saving}
               />
@@ -191,7 +255,9 @@ export default function DeliveryAddressModal({
           </div>
 
           <div className="cart-form-group">
-            <label htmlFor="addr-street" className="cart-form-label">Address</label>
+            <label htmlFor="addr-street" className="cart-form-label">
+              Address <span aria-hidden="true">*</span>
+            </label>
             <input
               id="addr-street"
               type="text"
@@ -199,13 +265,16 @@ export default function DeliveryAddressModal({
               placeholder="Enter your Address"
               value={form.street}
               onChange={handleChange('street')}
+              autoComplete="street-address"
               required
               disabled={saving}
             />
           </div>
 
           <div className="cart-form-group">
-            <label htmlFor="addr-postal" className="cart-form-label">Postal Code</label>
+            <label htmlFor="addr-postal" className="cart-form-label">
+              Postal Code <span aria-hidden="true">*</span>
+            </label>
             <input
               id="addr-postal"
               type="text"
@@ -213,14 +282,30 @@ export default function DeliveryAddressModal({
               placeholder="Enter your Postal Code"
               value={form.postalCode}
               onChange={handleChange('postalCode')}
+              autoComplete="postal-code"
               required
               disabled={saving}
             />
           </div>
 
-          <button type="submit" className="cart-modal-primary-btn" disabled={saving}>
-            {saving ? 'Saving...' : 'Save Address'}
-          </button>
+          <div className="cart-modal-actions-row">
+            <button
+              type="button"
+              className="cart-modal-secondary-btn"
+              onClick={onClose}
+              disabled={saving}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="cart-modal-primary-btn"
+              disabled={saving}
+              aria-busy={saving || undefined}
+            >
+              {saving ? 'Saving…' : 'Save Address'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

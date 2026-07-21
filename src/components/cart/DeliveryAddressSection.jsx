@@ -1,98 +1,160 @@
-function LocationIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M12 21s7-4.5 7-10a7 7 0 10-14 0c0 5.5 7 10 7 10z" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="12" cy="11" r="2.5" />
-    </svg>
-  );
-}
+function formatAddressLine(address) {
+  if (!address) {
+    return '';
+  }
 
-function PhoneIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path
-        d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return [address.street, address.city, address.province, address.postalCode]
+    .filter(Boolean)
+    .join(', ');
 }
 
 export default function DeliveryAddressSection({
   address,
   addresses = [],
   loading = false,
-  onChangeClick,
+  error = '',
+  onAddClick,
+  onEditClick,
   onSelectAddress,
+  selectingId = null,
 }) {
   if (loading) {
     return (
-      <section className="cart-delivery-section">
-        <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
-        <div className="cart-delivery-card cart-delivery-empty">
-          <p>Loading delivery address...</p>
+      <section
+        id="checkout-delivery"
+        className="checkout-section cart-delivery-section"
+        aria-labelledby="checkout-delivery-title"
+        aria-busy="true"
+      >
+        <div className="checkout-section-header">
+          <span className="checkout-step-num" aria-hidden="true">
+            1
+          </span>
+          <div>
+            <h2 id="checkout-delivery-title" className="checkout-section-title">
+              Delivery address
+            </h2>
+            <p className="checkout-section-hint">Where should we send your order?</p>
+          </div>
+        </div>
+        <div className="cart-delivery-skeleton" aria-live="polite">
+          <span className="sr-only">Loading delivery addresses</span>
+          <span className="cart-delivery-skeleton-block" />
+          <span className="cart-delivery-skeleton-block cart-delivery-skeleton-block-sm" />
         </div>
       </section>
     );
   }
 
-  if (!address) {
+  if (!addresses.length) {
     return (
-      <section className="cart-delivery-section">
-        <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
-        <div className="cart-delivery-card cart-delivery-empty">
-          <p className="cart-delivery-empty-text">No delivery address saved yet.</p>
-          <button type="button" className="cart-delivery-change-btn" onClick={onChangeClick}>
-            Add Delivery Address
+      <section
+        id="checkout-delivery"
+        className="checkout-section cart-delivery-section"
+        aria-labelledby="checkout-delivery-title"
+      >
+        <div className="checkout-section-header">
+          <span className="checkout-step-num" aria-hidden="true">
+            1
+          </span>
+          <div>
+            <h2 id="checkout-delivery-title" className="checkout-section-title">
+              Delivery address
+            </h2>
+            <p className="checkout-section-hint">Add an address to continue placing your order.</p>
+          </div>
+        </div>
+        <div className="cart-delivery-empty-state">
+          <p>You have not saved a delivery address yet.</p>
+          <button type="button" className="cart-delivery-primary-btn" onClick={onAddClick}>
+            Add Address
           </button>
         </div>
+        {error ? (
+          <p className="checkout-section-error" role="alert">
+            {error}
+          </p>
+        ) : null}
       </section>
     );
   }
 
   return (
-    <section className="cart-delivery-section">
-      <h2 className="cart-delivery-label">DELIVERY ADDRESS</h2>
-      <div className="cart-delivery-card">
-        <div className="cart-delivery-info">
-          <p className="cart-delivery-name">{address.name}</p>
-          <div className="cart-delivery-details">
-            <span className="cart-delivery-detail">
-              <LocationIcon />
-              {address.street}, {address.city}, {address.province} {address.postalCode}
-            </span>
-            <span className="cart-delivery-divider" aria-hidden="true" />
-            <span className="cart-delivery-detail">
-              <PhoneIcon />
-              {address.phone}
-            </span>
-          </div>
+    <section
+      id="checkout-delivery"
+      className="checkout-section cart-delivery-section"
+      aria-labelledby="checkout-delivery-title"
+    >
+      <div className="checkout-section-header">
+        <span className="checkout-step-num" aria-hidden="true">
+          1
+        </span>
+        <div className="checkout-section-header-text">
+          <h2 id="checkout-delivery-title" className="checkout-section-title">
+            Delivery address
+          </h2>
+          <p className="checkout-section-hint">Select where this order should be delivered.</p>
         </div>
-        <button type="button" className="cart-delivery-change-btn" onClick={onChangeClick}>
-          Change
+        <button type="button" className="cart-delivery-text-btn" onClick={onAddClick}>
+          Add new
         </button>
       </div>
 
-      {addresses.length > 1 && (
-        <div className="cart-address-select-wrap">
-          <label htmlFor="cart-address-select" className="cart-address-select-label">
-            Use saved address
-          </label>
-          <select
-            id="cart-address-select"
-            className="cart-address-select"
-            value={address.id}
-            onChange={(event) => onSelectAddress(event.target.value)}
-          >
-            {addresses.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} — {item.city}{item.isDefault ? ' (Default)' : ''}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <div className="cart-address-list" role="listbox" aria-label="Saved delivery addresses">
+        {addresses.map((item) => {
+          const selected = address?.id === item.id;
+          const busy = selectingId === item.id;
+          const line = formatAddressLine(item);
+
+          return (
+            <div
+              key={item.id}
+              role="option"
+              aria-selected={selected}
+              className={`cart-address-option${selected ? ' is-selected' : ''}${busy ? ' is-busy' : ''}`}
+            >
+              <button
+                type="button"
+                className="cart-address-option-main"
+                onClick={() => {
+                  if (!selected && !selectingId) {
+                    onSelectAddress?.(item.id);
+                  }
+                }}
+                disabled={Boolean(selectingId)}
+                aria-pressed={selected}
+              >
+                <span className="cart-address-option-top">
+                  <strong className="cart-address-option-name">{item.name}</strong>
+                  {item.isDefault ? (
+                    <span className="cart-address-default-badge">Default</span>
+                  ) : null}
+                  {selected ? (
+                    <span className="cart-address-selected-badge">Selected</span>
+                  ) : null}
+                </span>
+                {item.phone ? <span className="cart-address-option-line">{item.phone}</span> : null}
+                {line ? <span className="cart-address-option-line">{line}</span> : null}
+              </button>
+              <button
+                type="button"
+                className="cart-address-edit-btn"
+                onClick={() => onEditClick?.(item)}
+                disabled={Boolean(selectingId)}
+                aria-label={`Edit address for ${item.name}`}
+              >
+                Edit
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {error ? (
+        <p className="checkout-section-error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </section>
   );
 }

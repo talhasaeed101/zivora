@@ -1,58 +1,93 @@
+import { Link } from 'react-router-dom';
 import { ROUTES, productPath } from '../../utils/navigation';
-import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
+import { PLACEHOLDER_IMAGE, formatPrice } from '../../utils/products.js';
 import { buildCustomizationSummaryLines } from '../../utils/customizationSummary.js';
 import SafeImage from '../SafeImage.jsx';
 
-function CalendarIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M3 10h18M8 3v4M16 3v4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ReturnIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M9 14L4 9l5-5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M4 9h12a4 4 0 014 4v2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function CloseIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
     </svg>
   );
 }
 
-function formatPrice(amount) {
-  return `Rs. ${amount.toLocaleString('en-IN')}`;
+function formatMetalLabel(value) {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
+
+  return value
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 }
 
-export default function CartItem({ item, onQuantityChange, onRemove, updating = false }) {
+export default function CartItem({
+  item,
+  onQuantityChange,
+  onRemove,
+  updating = false,
+  removing = false,
+}) {
   const lineTotal = item.unitPrice * item.quantity;
   const productHref = item.slug ? productPath(item.slug) : ROUTES.product;
   const imageSrc = item.image || PLACEHOLDER_IMAGE;
   const customizationLines = item.isCustomized
-    ? buildCustomizationSummaryLines(item.product, item.customization)
+    ? buildCustomizationSummaryLines(item.product, item.customization).filter(
+        (line) => line?.label && line?.value != null && String(line.value).trim() !== ''
+      )
     : [];
+  const metalLabel = formatMetalLabel(item.metalColor);
+  const materialLabel =
+    item.material && item.material !== item.metalColor ? item.material : null;
+  const showSale = Boolean(item.oldPrice && item.oldPrice > item.unitPrice);
+  const title = item.title || 'Product';
 
   return (
-    <article className="cart-item">
+    <article
+      className={`cart-item${removing ? ' is-removing' : ''}${updating ? ' is-updating' : ''}`}
+      aria-busy={updating || removing || undefined}
+    >
       <div className="cart-item-product">
-        <a href={productHref} className="cart-item-image-link">
-          <SafeImage src={imageSrc} alt={item.title} className="cart-item-image" />
-        </a>
+        <Link to={productHref} className="cart-item-image-link">
+          <SafeImage
+            src={imageSrc}
+            alt={title}
+            className="cart-item-image"
+          />
+        </Link>
+
         <div className="cart-item-details">
           <h3 className="cart-item-title">
-            <a href={productHref} className="cart-item-title-link">{item.title}</a>
+            <Link to={productHref} className="cart-item-title-link">
+              {title}
+            </Link>
           </h3>
-          <p className="cart-item-material">{item.material}</p>
-          {item.isCustomized && customizationLines.length > 0 && (
+
+          <ul className="cart-item-variants">
+            {item.ringSize ? (
+              <li>
+                <span className="cart-item-variant-label">Ring size</span>
+                <span>{item.ringSize}</span>
+              </li>
+            ) : null}
+            {metalLabel ? (
+              <li>
+                <span className="cart-item-variant-label">Metal</span>
+                <span>{metalLabel}</span>
+              </li>
+            ) : null}
+            {materialLabel && !metalLabel ? (
+              <li>
+                <span className="cart-item-variant-label">Material</span>
+                <span>{materialLabel}</span>
+              </li>
+            ) : null}
+          </ul>
+
+          {customizationLines.length > 0 ? (
             <ul className="cart-item-customization">
               {customizationLines.map((line) => (
                 <li key={`${line.label}-${line.value}`}>
@@ -60,62 +95,64 @@ export default function CartItem({ item, onQuantityChange, onRemove, updating = 
                 </li>
               ))}
             </ul>
-          )}
-          {item.isCustomized && item.extraPrice > 0 && (
+          ) : null}
+
+          {item.isCustomized && item.extraPrice > 0 ? (
             <p className="cart-item-extra-price">
-              Includes extras: {formatPrice(item.extraPrice)} per item
+              Customization extras: {formatPrice(item.extraPrice)} each
             </p>
-          )}
-          <div className="cart-item-meta">
-            <span className="cart-item-meta-item">
-              <CalendarIcon />
-              {item.deliveryDate}
-            </span>
-            <span className="cart-item-meta-item">
-              <ReturnIcon />
-              {item.returnPolicy}
-            </span>
+          ) : null}
+
+          <div className="cart-item-unit-price">
+            <span className="cart-item-unit-current">{formatPrice(item.unitPrice)}</span>
+            {showSale ? (
+              <span className="cart-item-unit-old">{formatPrice(item.oldPrice)}</span>
+            ) : null}
+            <span className="cart-item-unit-note">each</span>
           </div>
         </div>
       </div>
 
-      <div className="cart-item-count">
-        <div className="cart-item-qty">
+      <div className="cart-item-actions">
+        <div className="cart-item-qty" role="group" aria-label={`Quantity for ${title}`}>
           <button
             type="button"
             className="cart-item-qty-btn"
             onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-            aria-label="Decrease quantity"
-            disabled={updating || item.quantity <= 1}
+            aria-label={`Decrease quantity of ${title}`}
+            disabled={updating || removing || item.quantity <= 1}
           >
             −
           </button>
-          <span className="cart-item-qty-value">{item.quantity}</span>
+          <span className="cart-item-qty-value" aria-live="polite">
+            {item.quantity}
+          </span>
           <button
             type="button"
             className="cart-item-qty-btn"
             onClick={() => onQuantityChange(item.id, item.quantity + 1)}
-            aria-label="Increase quantity"
-            disabled={updating}
+            aria-label={`Increase quantity of ${title}`}
+            disabled={updating || removing}
           >
             +
           </button>
         </div>
-      </div>
 
-      <div className="cart-item-price-col">
-        <span className="cart-item-price">{formatPrice(lineTotal)}</span>
-      </div>
+        <div className="cart-item-price-col">
+          <span className="cart-item-price-label">Line total</span>
+          <span className="cart-item-price">{formatPrice(lineTotal)}</span>
+        </div>
 
-      <button
-        type="button"
-        className="cart-item-remove"
-        onClick={() => onRemove(item)}
-        aria-label="Remove item"
-        disabled={updating}
-      >
-        <CloseIcon />
-      </button>
+        <button
+          type="button"
+          className="cart-item-remove"
+          onClick={() => onRemove(item)}
+          aria-label={`Remove ${title} from cart`}
+          disabled={updating || removing}
+        >
+          <CloseIcon />
+        </button>
+      </div>
     </article>
   );
 }

@@ -1,9 +1,13 @@
+import { useEffect, useState } from 'react';
 import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
 const HERO_ARCH_IMAGE = '/images/image 3.png';
 const HERO_PILL_IMAGE = '/images/image 1 (3).png';
+
+const HERO_TAGLINE =
+  'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';
 
 const THUMBNAIL_IMAGES = [
   '/images/stack1.png',
@@ -12,6 +16,54 @@ const THUMBNAIL_IMAGES = [
   '/images/stack4.png',
 ];
 
+function prefersReducedMotion() {
+  return typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function useHeroTaglineTypewriter(text) {
+  const reducedMotion = prefersReducedMotion();
+  const [displayed, setDisplayed] = useState(reducedMotion ? text : '');
+  const [done, setDone] = useState(reducedMotion);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) {
+      return undefined;
+    }
+
+    let index = 0;
+    let intervalId;
+
+    const timeoutId = window.setTimeout(() => {
+      intervalId = window.setInterval(() => {
+        index += 1;
+        setDisplayed(text.slice(0, index));
+        if (index >= text.length) {
+          window.clearInterval(intervalId);
+          setDone(true);
+        }
+      }, 28);
+    }, 450);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      if (intervalId) {
+        window.clearInterval(intervalId);
+      }
+    };
+  }, [text]);
+
+  return { displayed, done };
+}
+
+function HeroTagline({ displayed, done }) {
+  return (
+    <p className="hero-tagline-text" aria-label={HERO_TAGLINE}>
+      <span aria-hidden="true">{displayed}</span>
+      {!done && <span className="hero-tagline-caret" aria-hidden="true" />}
+    </p>
+  );
+}
 const SHOP_BADGE = (
   <>
     <svg viewBox="0 0 100 100" width="120" height="120" className="hero-circular-rotating-svg" aria-hidden="true">
@@ -72,6 +124,8 @@ function CollectionRow() {
 }
 
 export default function Hero() {
+  const { displayed, done } = useHeroTaglineTypewriter(HERO_TAGLINE);
+
   return (
     <section className="hero-section">
       <div className="hero-main-wrapper">
@@ -82,6 +136,7 @@ export default function Hero() {
                 src={HERO_PILL_IMAGE}
                 alt="Zivorah jewelry collection"
                 className="hero-pill-image"
+                eager
               />
             </div>
             <div className="hero-vertical-text-container">
@@ -97,10 +152,7 @@ export default function Hero() {
         </div>
 
         <div className="hero-content-column">
-          <p className="hero-tagline-text">
-            From everyday elegance to unforgettable celebrations, discover jewelry
-            crafted with exceptional artistry.
-          </p>
+          <HeroTagline displayed={displayed} done={done} />
 
           <CollectionRow />
         </div>
@@ -111,6 +163,7 @@ export default function Hero() {
               src={HERO_ARCH_IMAGE}
               alt="Featured jewelry"
               className="hero-arch-image"
+              eager
             />
           </div>
 
@@ -129,6 +182,7 @@ export default function Hero() {
                   src={HERO_PILL_IMAGE}
                   alt="Zivorah jewelry collection"
                   className="hero-pill-image"
+                  eager
                 />
               </div>
               <div className="hero-vertical-text-container">
@@ -144,10 +198,7 @@ export default function Hero() {
           </div>
 
           <div className="mobile-hero-copy-block">
-            <p className="hero-tagline-text">
-              From everyday elegance to unforgettable celebrations, discover
-              jewelry crafted with exceptional artistry.
-            </p>
+            <HeroTagline displayed={displayed} done={done} />
 
             <a
               href={ROUTES.collection}
@@ -169,6 +220,7 @@ export default function Hero() {
               src={HERO_ARCH_IMAGE}
               alt="Featured jewelry"
               className="hero-arch-image"
+              eager
             />
           </div>
         </div>

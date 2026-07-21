@@ -4,7 +4,7 @@ import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
 import CustomizationModal from './CustomizationModal.jsx';
-import { formatPrice } from '../../utils/products.js';
+import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { productNeedsRingSize } from '../../utils/categories.js';
 import { trackAddToCart } from '../../utils/analytics.js';
@@ -19,20 +19,20 @@ const METAL_COLOR_MAP = {
   'rose-gold': { id: 'rose-gold', label: 'Rose Gold', color: '#e8b4a8' },
 };
 
-const DEFAULT_METAL_COLORS = Object.values(METAL_COLOR_MAP);
-
 const resolveMetalColors = (metalColors = []) => {
   if (!metalColors.length) {
-    return DEFAULT_METAL_COLORS;
+    return Object.values(METAL_COLOR_MAP);
   }
 
   return metalColors.map((color) => {
     const normalized = String(color).toLowerCase();
-    return METAL_COLOR_MAP[normalized] || {
-      id: normalized,
-      label: color,
-      color: '#c8815f',
-    };
+    return (
+      METAL_COLOR_MAP[normalized] || {
+        id: normalized,
+        label: color,
+        color: '#c8815f',
+      }
+    );
   });
 };
 
@@ -47,7 +47,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     if (!showRingSize) {
       return [];
     }
-
     return product?.ringSizes?.length ? product.ringSizes : DEFAULT_RING_SIZES;
   }, [product?.ringSizes, showRingSize]);
 
@@ -60,8 +59,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [buyNowOpen, setBuyNowOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
+  const [sizeError, setSizeError] = useState('');
 
   const isCustomizable = Boolean(product?.isCustomizable);
+  const categoryName = getCategoryName(product?.category);
+  const showSale = hasSale(product);
 
   useEffect(() => {
     if (showRingSize && ringSizes.length > 0) {
@@ -69,15 +71,35 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     }
   }, [showRingSize, ringSizes.join(',')]);
 
+  useEffect(() => {
+    setQuantity(1);
+    setCartMessage(null);
+    setSizeError('');
+  }, [product?._id]);
+
   const maxQuantity = product?.stock > 0 ? product.stock : 99;
   const inStock = product?.stock === undefined || product.stock > 0;
-  const averageRating = reviewSummary?.averageRating ?? product?.averageRating ?? 4;
-  const reviewCount = reviewSummary?.reviewCount ?? product?.reviewCount ?? 1015;
-  const filledStars = getFilledStars(averageRating);
+  const hasRealReviews =
+    reviewSummary &&
+    typeof reviewSummary.reviewCount === 'number' &&
+    reviewSummary.reviewCount > 0 &&
+    reviewSummary.averageRating != null;
+  const averageRating = hasRealReviews ? reviewSummary.averageRating : null;
+  const reviewCount = hasRealReviews ? reviewSummary.reviewCount : 0;
+  const filledStars = hasRealReviews ? getFilledStars(averageRating) : 0;
 
   const handleColorSelect = (colorId) => {
     setColor(colorId);
     onColorChange?.(colorId);
+  };
+
+  const requireSize = () => {
+    if (showRingSize && !size) {
+      setSizeError('Please select a ring size.');
+      return false;
+    }
+    setSizeError('');
+    return true;
   };
 
   const handleAddToCart = async () => {
@@ -85,6 +107,15 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
     if (!isAuthenticated) {
       navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    if (!inStock) {
+      setCartMessage({ type: 'error', text: 'This piece is currently out of stock.' });
+      return;
+    }
+
+    if (!requireSize()) {
       return;
     }
 
@@ -123,6 +154,10 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       return;
     }
 
+    if (!requireSize()) {
+      return;
+    }
+
     if (!product?._id) {
       setCartMessage({ type: 'error', text: 'This product cannot be customized yet.' });
       return;
@@ -149,6 +184,10 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       return;
     }
 
+    if (!requireSize()) {
+      return;
+    }
+
     if (!product?._id) {
       setCartMessage({ type: 'error', text: 'This product cannot be purchased yet.' });
       return;
@@ -159,69 +198,100 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
   return (
     <div className="pd-info">
-      <h1 className="pd-info-title">{product?.title || 'Minimal Stacked Rings'}</h1>
-      <p className="pd-info-subtitle">
-        {product?.shortDescription ||
-          'Delicately crafted minimal stacked rings designed to blend subtle elegance with modern sophistication. Perfect for effortless everyday luxury.'}
-      </p>
+      {categoryName ? <p className="pd-info-category">{categoryName}</p> : null}
 
-      <div className="pd-info-rating">
-        <div className="pd-info-stars">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <StarIcon
-              key={star}
-              filled={star <= filledStars}
-              className={`w-4 h-4 ${star <= filledStars ? 'pd-star-filled' : 'pd-star-empty'}`}
-            />
-          ))}
+      <h1 className="pd-info-title">{product?.title || 'Product'}</h1>
+
+      {(product?.shortDescription || product?.sku) && (
+        <div className="pd-info-meta">
+          {product?.shortDescription ? (
+            <p className="pd-info-subtitle">{product.shortDescription}</p>
+          ) : null}
+          {product?.sku ? <p className="pd-info-sku">SKU: {product.sku}</p> : null}
         </div>
-        <span className="pd-info-rating-value">{averageRating.toFixed(1)}</span>
-        <span className="pd-info-review-count">
-          ({reviewCount.toLocaleString()} Review{reviewCount === 1 ? '' : 's'})
-        </span>
+      )}
+
+      {hasRealReviews && (
+        <div className="pd-info-rating" aria-label={`${averageRating.toFixed(1)} out of 5 from ${reviewCount} reviews`}>
+          <div className="pd-info-stars" aria-hidden="true">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <StarIcon
+                key={star}
+                filled={star <= filledStars}
+                className={`w-4 h-4 ${star <= filledStars ? 'pd-star-filled' : 'pd-star-empty'}`}
+              />
+            ))}
+          </div>
+          <span className="pd-info-rating-value">{averageRating.toFixed(1)}</span>
+          <span className="pd-info-review-count">
+            ({reviewCount.toLocaleString()} review{reviewCount === 1 ? '' : 's'})
+          </span>
+        </div>
+      )}
+
+      <div className="pd-info-price-row">
+        <p className="pd-info-price">
+          {formatPrice(product?.price ?? 0)}
+          {product?.oldPrice ? (
+            <span className="pd-info-price-old">{formatPrice(product.oldPrice)}</span>
+          ) : null}
+        </p>
+        {showSale ? <span className="pd-info-sale-badge">Sale</span> : null}
       </div>
 
-      <p className="pd-info-price">
-        {formatPrice(product?.price ?? 999)}
-        {product?.oldPrice && (
-          <span className="pd-info-price-old">{formatPrice(product.oldPrice)}</span>
-        )}
-      </p>
       {product?.stock !== undefined && (
-        <p className="pd-info-stock">{inStock ? `${product.stock} in stock` : 'Out of stock'}</p>
+        <p className={`pd-info-stock${inStock ? '' : ' is-oos'}`}>
+          {inStock ? 'In stock' : 'Out of stock'}
+          {inStock && product.stock <= 5 ? ` · ${product.stock} left` : ''}
+        </p>
       )}
+
       <hr className="pd-info-divider" />
 
       {showRingSize && ringSizes.length > 0 && (
         <div className="pd-info-field">
-          <label htmlFor="ring-size" className="pd-info-label">Ring Size</label>
-          <div className="pd-info-select-wrap">
-            <select
-              id="ring-size"
-              className="pd-info-select"
-              value={size}
-              onChange={(e) => setSize(e.target.value)}
-            >
-              {ringSizes.map((ringSize) => (
-                <option key={ringSize} value={ringSize}>{ringSize}</option>
-              ))}
-            </select>
+          <span className="pd-info-label" id="ring-size-label">
+            Ring Size
+          </span>
+          <div className="pd-info-option-row" role="group" aria-labelledby="ring-size-label">
+            {ringSizes.map((ringSize) => (
+              <button
+                key={ringSize}
+                type="button"
+                className={`pd-info-option-btn${size === ringSize ? ' is-selected' : ''}`}
+                onClick={() => {
+                  setSize(ringSize);
+                  setSizeError('');
+                }}
+                aria-pressed={size === ringSize}
+              >
+                {ringSize}
+              </button>
+            ))}
           </div>
+          {sizeError ? (
+            <p className="pd-info-field-error" role="alert">
+              {sizeError}
+            </p>
+          ) : null}
         </div>
       )}
 
       {metalColors.length > 0 && (
         <div className="pd-info-field">
-          <span className="pd-info-label">Metal Color</span>
-          <div className="pd-info-swatches">
+          <span className="pd-info-label" id="metal-color-label">
+            Metal Color
+          </span>
+          <div className="pd-info-swatches" role="group" aria-labelledby="metal-color-label">
             {metalColors.map((metal) => (
               <button
                 key={metal.id}
                 type="button"
-                className={`pd-info-swatch ${color === metal.id ? 'pd-info-swatch-active' : ''}`}
+                className={`pd-info-swatch${color === metal.id ? ' pd-info-swatch-active' : ''}`}
                 style={{ '--swatch-color': metal.color }}
                 onClick={() => handleColorSelect(metal.id)}
                 aria-label={metal.label}
+                aria-pressed={color === metal.id}
                 title={metal.label}
               />
             ))}
@@ -235,11 +305,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       {product?.sizeChart?.enabled && product?.sizeChart?.imageUrl && (
         <div className="pd-info-field">
           <span className="pd-info-label">Size Chart</span>
-          <button
-            type="button"
-            className="pd-size-chart-link"
-            onClick={() => setSizeChartOpen(true)}
-          >
+          <button type="button" className="pd-size-chart-link" onClick={() => setSizeChartOpen(true)}>
             View Size Chart
           </button>
         </div>
@@ -273,23 +339,28 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
       {!isCustomizable && (
         <div className="pd-info-field">
-          <span className="pd-info-label">Quantity</span>
-          <div className="pd-info-quantity">
+          <span className="pd-info-label" id="quantity-label">
+            Quantity
+          </span>
+          <div className="pd-info-quantity" role="group" aria-labelledby="quantity-label">
             <button
               type="button"
               className="pd-info-qty-btn"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               aria-label="Decrease quantity"
+              disabled={quantity <= 1}
             >
               −
             </button>
-            <span className="pd-info-qty-value">{quantity}</span>
+            <span className="pd-info-qty-value" aria-live="polite">
+              {quantity}
+            </span>
             <button
               type="button"
               className="pd-info-qty-btn"
               onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
               aria-label="Increase quantity"
-              disabled={!inStock}
+              disabled={!inStock || quantity >= maxQuantity}
             >
               +
             </button>
@@ -297,11 +368,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         </div>
       )}
 
-      {cartMessage && (
-        <p className={`pd-cart-message pd-cart-message-${cartMessage.type}`}>
-          {cartMessage.text}
-        </p>
-      )}
+      <div className="pd-cart-live" aria-live="polite">
+        {cartMessage && (
+          <p className={`pd-cart-message pd-cart-message-${cartMessage.type}`}>{cartMessage.text}</p>
+        )}
+      </div>
 
       <div className="pd-info-actions">
         {isCustomizable ? (
@@ -317,22 +388,24 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           <button
             type="button"
             className="pd-btn pd-btn-primary"
+            onClick={handleAddToCart}
+            disabled={!inStock || adding}
+          >
+            {adding ? 'Adding…' : 'Add To Cart'}
+          </button>
+        )}
+
+        {!isCustomizable && (
+          <button
+            type="button"
+            className="pd-btn pd-btn-secondary"
             onClick={handleBuyNow}
             disabled={!inStock}
           >
             Buy Now
           </button>
         )}
-        {!isCustomizable && (
-          <button
-            type="button"
-            className="pd-btn pd-btn-secondary"
-            onClick={handleAddToCart}
-            disabled={!inStock || adding}
-          >
-            {adding ? 'Adding...' : 'Add To Cart'}
-          </button>
-        )}
+
         <WishlistButton
           productId={product?._id}
           className="pd-btn pd-btn-wishlist"
@@ -341,6 +414,13 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           stopPropagation={false}
         />
       </div>
+
+      <ul className="pd-trust-list">
+        <li>Secure checkout</li>
+        <li>Carefully packaged</li>
+        <li>Nationwide delivery</li>
+        <li>Customer support</li>
+      </ul>
 
       <BuyNowCheckoutModal
         isOpen={buyNowOpen}

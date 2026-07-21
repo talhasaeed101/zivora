@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
+import Reveal from '../components/Reveal.jsx';
 import { publicCatalogApi } from '../services/api.js';
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
@@ -23,6 +24,14 @@ export default function CategoryPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reloadToken, setReloadToken] = useState(0);
+  const [trackedSlug, setTrackedSlug] = useState(slug);
+
+  if (slug !== trackedSlug) {
+    setTrackedSlug(slug);
+    setPage(1);
+    setError('');
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -38,6 +47,8 @@ export default function CategoryPage() {
           if (!match) {
             setError('Category not found.');
             setLoading(false);
+          } else {
+            setError('');
           }
         }
       })
@@ -93,26 +104,42 @@ export default function CategoryPage() {
     return () => {
       isMounted = false;
     };
-  }, [category, page]);
+  }, [category, page, reloadToken]);
 
   const categoryImage = category?.image || PLACEHOLDER_IMAGE;
+  const productCount = pagination?.total ?? products.length;
+  const otherCategories = categories.filter((item) => item.slug !== slug);
 
   usePageTitle(category?.name ? `${category.name} | Zivorah` : 'Category | Zivorah');
+
+  const handlePageChange = (nextPage) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="catalog-page">
       <Navbar activeLink="COLLECTION" homeHref={ROUTES.home} />
 
-      <main className="catalog-main">
-        <p className="catalog-breadcrumbs">
-          <a href={ROUTES.home}>Home</a> &gt; <a href="/collection">Collection</a> &gt;{' '}
-          <span>{category?.name || slug}</span>
-        </p>
+      <main id="main-content" className="catalog-main">
+        <Reveal className="catalog-header" variant="fade-up">
+          <p className="catalog-breadcrumbs">
+            <a href={ROUTES.home}>Home</a>
+            <span className="catalog-breadcrumb-sep" aria-hidden="true">
+              /
+            </span>
+            <a href="/collection">Collection</a>
+            <span className="catalog-breadcrumb-sep" aria-hidden="true">
+              /
+            </span>
+            <span>{category?.name || slug}</span>
+          </p>
+        </Reveal>
 
         {loading && !category && <ShimmerCategoryHero />}
 
         {category && (
-          <div className="category-hero">
+          <Reveal className="category-hero" variant="fade-up">
             <div className="category-hero-image-wrap">
               <SafeImage src={categoryImage} alt={category.name} className="category-hero-image" />
             </div>
@@ -121,58 +148,108 @@ export default function CategoryPage() {
               {category.description && (
                 <p className="category-hero-description">{category.description}</p>
               )}
+              <p className="catalog-page-count">
+                {loading
+                  ? 'Loading products…'
+                  : `${productCount} ${productCount === 1 ? 'piece' : 'pieces'}`}
+              </p>
             </div>
-          </div>
+          </Reveal>
         )}
 
         {!category && !loading && (
-          <h1 className="catalog-page-title">Category not found</h1>
-        )}
-
-        <p className="catalog-page-count">
-          {loading ? 'Loading products...' : `${pagination?.total ?? products.length} products`}
-        </p>
-
-        {categories.length > 0 && (
-          <div className="catalog-filter-section" style={{ borderBottom: 'none', paddingTop: 0 }}>
-            <h2 className="catalog-filter-heading">OTHER CATEGORIES</h2>
-            <ul className="catalog-filter-list" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: '16px' }}>
-              {categories
-                .filter((item) => item.slug !== slug)
-                .map((item) => (
-                  <li key={item._id || item.slug}>
-                    <a href={categoryPath(item.slug)} className="catalog-filter-item" style={{ textDecoration: 'none' }}>
-                      {item.name}
-                    </a>
-                  </li>
-                ))}
-            </ul>
+          <div className="catalog-state">
+            <h1 className="catalog-state-title">Category not found</h1>
+            <p className="catalog-state-copy">
+              This category may have moved. Browse the full collection instead.
+            </p>
+            <a href={ROUTES.collection} className="catalog-state-link">
+              Browse All Jewelry
+            </a>
           </div>
         )}
 
-        <div className="catalog-grid-wrap" style={{ marginTop: '32px' }}>
-          {error && <p className="catalog-state-message catalog-state-error">{error}</p>}
+        {otherCategories.length > 0 && category && (
+          <Reveal className="category-other-wrap" variant="fade-up" delay={60}>
+            <h2 className="catalog-filter-heading">Other categories</h2>
+            <ul className="category-other-list">
+              {otherCategories.map((item) => (
+                <li key={item._id || item.slug}>
+                  <a href={categoryPath(item.slug)} className="category-other-link">
+                    {item.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        )}
 
-          {loading ? (
-            <ShimmerProductGrid count={6} />
-          ) : !error && products.length === 0 ? (
-            <p className="catalog-state-message">No products in this category yet.</p>
-          ) : (
-            <>
+        <div className="catalog-grid-wrap category-grid-wrap">
+          {error && category && (
+            <div className="catalog-state catalog-state-error-panel" role="alert">
+              <h2 className="catalog-state-title">We couldn’t load these pieces</h2>
+              <p className="catalog-state-copy">Please try again in a moment.</p>
+              <button
+                type="button"
+                className="catalog-state-btn"
+                onClick={() => setReloadToken((value) => value + 1)}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {category && loading ? (
+            <div aria-busy="true" aria-live="polite">
+              <span className="sr-only">Loading products</span>
+              <ShimmerProductGrid count={8} />
+            </div>
+          ) : null}
+
+          {category && !loading && !error && products.length === 0 ? (
+            <div className="catalog-state">
+              <h2 className="catalog-state-title">No products in this category yet</h2>
+              <p className="catalog-state-copy">
+                Explore other collections while we prepare new pieces.
+              </p>
+              <a href={ROUTES.collection} className="catalog-state-link">
+                Browse All Jewelry
+              </a>
+            </div>
+          ) : null}
+
+          {category && !loading && !error && products.length > 0 ? (
+            <div key={`${slug}-${page}`} className="catalog-results-fade">
               <div className="catalog-product-grid">
-                {products.map((product) => (
-                  <CatalogProductCard key={product._id} product={product} variant="desktop" />
+                {products.map((product, index) => (
+                  <Reveal
+                    key={product._id}
+                    variant="fade-up"
+                    delay={Math.min(index, 7) * 40}
+                    className="catalog-card-reveal"
+                  >
+                    <CatalogProductCard product={product} variant="desktop" />
+                  </Reveal>
                 ))}
               </div>
               <div className="catalog-product-grid-mobile">
-                {products.map((product) => (
-                  <CatalogProductCard key={product._id} product={product} variant="mobile" />
+                {products.map((product, index) => (
+                  <Reveal
+                    key={`${product._id}-m`}
+                    variant="fade-up"
+                    delay={Math.min(index, 7) * 40}
+                    className="catalog-card-reveal"
+                  >
+                    <CatalogProductCard product={product} variant="mobile" />
+                  </Reveal>
                 ))}
               </div>
-            </>
-          )}
+            </div>
+          ) : null}
 
-          <CatalogPagination pagination={pagination} page={page} onPageChange={setPage} />
+          {category && !loading && !error && (
+            <CatalogPagination pagination={pagination} page={page} onPageChange={handlePageChange} />
+          )}
         </div>
       </main>
 

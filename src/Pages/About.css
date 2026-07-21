@@ -1,15 +1,50 @@
 @import './Legal.css';
 
-.about-hero {
-  margin-bottom: 48px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid #e5e5e5;
+.about-split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 40px;
 }
 
-.about-lead {
-  font-family: Inter, sans-serif;
-  font-size: 18px;
-  line-height: 1.7;
-  color: #333;
-  margin: 0;
+.about-split-copy .info-section {
+  margin-bottom: 0;
+}
+
+.about-split-media {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: #ebe7e2;
+}
+
+.about-split-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .about-split {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .about-split-media {
+    order: 2;
+    aspect-ratio: 16 / 10;
+    max-height: 280px;
+  }
+
+  .about-split-copy {
+    order: 1;
+  }
+}
+
+@media print {
+  .about-split-media {
+    display: none;
+  }
 }

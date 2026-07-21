@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import AccountShell from '../components/account/AccountShell.jsx';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { ticketApi } from '../services/api';
-import { ROUTES, ticketPath } from '../utils/navigation';
+import { ROUTES } from '../utils/navigation';
 import './TicketDetail.css';
 
 const TICKET_CATEGORIES = [
@@ -18,28 +17,58 @@ const TICKET_CATEGORIES = [
 
 const TICKET_STATUSES = {
   open: { label: 'Open', color: '#967259' },
-  in_progress: { label: 'In Progress', color: '#e4a853' },
-  waiting_for_customer: { label: 'Waiting for You', color: '#c75050' },
-  resolved: { label: 'Resolved', color: '#5e9e6e' },
+  in_progress: { label: 'In Progress', color: '#a67c52' },
+  waiting_for_customer: { label: 'Waiting for You', color: '#8f4a45' },
+  resolved: { label: 'Resolved', color: '#5e7a66' },
   closed: { label: 'Closed', color: '#888' },
 };
 
 function formatDate(value) {
   if (!value) return '—';
   return new Date(value).toLocaleString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
+}
+
+function friendlyTicketError(err) {
+  const status = err?.status;
+  const message = (err?.message || '').trim();
+
+  if (status === 404) {
+    return 'This ticket could not be found.';
+  }
+
+  if (status === 401 || status === 403) {
+    return 'Please sign in again to continue.';
+  }
+
+  if (
+    !message ||
+    message.length > 140 ||
+    /^request failed \(\d+\)$/i.test(message)
+  ) {
+    return 'Something went wrong. Please try again.';
+  }
+
+  return message;
 }
 
 export default function TicketDetail() {
   usePageTitle('Support Ticket | Zivorah');
   const { id } = useParams();
   const navigate = useNavigate();
+  const replyId = useId();
 
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reply, setReply] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [replyError, setReplyError] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
 
   const loadTicket = async () => {
     setLoading(true);
@@ -60,107 +89,120 @@ export default function TicketDetail() {
 
   const handleSubmitReply = async (e) => {
     e.preventDefault();
-    if (!reply.trim()) return;
+    if (!reply.trim() || submitting) return;
 
     setSubmitting(true);
+    setReplyError('');
+
     try {
       await ticketApi.replyToTicket(id, reply);
       setReply('');
-      loadTicket();
+      setStatusMessage('Reply sent.');
+      await loadTicket();
     } catch (err) {
       console.error('Failed to send reply:', err);
+      setReplyError(friendlyTicketError(err));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Navbar homeHref={ROUTES.home} />
-        <main className="ticket-detail-page">
-          <div className="ticket-detail-inner">
-            <div className="ticket-detail-loading">Loading ticket...</div>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
-
-  if (!ticket) return null;
-
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="ticket-detail-page">
-        <div className="ticket-detail-inner">
-          <div className="ticket-detail-header">
-            <Link to={ticketPath()} className="ticket-back-link">← Back to Tickets</Link>
-            <div className="ticket-detail-title-row">
-              <h1 className="ticket-detail-title">{ticket.subject}</h1>
-              <span
-                className="ticket-detail-status"
-                style={{ backgroundColor: TICKET_STATUSES[ticket.status]?.color }}
-              >
-                {TICKET_STATUSES[ticket.status]?.label}
-              </span>
-            </div>
-            <div className="ticket-detail-meta">
-              <span className="ticket-detail-category">
-                {TICKET_CATEGORIES.find(c => c.value === ticket.category)?.label}
-              </span>
-              <span className="ticket-detail-date">Created {formatDate(ticket.createdAt)}</span>
-              {ticket.order?.orderNumber && (
-                <span className="ticket-detail-order">Order: {ticket.order.orderNumber}</span>
-              )}
-            </div>
-          </div>
-
-          <div className="ticket-messages">
-            {ticket.messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`ticket-message ${msg.messageSenderModel === 'Admin' ? 'admin-message' : 'customer-message'}`}
-              >
-                <div className="ticket-message-header">
-                  <span className="ticket-message-sender">
-                    {msg.messageSenderModel === 'Admin' ? 'Zivora Support' : 'You'}
-                  </span>
-                  <span className="ticket-message-date">{formatDate(msg.createdAt)}</span>
-                </div>
-                <div className="ticket-message-content">
-                  {msg.message.split('\n').map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {ticket.status !== 'closed' && (
-            <div className="ticket-reply-container">
-              <form className="ticket-reply-form" onSubmit={handleSubmitReply}>
-                <textarea
-                  value={reply}
-                  onChange={(e) => setReply(e.target.value)}
-                  placeholder="Type your reply..."
-                  rows={4}
-                  required
-                />
-                <button
-                  type="submit"
-                  className="ticket-reply-btn"
-                  disabled={submitting}
-                >
-                  {submitting ? 'Sending...' : 'Send Reply'}
-                </button>
-              </form>
-            </div>
-          )}
+    <AccountShell
+      active="support"
+      title={ticket?.subject || 'Support Ticket'}
+      description={
+        ticket
+          ? `${TICKET_CATEGORIES.find((c) => c.value === ticket.category)?.label || 'Support'} · Created ${formatDate(ticket.createdAt)}`
+          : 'Conversation with Zivorah support.'
+      }
+    >
+      <div className="ticket-detail-page">
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {statusMessage}
         </div>
-      </main>
-      <Footer />
-    </>
+
+        <Link to={ROUTES.supportTickets} className="ticket-back-link">
+          ← Back to Tickets
+        </Link>
+
+        {loading ? (
+          <div className="ticket-detail-loading" aria-busy="true" aria-live="polite">
+            Loading ticket…
+          </div>
+        ) : null}
+
+        {!loading && ticket ? (
+          <>
+            <div className="ticket-detail-header">
+              <div className="ticket-detail-title-row">
+                <span
+                  className="ticket-detail-status"
+                  style={{ backgroundColor: TICKET_STATUSES[ticket.status]?.color }}
+                >
+                  {TICKET_STATUSES[ticket.status]?.label}
+                </span>
+              </div>
+              <div className="ticket-detail-meta">
+                <span className="ticket-detail-category">
+                  {TICKET_CATEGORIES.find((c) => c.value === ticket.category)?.label}
+                </span>
+                {ticket.order?.orderNumber ? (
+                  <span className="ticket-detail-order">Order: {ticket.order.orderNumber}</span>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="ticket-messages">
+              {ticket.messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`ticket-message ${msg.messageSenderModel === 'Admin' ? 'admin-message' : 'customer-message'}`}
+                >
+                  <div className="ticket-message-header">
+                    <span className="ticket-message-sender">
+                      {msg.messageSenderModel === 'Admin' ? 'Zivorah Support' : 'You'}
+                    </span>
+                    <span className="ticket-message-date">{formatDate(msg.createdAt)}</span>
+                  </div>
+                  <div className="ticket-message-content">
+                    {msg.message.split('\n').map((line, i) => (
+                      <p key={i}>{line || '\u00A0'}</p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {ticket.status !== 'closed' ? (
+              <div className="ticket-reply-container">
+                <form className="ticket-reply-form" onSubmit={handleSubmitReply}>
+                  <label htmlFor={replyId} className="ticket-reply-label">
+                    Your reply
+                  </label>
+                  <textarea
+                    id={replyId}
+                    value={reply}
+                    onChange={(e) => setReply(e.target.value)}
+                    placeholder="Type your reply…"
+                    rows={4}
+                    required
+                    disabled={submitting}
+                  />
+                  {replyError ? (
+                    <p className="ticket-reply-error" role="alert">
+                      {replyError}
+                    </p>
+                  ) : null}
+                  <button type="submit" className="ticket-reply-btn" disabled={submitting}>
+                    {submitting ? 'Sending…' : 'Send Reply'}
+                  </button>
+                </form>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+      </div>
+    </AccountShell>
   );
 }
