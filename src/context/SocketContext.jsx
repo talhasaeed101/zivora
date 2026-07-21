@@ -13,7 +13,6 @@ export function SocketProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const orderUpdatedHandlers = React.useRef([]);
-  const ticketUpdatedHandlers = React.useRef([]);
 
   const refreshNotifications = useCallback(async () => {
     try {
@@ -32,13 +31,6 @@ export function SocketProvider({ children }) {
     orderUpdatedHandlers.current.push(handler);
     return () => {
       orderUpdatedHandlers.current = orderUpdatedHandlers.current.filter((h) => h !== handler);
-    };
-  }, []);
-
-  const onTicketUpdated = useCallback((handler) => {
-    ticketUpdatedHandlers.current.push(handler);
-    return () => {
-      ticketUpdatedHandlers.current = ticketUpdatedHandlers.current.filter((h) => h !== handler);
     };
   }, []);
 
@@ -75,10 +67,6 @@ export function SocketProvider({ children }) {
       orderUpdatedHandlers.current.forEach((handler) => handler(order));
     });
 
-    socketInstance.on('ticket:updated', (ticket) => {
-      ticketUpdatedHandlers.current.forEach((handler) => handler(ticket));
-    });
-
     setSocket(socketInstance);
 
     return () => {
@@ -102,7 +90,7 @@ export function SocketProvider({ children }) {
 
   return (
     <SocketContext.Provider
-      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated, onTicketUpdated }}
+      value={{ socket, notifications, unreadCount, refreshNotifications, markRead, markAllRead, onOrderUpdated }}
     >
       {children}
     </SocketContext.Provider>
