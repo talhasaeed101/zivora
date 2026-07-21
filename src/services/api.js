@@ -67,7 +67,12 @@ async function request(endpoint, options = {}) {
     const details = validationErrors?.length
       ? validationErrors.map((item) => item.msg || item.message).filter(Boolean).join(', ')
       : data.errorMessage || '';
-    const message = details || data.message || `Request failed (${response.status})`;
+    const rateLimitedMessage =
+      response.status === 429
+        ? 'Too many requests. Please wait a few minutes and try again.'
+        : '';
+    const message =
+      rateLimitedMessage || details || data.message || `Request failed (${response.status})`;
     const error = new Error(message);
     // Attach additional data to the error object for frontend handling
     error.data = data;
