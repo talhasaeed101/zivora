@@ -38,7 +38,13 @@ export default function Contact() {
       });
       setSubmitted(true);
     } catch (err) {
-      setError(err.message || 'Failed to send message.');
+      if (err.status === 429) {
+        setError(
+          'You have sent too many messages. Please wait about 15 minutes, then try again — or reach us on WhatsApp or email.'
+        );
+      } else {
+        setError(err.message || 'Failed to send message. Please try again.');
+      }
     } finally {
       setSaving(false);
     }

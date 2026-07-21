@@ -82,6 +82,17 @@
   color: #333;
 }
 
+.contact-error {
+  margin: 0;
+  padding: 12px 14px;
+  background: #faf4f2;
+  border: 1px solid #e8cfc7;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #8a3b2c;
+}
+
 .contact-info-block {
   padding: 32px;
   background: #f7f5f2;
