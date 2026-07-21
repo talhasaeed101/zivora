@@ -91,6 +91,18 @@ export const customerAuthApi = {
       body: JSON.stringify({ email, password }),
     }),
 
+  googleLogin: (token) =>
+    request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+
+  facebookLogin: (accessToken) =>
+    request('/auth/facebook', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken }),
+    }),
+
   getProfile: () => request('/auth/profile'),
 
   forgotPassword: (email) =>
@@ -252,6 +264,22 @@ export const uploadApi = {
 
     return data;
   },
+};
+
+export const notificationApi = {
+  getNotifications: (params = {}) => request(`/users/notifications${buildQueryString(params)}`),
+  getUnreadCount: () => request('/users/notifications/unread-count'),
+  markAsRead: (id) => request(`/users/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllAsRead: () => request('/users/notifications/read-all', { method: 'PATCH' }),
+};
+
+export const ticketApi = {
+  submitTicket: (data) => request('/users/support/tickets', {
+    method: 'POST', body: JSON.stringify(data) }),
+  getTickets: (params = {}) => request(`/users/support/tickets${buildQueryString(params)}`),
+  getTicket: (id) => request(`/users/support/tickets/${id}`),
+  replyToTicket: (id, message) => request(`/users/support/tickets/${id}/reply`, {
+    method: 'POST', body: JSON.stringify({ message }) }),
 };
 
 export const reviewApi = {

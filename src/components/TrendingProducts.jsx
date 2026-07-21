@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowRightIcon } from './icons';
 import WishlistButton from './WishlistButton.jsx';
 import SafeImage from './SafeImage.jsx';
-import { ROUTES, searchPath } from '../utils/navigation';
+import { searchPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import { formatPrice, getProductImage, hasSale, getCategoryName } from '../utils/products.js';
 import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';

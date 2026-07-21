@@ -1,4 +1,3 @@
-import React from 'react';
 import { ORDER_STATUS, NORMAL_FLOW_STEPS, ORDER_STATUS_LABELS } from '../constants/orderConstants.js';
 import './OrderProgressTracker.css';
 

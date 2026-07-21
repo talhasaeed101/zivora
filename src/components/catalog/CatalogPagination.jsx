@@ -6,6 +6,7 @@ export default function CatalogPagination({ pagination, page, onPageChange }) {
   const pages = [];
   const totalPages = pagination.totalPages;
   const current = page;
+  console.log("jdjdjd")
 
   for (let i = 1; i <= totalPages; i += 1) {
     if (

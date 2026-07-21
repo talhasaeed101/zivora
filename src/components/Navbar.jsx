@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { SearchIcon, ShoppingBagIcon, UserIcon, HeartIcon } from './icons';
+import { SearchIcon, ShoppingBagIcon, UserIcon, HeartIcon, BellIcon } from './icons';
 import { NAV_ROUTES, ROUTES, getAccountRoute, searchPath } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
+import { useSocket } from '../context/SocketContext.jsx';
 import './Navbar.css';
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ export default function Navbar({ activeLink = 'HOME', homeHref = '#' }) {
   const { isAuthenticated } = useAuth();
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
+  const { unreadCount: unreadNotificationCount } = useSocket();
   const accountPath = getAccountRoute(isAuthenticated);
   const cartCount = isAuthenticated ? totalItems : 0;
   const wishlistBadgeCount = isAuthenticated ? wishlistCount : 0;
@@ -71,6 +73,14 @@ export default function Navbar({ activeLink = 'HOME', homeHref = '#' }) {
               </button>
             </form>
           </div>
+          {isAuthenticated ? (
+            <Link to={ROUTES.notifications} className="navbar-notifications-btn" aria-label="Notifications">
+              <BellIcon className="w-4 h-4" />
+              {unreadNotificationCount > 0 && (
+                <span className="navbar-notifications-badge">{unreadNotificationCount}</span>
+              )}
+            </Link>
+          ) : null}
           {isAuthenticated ? (
             <Link to={ROUTES.wishlist} className="navbar-wishlist-btn" aria-label="Wishlist">
               <HeartIcon className="w-4 h-4" />

@@ -5,6 +5,7 @@ export const ROUTES = {
   product: '/?product=true',
   cart: '/cart',
   orders: '/orders',
+  notifications: '/notifications',
   about: '/about',
   contact: '/contact',
   login: '/login',
@@ -16,6 +17,8 @@ export const ROUTES = {
   wishlist: '/wishlist',
   privacyPolicy: '/privacy-policy',
   termsOfUse: '/terms-of-use',
+  supportTickets: '/support/tickets',
+  supportTicket: '/support/tickets/:id',
 };
 
 export function categoryPath(slug) {
@@ -32,6 +35,14 @@ export function orderPath(id) {
   }
 
   return `/orders/${id}`;
+}
+
+export function ticketPath(id) {
+  if (!id) {
+    return ROUTES.supportTickets;
+  }
+
+  return `/support/tickets/${id}`;
 }
 
 export function productPath(slug) {

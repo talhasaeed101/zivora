@@ -361,11 +361,11 @@ export default function Profile() {
                   <Link to={ROUTES.orders} className="profile-action-link">
                     View All Orders
                   </Link>
+                  <Link to={ROUTES.supportTickets} className="profile-action-link">
+                    Support Tickets
+                  </Link>
                   <Link to={ROUTES.collection} className="profile-action-link">
                     Shop Collection
-                  </Link>
-                  <Link to={ROUTES.contact} className="profile-action-link">
-                    Contact Support
                   </Link>
                 </div>
                 <button type="button" className="profile-logout-btn" onClick={handleLogout}>

@@ -109,3 +109,12 @@ export function StarIcon({ filled, className = 'w-4 h-4' }) {
     </svg>
   );
 }
+
+export function BellIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M15 17H9a4 4 0 008 0zm-3 4a2 2 0 002-2h-4a2 2 0 002 2z" />
+      <path d="M12 4a6 6 0 00-6 6v4.586l-1.707 1.707A1 1 0 005 18h14a1 1 0 00.707-1.707L18 14.586V10a6 6 0 00-6-6z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

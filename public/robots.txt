@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /notifications
+Disallow: /support
+Disallow: /login
+Disallow: /register
+Disallow: /forget-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+Sitemap: https://zivorah.store/sitemap.xml

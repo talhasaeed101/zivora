@@ -3,7 +3,7 @@ import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { orderApi, reviewApi } from '../services/api.js';
-import { ROUTES, productPath } from '../utils/navigation';
+import { ROUTES } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
 import { buildCustomizationSummaryLines } from '../utils/customizationSummary.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
@@ -226,28 +226,40 @@ export default function OrderDetails() {
                <OrderProgressTracker order={order} />
             </section>
             
-            {order.orderStatus === ORDER_STATUS.SHIPPED && (order.trackingNumber || order.courierName) && (
+            {[ORDER_STATUS.SHIPPED, ORDER_STATUS.DELIVERED].includes(order.orderStatus) && (order.trackingNumber || order.courierName || order.shippedAt || order.deliveredAt) && (
                <section className="order-details-section">
-                  <h2 className="order-details-section-title">Tracking Details</h2>
+                  <h2 className="order-details-section-title">Tracking & Delivery Details</h2>
                   <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb' }}>
                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
                         {order.courierName && (
-                          <div>
-                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Courier</span>
-                            <strong>{order.courierName}</strong>
-                          </div>
+                           <div>
+                              <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Courier</span>
+                              <strong>{order.courierName}</strong>
+                           </div>
                         )}
                         {order.trackingNumber && (
-                          <div>
-                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Tracking Number</span>
-                            <strong>{order.trackingNumber}</strong>
-                          </div>
+                           <div>
+                              <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Tracking Number</span>
+                              <strong>{order.trackingNumber}</strong>
+                           </div>
+                        )}
+                        {order.shippedAt && (
+                           <div>
+                              <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Shipped On</span>
+                              <strong>{formatOrderDate(order.shippedAt)}</strong>
+                           </div>
+                        )}
+                        {order.deliveredAt && (
+                           <div>
+                              <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Delivered On</span>
+                              <strong>{formatOrderDate(order.deliveredAt)}</strong>
+                           </div>
                         )}
                         {order.estimatedDeliveryDate && (
-                          <div>
-                            <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Estimated Delivery</span>
-                            <strong>{formatOrderDate(order.estimatedDeliveryDate)}</strong>
-                          </div>
+                           <div>
+                              <span style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280' }}>Estimated Delivery</span>
+                              <strong>{formatOrderDate(order.estimatedDeliveryDate)}</strong>
+                           </div>
                         )}
                      </div>
                      {order.trackingUrl && (
