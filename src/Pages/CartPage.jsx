@@ -397,7 +397,7 @@ export default function CartPage() {
                       />
                       <div className="payment-option-details">
                         <span className="payment-option-name">Direct Bank Transfer</span>
-                        <span className="payment-option-desc">Transfer directly to our Meezan Bank account.</span>
+                        <span className="payment-option-desc">Transfer directly to our UBL account.</span>
                       </div>
                     </label>
                   </div>
@@ -405,13 +405,13 @@ export default function CartPage() {
                   {paymentMethod === 'bank_transfer' && (
                     <div className="checkout-bank-details-card">
                       <div className="bank-details-header">
-                        <span className="bank-badge">Meezan Bank</span>
+                        <span className="bank-badge">UBL</span>
                         <h4>Direct Bank Transfer Details</h4>
                       </div>
                       <div className="bank-details-body">
                         <div className="bank-detail-row">
                           <span className="label">Bank Name</span>
-                          <span className="value">Meezan Bank</span>
+                          <span className="value">United Bank Limited (UBL)</span>
                         </div>
                         <div className="bank-detail-row">
                           <span className="label">Account Title</span>
@@ -420,12 +420,12 @@ export default function CartPage() {
                         <div className="bank-detail-row">
                           <span className="label">Account Number</span>
                           <span className="value flex-row">
-                            <strong>03380113919907</strong>
+                            <strong>0109000385727723</strong>
                             <button
                               type="button"
                               className="copy-btn"
                               onClick={() => {
-                                navigator.clipboard.writeText('03380113919907');
+                                navigator.clipboard.writeText('0109000385727723');
                                 alert('Account Number copied!');
                               }}
                             >
@@ -436,12 +436,12 @@ export default function CartPage() {
                         <div className="bank-detail-row">
                           <span className="label">IBAN</span>
                           <span className="value flex-row">
-                            <strong>PK62MEZN0003380113919907</strong>
+                            <strong>PK09UNIL0109000385727723</strong>
                             <button
                               type="button"
                               className="copy-btn"
                               onClick={() => {
-                                navigator.clipboard.writeText('PK62MEZN0003380113919907');
+                                navigator.clipboard.writeText('PK09UNIL0109000385727723');
                                 alert('IBAN copied!');
                               }}
                             >

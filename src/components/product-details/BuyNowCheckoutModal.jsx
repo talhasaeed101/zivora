@@ -244,24 +244,24 @@ export default function BuyNowCheckoutModal({
                   />
                   <div className="option-label-text">
                     <strong>Direct Bank Transfer</strong>
-                    <span>Transfer to Meezan Bank account.</span>
+                    <span>Transfer to UBL account.</span>
                   </div>
                 </label>
               </div>
 
               {paymentMethod === 'bank_transfer' && (
                 <div className="buy-now-bank-details-box">
-                  <div className="buy-now-bank-badge">Meezan Bank</div>
+                  <div className="buy-now-bank-badge">UBL</div>
                   <div className="buy-now-bank-info">
-                    <p><strong>Bank:</strong> Meezan Bank</p>
+                    <p><strong>Bank:</strong> United Bank Limited (UBL)</p>
                     <p><strong>Title:</strong> TALHA SAEED</p>
                     <p className="copyable-row">
-                      <strong>Account:</strong> <span>03380113919907</span>
+                      <strong>Account:</strong> <span>0109000385727723</span>
                       <button
                         type="button"
                         className="buy-now-copy-btn"
                         onClick={() => {
-                          navigator.clipboard.writeText('03380113919907');
+                          navigator.clipboard.writeText('0109000385727723');
                           alert('Account Number copied!');
                         }}
                       >
@@ -269,12 +269,12 @@ export default function BuyNowCheckoutModal({
                       </button>
                     </p>
                     <p className="copyable-row">
-                      <strong>IBAN:</strong> <span>PK62MEZN0003380113919907</span>
+                      <strong>IBAN:</strong> <span>PK09UNIL0109000385727723</span>
                       <button
                         type="button"
                         className="buy-now-copy-btn"
                         onClick={() => {
-                          navigator.clipboard.writeText('PK62MEZN0003380113919907');
+                          navigator.clipboard.writeText('PK09UNIL0109000385727723');
                           alert('IBAN copied!');
                         }}
                       >
