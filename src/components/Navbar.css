@@ -52,7 +52,7 @@
 .navbar-shell {
   width: 100%;
   height: 72px;
-  background: var(--nav-bg);
+  background: #F7F3ED;
   border-bottom: 1px solid transparent;
   position: relative;
   transition: border-color 0.25s var(--nav-ease), box-shadow 0.25s var(--nav-ease);
