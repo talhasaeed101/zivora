@@ -1,9 +1,33 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
+import { useAuth } from '../../context/AuthContext.jsx';
 import './AuthLayout.css';
 import { ROUTES } from '../../utils/navigation';
 
 export default function SignUp() {
+  const { googleLogin } = useAuth();
+  const navigate = useNavigate();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setGoogleError('');
+    setGoogleLoading(true);
+    try {
+      await googleLogin(credentialResponse.credential);
+      navigate('/');
+    } catch (err) {
+      setGoogleError(err.message || 'Google sign-up failed. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setGoogleError('Google sign-up was cancelled or failed. Please try again.');
+  };
+
   return (
     <div className="auth-layout-container">
       <div className="auth-layout-left">
@@ -17,10 +41,18 @@ export default function SignUp() {
           <div style={{ marginBottom: '2rem' }}></div>
 
           <div className="auth-social-row">
-            <button className="auth-social-btn">
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="auth-social-icon" />
-              Google
-            </button>
+            {/* Google — real OAuth button, styled to match */}
+            <div style={{ width: '100%' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                text="continue_with"
+                theme="outline"
+                size="large"
+                width="100%"
+                disabled={googleLoading}
+              />
+            </div>
             <button className="auth-social-btn">
               <img src="https://www.svgrepo.com/show/511330/apple-173.svg" alt="Apple" className="auth-social-icon" />
               Apple
@@ -30,6 +62,12 @@ export default function SignUp() {
               Facebook
             </button>
           </div>
+
+          {googleError && (
+            <p style={{ color: '#c0392b', fontSize: '13px', marginTop: '8px', textAlign: 'center' }}>
+              {googleError}
+            </p>
+          )}
 
           <div className="auth-divider">or</div>
 
