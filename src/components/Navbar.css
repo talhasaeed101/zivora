@@ -68,6 +68,8 @@
   align-items: center;
   gap: 24px;
   box-sizing: border-box;
+  background-color: #F7F3ED;
+
 }
 
 .navbar-logo {
