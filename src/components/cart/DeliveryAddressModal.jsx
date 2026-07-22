@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDownIcon } from '../icons';
 import { EMPTY_ADDRESS_FORM } from '../../utils/addresses.js';
 
@@ -87,7 +88,7 @@ export default function DeliveryAddressModal({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [isOpen, onClose, saving]);
 
-  if (!isOpen) {
+  if (!isOpen || typeof document === 'undefined') {
     return null;
   }
 
@@ -120,8 +121,8 @@ export default function DeliveryAddressModal({
 
   const title = address?.id ? 'Edit delivery address' : 'Add delivery address';
 
-  return (
-    <div className="cart-modal-overlay" onClick={handleOverlayClick} role="presentation">
+  return createPortal(
+    <div className="cart-modal-overlay cart-address-overlay" onClick={handleOverlayClick} role="presentation">
       <div
         className="cart-modal cart-address-modal"
         onClick={(e) => e.stopPropagation()}
@@ -308,6 +309,7 @@ export default function DeliveryAddressModal({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

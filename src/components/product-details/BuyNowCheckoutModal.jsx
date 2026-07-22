@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import DeliveryAddressModal from '../cart/DeliveryAddressModal.jsx';
 import { addressApi, orderApi } from '../../services/api.js';
@@ -133,13 +134,13 @@ export default function BuyNowCheckoutModal({
     }
   };
 
-  if (!isOpen) {
+  if (!isOpen || typeof document === 'undefined') {
     return null;
   }
 
-  return (
+  return createPortal(
     <>
-      <div className="cart-modal-overlay" onClick={onClose} role="presentation">
+      <div className="cart-modal-overlay buy-now-overlay" onClick={onClose} role="presentation">
         <div
           className="cart-modal buy-now-modal"
           onClick={(event) => event.stopPropagation()}
@@ -325,6 +326,7 @@ export default function BuyNowCheckoutModal({
         saving={addressSaving}
         error={addressModalError}
       />
-    </>
+    </>,
+    document.body
   );
 }

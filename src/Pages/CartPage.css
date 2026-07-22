@@ -266,6 +266,10 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
+.cart-address-overlay {
+  z-index: 1500;
+}
+
 .cart-modal {
   background:#ffffff;
   width: 100%;

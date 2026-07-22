@@ -4,6 +4,10 @@
   overflow-y: auto;
 }
 
+.buy-now-overlay {
+  z-index: 1400;
+}
+
 .buy-now-modal-body {
   padding: 0 24px 24px;
   display: flex;

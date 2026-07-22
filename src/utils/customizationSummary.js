@@ -1,19 +1,14 @@
 import {
-  BIRTHSTONE_OPTIONS,
-  FONT_OPTIONS,
-  GIFT_OPTION_DEFAULTS,
-  JEWELRY_COLOR_OPTIONS,
-  SYMBOL_OPTIONS,
-  mergeCustomizationOptions,
+  getOptionLabel,
+  resolveProductCustomizationOptions,
 } from '../constants/customization.js';
 
-const findLabel = (catalog, id, fallbackKey = 'label') => {
-  if (!id) {
-    return '';
-  }
-
-  const match = catalog.find((entry) => entry.id === id);
-  return match?.[fallbackKey] || id;
+const findOptionLabel = (entries = [], value) => {
+  if (!value) return '';
+  const match = entries.find(
+    (entry) => entry.id === value || entry.label === value || entry === value
+  );
+  return getOptionLabel(match || value);
 };
 
 export const buildCustomizationSummaryLines = (product, customization = {}) => {
@@ -22,7 +17,7 @@ export const buildCustomizationSummaryLines = (product, customization = {}) => {
   }
 
   const options = product?.customizationOptions
-    ? mergeCustomizationOptions(product.customizationOptions)
+    ? resolveProductCustomizationOptions(product.customizationOptions)
     : null;
   const lines = [];
 
@@ -37,22 +32,31 @@ export const buildCustomizationSummaryLines = (product, customization = {}) => {
   }
 
   if (include('fontSelection') && customization.font) {
-    lines.push({ label: 'Font', value: findLabel(FONT_OPTIONS, customization.font) });
+    lines.push({
+      label: 'Font',
+      value: findOptionLabel(options?.fontSelection?.options || [], customization.font),
+    });
   }
 
   if (include('materialSelection') && customization.material) {
-    lines.push({ label: 'Material', value: customization.material });
+    lines.push({
+      label: 'Material',
+      value: findOptionLabel(options?.materialSelection?.options || [], customization.material),
+    });
   }
 
   if (include('jewelryColor') && customization.jewelryColor) {
     lines.push({
       label: 'Color',
-      value: findLabel(JEWELRY_COLOR_OPTIONS, customization.jewelryColor),
+      value: findOptionLabel(options?.jewelryColor?.options || [], customization.jewelryColor),
     });
   }
 
   if (include('chainLength') && customization.chainLength) {
-    lines.push({ label: 'Chain Length', value: customization.chainLength });
+    lines.push({
+      label: 'Chain Length',
+      value: findOptionLabel(options?.chainLength?.options || [], customization.chainLength),
+    });
   }
 
   if (include('engraving')) {
@@ -70,32 +74,32 @@ export const buildCustomizationSummaryLines = (product, customization = {}) => {
   }
 
   if (include('birthstone') && customization.birthstone) {
-    lines.push({ label: 'Birthstone', value: findLabel(BIRTHSTONE_OPTIONS, customization.birthstone) });
+    lines.push({
+      label: 'Birthstone',
+      value: findOptionLabel(options?.birthstone?.options || [], customization.birthstone),
+    });
   }
 
   if (include('symbols') && customization.symbol) {
-    lines.push({ label: 'Symbol', value: findLabel(SYMBOL_OPTIONS, customization.symbol) });
+    lines.push({
+      label: 'Symbol',
+      value: findOptionLabel(options?.symbols?.options || [], customization.symbol),
+    });
   }
 
   if (include('giftOptions') && customization.giftOptions?.length) {
-    const giftCatalog = options?.giftOptions?.options || GIFT_OPTION_DEFAULTS;
+    const giftCatalog = options?.giftOptions?.options || [];
     const giftLabels = customization.giftOptions
-      .map((giftId) => findLabel(giftCatalog, giftId))
+      .map((giftId) => findOptionLabel(giftCatalog, giftId))
       .filter(Boolean);
-
     if (giftLabels.length) {
       lines.push({ label: 'Gift Options', value: giftLabels.join(', ') });
     }
   }
 
   if (include('specialInstructions') && customization.specialInstructions) {
-    lines.push({ label: 'Instructions', value: customization.specialInstructions });
+    lines.push({ label: 'Notes', value: customization.specialInstructions });
   }
 
   return lines;
 };
-
-export const formatCustomizationSummary = (product, customization = {}) =>
-  buildCustomizationSummaryLines(product, customization)
-    .map((line) => `${line.label}: ${line.value}`)
-    .join(' · ');

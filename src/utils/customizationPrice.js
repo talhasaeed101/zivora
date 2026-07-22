@@ -1,7 +1,7 @@
-import { mergeCustomizationOptions } from '../constants/customization.js';
+import { resolveProductCustomizationOptions } from '../constants/customization.js';
 
 export const calculateCustomizationPricing = (product, customization = {}) => {
-  const options = mergeCustomizationOptions(product?.customizationOptions || {});
+  const options = resolveProductCustomizationOptions(product?.customizationOptions || {});
   const basePrice = Number(product?.price) || 0;
   let extraPrice = 0;
 
