@@ -1,34 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import AuthShell from '../components/auth/AuthShell.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ROUTES } from '../utils/navigation';
 import { customerAuthApi } from '../services/api';
+import { friendlyAuthError } from '../utils/authUi.js';
 import './Auth.css';
 
 export default function VerifyEmail() {
   const { token } = useParams();
   const location = useLocation();
   const email = location.state?.email || '';
-  
+
   usePageTitle(token ? 'Verifying Email | Zivorah' : 'Check Your Email | Zivorah');
 
   const [status, setStatus] = useState(token ? 'verifying' : 'pending');
   const [message, setMessage] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  
+
   const hasCalledAPI = useRef(false);
 
   const verify = async (verificationToken) => {
     try {
       await customerAuthApi.verifyEmail(verificationToken);
       setStatus('success');
-      setMessage('Your email has been successfully verified! You can now sign in.');
+      setMessage('Your email has been verified. You can now sign in.');
     } catch (error) {
       setStatus('error');
-      setMessage(error.message || 'The verification link is invalid or has expired.');
+      setMessage(
+        friendlyAuthError(error, 'This verification link is invalid or has expired.')
+      );
     }
   };
 
@@ -48,17 +50,17 @@ export default function VerifyEmail() {
   }, [resendCooldown]);
 
   const handleResend = async () => {
-    if (!email) {
-      setMessage('Please enter your email on the login page to resend the link.');
+    if (!email || resendLoading || resendCooldown > 0) {
       return;
     }
+
     setResendLoading(true);
     try {
       await customerAuthApi.resendVerificationEmail(email);
       setMessage('A new verification link has been sent to your email.');
-      setResendCooldown(60); // 60s cooldown
+      setResendCooldown(60);
     } catch (error) {
-      setMessage(error.message || 'Failed to resend verification link.');
+      setMessage(friendlyAuthError(error, 'Unable to resend the verification link.'));
     } finally {
       setResendLoading(false);
     }
@@ -72,67 +74,90 @@ export default function VerifyEmail() {
     return `${maskedName}@${domain}`;
   };
 
+  const heading =
+    status === 'verifying'
+      ? 'Verifying Email'
+      : status === 'success'
+        ? 'Email Verified'
+        : status === 'error'
+          ? 'Verification Failed'
+          : 'Check Your Email';
+
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="auth-page">
-        <div className="auth-card">
-          <h1 className="auth-heading">
-            {status === 'verifying' && 'Verifying Email...'}
-            {status === 'success' && 'Email Verified'}
-            {status === 'error' && 'Verification Failed'}
-            {status === 'pending' && 'Check Your Email'}
-          </h1>
-          
-          <div className="auth-subheading">
-            {status === 'verifying' && <p>Please wait while we verify your email address.</p>}
-            
-            {status === 'success' && (
-              <div style={{ color: 'green', marginBottom: '20px' }}>
-                {message}
-              </div>
-            )}
-            
-            {status === 'error' && (
-              <div style={{ color: 'red', marginBottom: '20px' }}>
-                {message}
-              </div>
-            )}
-            
-            {status === 'pending' && (
-              <div>
-                <p>
-                  We have sent a verification link to {email ? <strong>{maskEmail(email)}</strong> : 'your email address'}.
-                  Please check your inbox and verify to continue.
-                </p>
-                {message && <div style={{ color: 'green', marginTop: '10px' }}>{message}</div>}
-              </div>
-            )}
-          </div>
+    <AuthShell>
+      <h1 className="auth-heading">{heading}</h1>
 
-          {(status === 'success' || status === 'error') && (
-            <Link to={ROUTES.login} className="auth-submit" style={{ textDecoration: 'none', textAlign: 'center', display: 'block' }}>
-              Sign In
-            </Link>
-          )}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {status === 'verifying' ? 'Verifying your email' : message}
+      </div>
 
-          {status === 'pending' && (
-            <button 
-              className="auth-submit" 
-              onClick={handleResend} 
-              disabled={resendLoading || resendCooldown > 0 || !email}
-              style={{ marginTop: '20px' }}
-            >
-              {resendLoading ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Verification Email'}
-            </button>
-          )}
+      {status === 'verifying' ? (
+        <p className="auth-status-copy" aria-busy="true">
+          Please wait while we verify your email address.
+        </p>
+      ) : null}
 
-          <p className="auth-switch">
-            <Link to={ROUTES.login}>Back to Sign In</Link>
-          </p>
+      {status === 'success' ? (
+        <div className="auth-success-banner" role="status">
+          {message}
         </div>
-      </main>
-      <Footer />
-    </>
+      ) : null}
+
+      {status === 'error' ? (
+        <div className="auth-error-banner" role="alert">
+          {message}
+        </div>
+      ) : null}
+
+      {status === 'pending' ? (
+        <>
+          <p className="auth-status-copy">
+            We sent a verification link to{' '}
+            {email ? <strong>{maskEmail(email)}</strong> : 'your email address'}. Check your inbox
+            and verify to continue.
+          </p>
+          {message ? (
+            <div
+              className={message.toLowerCase().includes('unable') || message.toLowerCase().includes('failed') ? 'auth-error-banner' : 'auth-success-banner'}
+              role="status"
+            >
+              {message}
+            </div>
+          ) : null}
+        </>
+      ) : null}
+
+      {(status === 'success' || status === 'error') && (
+        <Link to={ROUTES.login} className="auth-submit">
+          Sign in
+        </Link>
+      )}
+
+      {status === 'pending' ? (
+        <button
+          type="button"
+          className="auth-submit"
+          onClick={handleResend}
+          disabled={resendLoading || resendCooldown > 0 || !email}
+          aria-busy={resendLoading || undefined}
+        >
+          {resendLoading
+            ? 'Sending…'
+            : resendCooldown > 0
+              ? `Resend in ${resendCooldown}s`
+              : 'Resend verification email'}
+        </button>
+      ) : null}
+
+      {status === 'pending' && !email ? (
+        <p className="auth-field-hint auth-resend-hint">
+          Open this page from registration or sign-in to enable resending.
+        </p>
+      ) : null}
+
+      <p className="auth-switch">
+        <Link to={ROUTES.login}>Back to sign in</Link>
+      </p>
+    </AuthShell>
   );
 }

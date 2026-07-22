@@ -54,7 +54,7 @@ export default function WishlistButton({
       onClick={handleClick}
       disabled={loading}
     >
-      <HeartIcon className={iconClassName} />
+      <HeartIcon className={iconClassName} filled={active} />
       {showLabel && <span>Wishlist</span>}
     </button>
   );

@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext.jsx';
+import AuthShell from '../components/auth/AuthShell.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
-import { ROUTES } from '../utils/navigation';
+import { useAuth } from '../context/AuthContext.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { friendlyAuthError } from '../utils/authUi.js';
+import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function Register() {
   usePageTitle('Create Account | Zivorah');
   const navigate = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
+  const nameId = useId();
+  const emailId = useId();
+  const phoneId = useId();
+  const errorRef = useRef(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -25,7 +30,11 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
-    return <div className="auth-page-loading"><p>Loading...</p></div>;
+    return (
+      <div className="auth-page-loading" aria-busy="true" aria-live="polite">
+        <p>Loading…</p>
+      </div>
+    );
   }
 
   if (isAuthenticated) {
@@ -67,9 +76,15 @@ export default function Register() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (loading) {
+      return;
+    }
+
     setApiError('');
 
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setLoading(true);
 
@@ -80,118 +95,147 @@ export default function Register() {
         phone: form.phone.trim() || undefined,
         password: form.password,
       });
-      navigate(ROUTES.verifyEmail, { 
-        replace: true, 
-        state: { email: form.email.trim() } 
+      navigate(ROUTES.verifyEmail, {
+        replace: true,
+        state: { email: form.email.trim() },
       });
     } catch (error) {
-      setApiError(error.message || 'Registration failed');
+      setApiError(friendlyAuthError(error, 'Unable to create your account. Please try again.'));
+      window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="auth-page">
-        <div className="auth-card">
-          <h1 className="auth-heading">Create account</h1>
-          <p className="auth-subheading">Join Zivorah for a personalized jewelry experience</p>
+    <AuthShell>
+      <h1 className="auth-heading">Create Account</h1>
+      <p className="auth-subheading">
+        Join Zivorah to save favorites, track orders, and manage your account.
+      </p>
 
-          {apiError && <div className="auth-error-banner">{apiError}</div>}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {loading ? 'Creating account' : apiError || ''}
+      </div>
 
-          <SocialLoginButtons 
-            onSuccess={() => navigate(ROUTES.home, { replace: true })}
-            onError={(msg) => setApiError(msg)}
-          />
-
-          <div className="auth-divider">OR</div>
-
-          <form onSubmit={handleSubmit} noValidate>
-
-            <div className="auth-field">
-              <label htmlFor="register-name">Name</label>
-              <input
-                id="register-name"
-                type="text"
-                value={form.name}
-                onChange={updateField('name')}
-                placeholder="Your full name"
-                autoComplete="name"
-                disabled={loading}
-              />
-              {errors.name && <span className="auth-field-error">{errors.name}</span>}
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="register-email">Email</label>
-              <input
-                id="register-email"
-                type="email"
-                value={form.email}
-                onChange={updateField('email')}
-                placeholder="you@example.com"
-                autoComplete="email"
-                disabled={loading}
-              />
-              {errors.email && <span className="auth-field-error">{errors.email}</span>}
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="register-phone">Phone</label>
-              <input
-                id="register-phone"
-                type="tel"
-                value={form.phone}
-                onChange={updateField('phone')}
-                placeholder="+923001234567"
-                autoComplete="tel"
-                disabled={loading}
-              />
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="register-password">Password</label>
-              <input
-                id="register-password"
-                type="password"
-                value={form.password}
-                onChange={updateField('password')}
-                placeholder="Minimum 8 characters"
-                autoComplete="new-password"
-                disabled={loading}
-              />
-              {errors.password && <span className="auth-field-error">{errors.password}</span>}
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="register-confirm-password">Confirm Password</label>
-              <input
-                id="register-confirm-password"
-                type="password"
-                value={form.confirmPassword}
-                onChange={updateField('confirmPassword')}
-                placeholder="Re-enter your password"
-                autoComplete="new-password"
-                disabled={loading}
-              />
-              {errors.confirmPassword && (
-                <span className="auth-field-error">{errors.confirmPassword}</span>
-              )}
-            </div>
-
-            <button type="submit" className="auth-submit" disabled={loading}>
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-
-          <p className="auth-switch">
-            Already have an account? <Link to={ROUTES.login}>Sign in</Link>
-          </p>
+      {apiError ? (
+        <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
+          {apiError}
         </div>
-      </main>
-      <Footer />
-    </>
+      ) : null}
+
+      <SocialLoginButtons
+        onSuccess={() => navigate(ROUTES.home, { replace: true })}
+        onError={(msg) => {
+          setApiError(
+            friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.')
+          );
+          window.requestAnimationFrame(() => errorRef.current?.focus?.());
+        }}
+      />
+
+      <div className="auth-divider">Or</div>
+
+      <form onSubmit={handleSubmit} noValidate>
+        <div className={`auth-field${errors.name ? ' is-invalid' : ''}`}>
+          <label htmlFor={nameId}>
+            Full name <span className="auth-required" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={nameId}
+            type="text"
+            value={form.name}
+            onChange={updateField('name')}
+            placeholder="Your full name"
+            autoComplete="name"
+            disabled={loading}
+            required
+            aria-invalid={errors.name ? true : undefined}
+            aria-describedby={errors.name ? `${nameId}-error` : undefined}
+          />
+          {errors.name ? (
+            <span id={`${nameId}-error`} className="auth-field-error" role="alert">
+              {errors.name}
+            </span>
+          ) : null}
+        </div>
+
+        <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
+          <label htmlFor={emailId}>
+            Email <span className="auth-required" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={emailId}
+            type="email"
+            value={form.email}
+            onChange={updateField('email')}
+            placeholder="you@example.com"
+            autoComplete="email"
+            disabled={loading}
+            required
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? `${emailId}-error` : undefined}
+          />
+          {errors.email ? (
+            <span id={`${emailId}-error`} className="auth-field-error" role="alert">
+              {errors.email}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="auth-field">
+          <label htmlFor={phoneId}>
+            Phone <span className="auth-optional">(optional)</span>
+          </label>
+          <input
+            id={phoneId}
+            type="tel"
+            value={form.phone}
+            onChange={updateField('phone')}
+            placeholder="+923001234567"
+            autoComplete="tel"
+            disabled={loading}
+          />
+        </div>
+
+        <PasswordInput
+          id="register-password"
+          label="Password"
+          value={form.password}
+          onChange={updateField('password')}
+          placeholder="Minimum 8 characters"
+          autoComplete="new-password"
+          error={errors.password}
+          hint="Use at least 8 characters."
+          disabled={loading}
+          required
+        />
+
+        <PasswordInput
+          id="register-confirm-password"
+          label="Confirm password"
+          value={form.confirmPassword}
+          onChange={updateField('confirmPassword')}
+          placeholder="Re-enter your password"
+          autoComplete="new-password"
+          error={errors.confirmPassword}
+          disabled={loading}
+          required
+        />
+
+        <button
+          type="submit"
+          className="auth-submit"
+          disabled={loading}
+          aria-busy={loading || undefined}
+        >
+          {loading ? 'Creating account…' : 'Create account'}
+        </button>
+      </form>
+
+      <p className="auth-switch">
+        Already have an account? <Link to={ROUTES.login}>Sign in</Link>
+      </p>
+    </AuthShell>
   );
 }

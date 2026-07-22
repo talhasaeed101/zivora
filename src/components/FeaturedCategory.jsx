@@ -4,6 +4,7 @@ import SafeImage from './SafeImage.jsx';
 import { categoryPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import { SectionMessage } from './ProductSectionStates.jsx';
+import Reveal from './Reveal.jsx';
 
 const FEATURED_IMAGE = '/images/features categoruy image 1.png';
 
@@ -58,7 +59,9 @@ export default function FeaturedCategory() {
   return (
     <section className="featured-section">
       <div className="featured-inner">
-        <h2 className="featured-heading">Featured Category</h2>
+        <Reveal as="h2" className="featured-heading" variant="fade-up">
+          Featured Category
+        </Reveal>
 
         {error && (
           <SectionMessage
@@ -68,15 +71,15 @@ export default function FeaturedCategory() {
         )}
 
         <div className="featured-content-grid">
-          <ul className="featured-category-list">
+          <Reveal as="ul" className="featured-category-list" variant="slide-left">
             {loading ? (
               <li className="featured-category-item">
                 <span className="featured-category-name">Loading categories...</span>
               </li>
             ) : (
               categories.map((category) => (
-                <li 
-                  key={category._id || category.slug || category.name} 
+                <li
+                  key={category._id || category.slug || category.name}
                   className="featured-category-item"
                   onMouseEnter={() => setHoveredCategory(category)}
                   onMouseLeave={() => setHoveredCategory(null)}
@@ -103,20 +106,17 @@ export default function FeaturedCategory() {
                 </li>
               ))
             )}
-          </ul>
+          </Reveal>
 
-          <div className="featured-image-zone">
+          <Reveal className="featured-image-zone" variant="scale-in" delay={120}>
             <div className="featured-organic-image-wrap">
               <SafeImage
+                key={displayImage}
                 src={displayImage}
                 alt={displayName}
                 className="featured-organic-image"
               />
             </div>
-
-            {/* {featuredDescription && (
-              <p className="featured-category-description">{featuredDescription}</p>
-            )} */}
 
             <a
               href={categoryPath(displaySlug)}
@@ -154,7 +154,7 @@ export default function FeaturedCategory() {
                 </svg>
               </div>
             </a>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

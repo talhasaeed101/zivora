@@ -5,7 +5,6 @@ import ReviewCard from './ReviewCard.jsx';
 import ReviewModal from './ReviewModal.jsx';
 import { reviewApi } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { FALLBACK_REVIEWS, FALLBACK_REVIEW_SUMMARY } from '../../utils/reviews.js';
 
 const REVIEWS_PER_PAGE = 4;
 
@@ -30,8 +29,8 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
   const resolvedProductId = normalizeProductId(productId);
   const useApi = Boolean(resolvedProductId);
-  const [summary, setSummary] = useState(useApi ? null : FALLBACK_REVIEW_SUMMARY);
-  const [reviews, setReviews] = useState(useApi ? [] : FALLBACK_REVIEWS);
+  const [summary, setSummary] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [customerReview, setCustomerReview] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(useApi);
   const [loadingReviews, setLoadingReviews] = useState(useApi);
@@ -46,8 +45,9 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
   const loadSummary = useCallback(async () => {
     if (!resolvedProductId) {
-      setSummary(FALLBACK_REVIEW_SUMMARY);
-      onSummaryChange?.(FALLBACK_REVIEW_SUMMARY);
+      setSummary(null);
+      onSummaryChange?.(null);
+      setLoadingSummary(false);
       return;
     }
 
@@ -59,8 +59,8 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
       onSummaryChange?.(response.data);
       setError('');
     } catch (err) {
-      setSummary(FALLBACK_REVIEW_SUMMARY);
-      onSummaryChange?.(FALLBACK_REVIEW_SUMMARY);
+      setSummary(null);
+      onSummaryChange?.(null);
       setError(err.message || 'Unable to load review summary.');
     } finally {
       setLoadingSummary(false);
@@ -69,8 +69,9 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
   const loadReviews = useCallback(async () => {
     if (!resolvedProductId) {
-      setReviews(FALLBACK_REVIEWS);
+      setReviews([]);
       setPagination(null);
+      setLoadingReviews(false);
       return;
     }
 
@@ -193,7 +194,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   };
 
   const totalPages = pagination?.totalPages || 1;
-  const usingFallback = !productId;
+  const usingFallback = !resolvedProductId;
 
   const pageNumbers = (() => {
     if (totalPages <= 3) {
@@ -216,32 +217,44 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
       <section className="pd-reviews-section">
         <h2 className="pd-section-title">Customer Reviews</h2>
 
-        {successMessage && <div className="pd-review-success-banner">{successMessage}</div>}
+        {successMessage && (
+          <div className="pd-review-success-banner" role="status">
+            {successMessage}
+          </div>
+        )}
         {error && !loadingSummary && !loadingReviews && (
-          <div className="pd-review-error-banner">{error}</div>
+          <div className="pd-review-error-banner" role="alert">
+            {error}
+          </div>
         )}
 
-        {loadingSummary ? (
-          <div className="pd-state-message">Loading review summary...</div>
+        {usingFallback ? (
+          <div className="pd-reviews-empty">
+            <p>Reviews will appear here once this product is available in the catalog.</p>
+          </div>
+        ) : loadingSummary ? (
+          <div className="pd-state-message">Loading review summary…</div>
         ) : (
           <RatingSummary
-            summary={summary}
-            usingFallback={usingFallback}
+            summary={summary || { averageRating: 0, reviewCount: 0, ratingBreakdown: [] }}
+            usingFallback={false}
             customerReview={customerReview}
             onWriteReview={handleWriteReview}
             onEditReview={handleEditReview}
           />
         )}
 
-        {loadingReviews ? (
-          <div className="pd-state-message">Loading reviews...</div>
-        ) : reviews.length === 0 ? (
-          <div className="pd-state-message">
-            {usingFallback
-              ? 'Sample reviews shown for this demo product.'
-              : 'No reviews yet. Be the first to write one.'}
+        {!usingFallback && loadingReviews ? (
+          <div className="pd-state-message">Loading reviews…</div>
+        ) : null}
+
+        {!usingFallback && !loadingReviews && reviews.length === 0 ? (
+          <div className="pd-reviews-empty">
+            <p>No reviews yet. Be the first to share your experience.</p>
           </div>
-        ) : (
+        ) : null}
+
+        {!usingFallback && !loadingReviews && reviews.length > 0 ? (
           <div className="pd-reviews-grid">
             {reviews.map((review) => (
               <ReviewCard
@@ -253,7 +266,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
               />
             ))}
           </div>
-        )}
+        ) : null}
       </section>
 
       {!usingFallback && totalPages > 1 && (

@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import AccountShell from '../components/account/AccountShell.jsx';
+import Reveal from '../components/Reveal.jsx';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
-import { ShimmerProfilePage } from '../components/Shimmer.jsx';
+import StatusBadge from '../components/orders/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
@@ -11,24 +11,27 @@ import { addressApi, orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { formatPrice } from '../utils/products.js';
+import { formatOrderDate } from '../utils/orderDisplay.js';
+import '../components/orders/orderStatus.css';
 import './Profile.css';
 import './CartPage.css';
 
-function formatOrderDate(value) {
-  if (!value) {
-    return '—';
+function getInitials(name) {
+  if (!name) {
+    return 'Z';
   }
 
-  return new Date(value).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return parts[0].charAt(0).toUpperCase();
+  }
+
+  return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
 }
 
 function formatMemberSince(value) {
   if (!value) {
-    return null;
+    return '';
   }
 
   return new Date(value).toLocaleDateString('en-GB', {
@@ -37,25 +40,29 @@ function formatMemberSince(value) {
   });
 }
 
-function getInitials(name) {
-  if (!name) {
-    return 'Z';
-  }
-
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) {
-    return parts[0].charAt(0).toUpperCase();
-  }
-
-  return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+function ProfileSkeleton() {
+  return (
+    <div className="profile-skeleton" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Loading your account</span>
+      <div className="profile-skeleton-hero" />
+      <div className="profile-skeleton-actions">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="profile-skeleton-block" />
+      <div className="profile-skeleton-block" />
+    </div>
+  );
 }
 
 export default function Profile() {
-  usePageTitle('My Profile | Zivorah');
+  usePageTitle('My Account | Zivorah');
 
-  const navigate = useNavigate();
-  const { customer, logout, loading: authLoading } = useAuth();
+  const { customer, loading: authLoading } = useAuth();
   const { totalItems: wishlistCount } = useWishlist();
+
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
@@ -68,21 +75,12 @@ export default function Profile() {
   const [addressSaving, setAddressSaving] = useState(false);
   const [addressModalError, setAddressModalError] = useState('');
   const [addressActionId, setAddressActionId] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [addressSuccess, setAddressSuccess] = useState('');
 
   const pageLoading = authLoading || ordersLoading || addressesLoading;
-
   const memberSince = formatMemberSince(customer?.createdAt);
-  const reviewsCount = customer?.reviewCount ?? 0;
-
-  const stats = useMemo(
-    () => [
-      { label: 'Total Orders', value: orders.length },
-      { label: 'Saved Addresses', value: addresses.length },
-      { label: 'Wishlist Items', value: wishlistCount },
-      { label: 'Reviews Written', value: reviewsCount },
-    ],
-    [orders.length, addresses.length, wishlistCount, reviewsCount]
-  );
+  const firstName = customer?.name?.trim().split(/\s+/)[0] || '';
 
   const loadAddresses = useCallback(async () => {
     setAddressesLoading(true);
@@ -99,42 +97,27 @@ export default function Profile() {
     }
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    orderApi
-      .getOrders()
-      .then((response) => {
-        if (isMounted) {
-          setOrders(response.data || []);
-          setOrdersError('');
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          setOrdersError(err.message || 'Unable to load orders.');
-          setOrders([]);
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setOrdersLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
+  const loadOrders = useCallback(async () => {
+    setOrdersLoading(true);
+    try {
+      const response = await orderApi.getOrders();
+      setOrders(response.data || []);
+      setOrdersError('');
+    } catch (err) {
+      setOrdersError(err.message || 'Unable to load orders.');
+      setOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
 
   useEffect(() => {
     loadAddresses();
   }, [loadAddresses]);
-
-  const handleLogout = () => {
-    logout();
-    navigate(ROUTES.login, { replace: true });
-  };
 
   const openAddAddress = () => {
     setEditingAddress(null);
@@ -157,13 +140,16 @@ export default function Profile() {
 
       if (editingAddress?.id) {
         await addressApi.updateAddress(editingAddress.id, payload);
+        setAddressSuccess('Address updated.');
       } else {
         await addressApi.createAddress(payload);
+        setAddressSuccess('Address saved.');
       }
 
       await loadAddresses();
       setAddressModalOpen(false);
       setEditingAddress(null);
+      setStatusMessage('Address saved successfully.');
     } catch (err) {
       setAddressModalError(err.message || 'Failed to save address.');
     } finally {
@@ -172,16 +158,19 @@ export default function Profile() {
   };
 
   const handleDeleteAddress = async (addressId) => {
-    if (!window.confirm('Delete this address?')) {
+    if (addressActionId || !window.confirm('Delete this address?')) {
       return;
     }
 
     setAddressActionId(addressId);
     setAddressesError('');
+    setAddressSuccess('');
 
     try {
       await addressApi.deleteAddress(addressId);
       await loadAddresses();
+      setAddressSuccess('Address deleted.');
+      setStatusMessage('Address deleted.');
     } catch (err) {
       setAddressesError(err.message || 'Failed to delete address.');
     } finally {
@@ -190,12 +179,19 @@ export default function Profile() {
   };
 
   const handleSetDefaultAddress = async (addressId) => {
+    if (addressActionId) {
+      return;
+    }
+
     setAddressActionId(addressId);
     setAddressesError('');
+    setAddressSuccess('');
 
     try {
       await addressApi.setDefaultAddress(addressId);
       await loadAddresses();
+      setAddressSuccess('Default address updated.');
+      setStatusMessage('Default address updated.');
     } catch (err) {
       setAddressesError(err.message || 'Failed to set default address.');
     } finally {
@@ -203,192 +199,268 @@ export default function Profile() {
     }
   };
 
+  const quickActions = [
+    { to: ROUTES.orders, label: 'View Orders', hint: 'Track purchases' },
+    { to: ROUTES.wishlist, label: 'Manage Wishlist', hint: 'Saved jewelry' },
+    { to: ROUTES.supportTickets, label: 'Contact Support', hint: 'Need help?' },
+    { to: ROUTES.collection, label: 'Browse Collection', hint: 'Continue shopping' },
+  ];
+
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="profile-page">
-        <div className="profile-inner">
-          <p className="profile-dashboard-label">Account Dashboard</p>
-          <h1 className="profile-page-title">My Profile</h1>
+    <AccountShell
+      active="overview"
+      title="Account Overview"
+      description="Manage your profile details, delivery addresses, and recent activity."
+    >
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {statusMessage}
+      </div>
 
-          {pageLoading ? (
-            <ShimmerProfilePage />
-          ) : (
-            <>
-              <section className="profile-header-card" aria-label="Profile overview">
-                <div className="profile-avatar" aria-hidden="true">
-                  {getInitials(customer?.name)}
-                </div>
-                <div className="profile-header-copy">
-                  <h2 className="profile-header-name">{customer?.name || '—'}</h2>
-                  <p className="profile-header-email">{customer?.email || '—'}</p>
-                  {customer?.phone && <p className="profile-header-phone">{customer.phone}</p>}
-                  {memberSince && (
-                    <span className="profile-member-since">Member since {memberSince}</span>
-                  )}
-                </div>
-              </section>
+      {pageLoading ? <ProfileSkeleton /> : null}
 
-              <section className="profile-stats-grid" aria-label="Account summary">
-                {stats.map((stat) => (
-                  <article key={stat.label} className="profile-stat-card">
-                    <p className="profile-stat-value">{stat.value}</p>
-                    <p className="profile-stat-label">{stat.label}</p>
-                  </article>
-                ))}
-              </section>
+      {!pageLoading ? (
+        <div className="profile-layout">
+          <Reveal className="profile-greeting" variant="fade-up">
+            <div className="profile-avatar" aria-hidden="true">
+              {getInitials(customer?.name)}
+            </div>
+            <div className="profile-greeting-copy">
+              <h2 className="profile-greeting-title">
+                {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
+              </h2>
+              {customer?.email ? <p className="profile-greeting-email">{customer.email}</p> : null}
+              {customer?.phone ? <p className="profile-greeting-meta">{customer.phone}</p> : null}
+              {memberSince ? (
+                <p className="profile-greeting-meta">Member since {memberSince}</p>
+              ) : null}
+            </div>
+          </Reveal>
 
-              <section className="profile-section-card">
-                <div className="profile-section-header">
-                  <div>
-                    <p className="profile-section-kicker">Delivery</p>
-                    <h2 className="profile-section-title">My Addresses</h2>
-                  </div>
-                  <button type="button" className="profile-add-btn" onClick={openAddAddress}>
-                    Add Address
-                  </button>
-                </div>
+          <Reveal className="profile-summary-row" variant="fade-up" delay={40}>
+            <p>
+              <Link to={ROUTES.orders}>{orders.length} orders</Link>
+              <span aria-hidden="true"> · </span>
+              <Link to={ROUTES.wishlist}>{wishlistCount} wishlist</Link>
+              <span aria-hidden="true"> · </span>
+              <a href="#profile-addresses">{addresses.length} addresses</a>
+            </p>
+          </Reveal>
 
-                {addressesError && <p className="profile-error">{addressesError}</p>}
-
-                {!addressesError && addresses.length === 0 && (
-                  <p className="profile-message">You have not saved any addresses yet.</p>
-                )}
-
-                {addresses.length > 0 && (
-                  <div className="profile-addresses-list">
-                    {addresses.map((address) => (
-                      <article key={address.id} className="profile-address-card">
-                        <div className="profile-address-top">
-                          <strong>{address.name}</strong>
-                          {address.isDefault && (
-                            <span className="profile-address-default">Default</span>
-                          )}
-                        </div>
-                        <p className="profile-address-line">{address.phone}</p>
-                        <p className="profile-address-line">{address.email}</p>
-                        <p className="profile-address-line">
-                          {address.street}, {address.city}, {address.province} {address.postalCode}
-                        </p>
-                        <div className="profile-address-actions">
-                          <button
-                            type="button"
-                            className="profile-address-action"
-                            onClick={() => openEditAddress(address)}
-                          >
-                            Edit
-                          </button>
-                          {!address.isDefault && (
-                            <button
-                              type="button"
-                              className="profile-address-action"
-                              disabled={addressActionId === address.id}
-                              onClick={() => handleSetDefaultAddress(address.id)}
-                            >
-                              Set Default
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className="profile-address-action profile-address-action-danger"
-                            disabled={addressActionId === address.id}
-                            onClick={() => handleDeleteAddress(address.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <section className="profile-section-card">
-                <div className="profile-section-header">
-                  <div>
-                    <p className="profile-section-kicker">Purchases</p>
-                    <h2 className="profile-section-title">Recent Orders</h2>
-                  </div>
-                  {orders.length > 0 && (
-                    <Link to={ROUTES.orders} className="profile-view-all-link">
-                      View All
-                    </Link>
-                  )}
-                </div>
-
-                {ordersError && <p className="profile-error">{ordersError}</p>}
-
-                {!ordersError && orders.length === 0 && (
-                  <p className="profile-message">You have not placed any orders yet.</p>
-                )}
-
-                {orders.length > 0 && (
-                  <div className="profile-orders-list">
-                    {orders.slice(0, 3).map((order) => (
-                      <Link
-                        key={order._id}
-                        to={orderPath(order._id)}
-                        className="profile-order-card"
-                      >
-                        <div className="profile-order-top">
-                          <strong>{order.orderNumber}</strong>
-                          <span className={`profile-order-status profile-order-status-${order.orderStatus}`}>
-                            {order.orderStatus}
-                          </span>
-                        </div>
-                        <div className="profile-order-meta">
-                          <span>{formatOrderDate(order.createdAt)}</span>
-                          <span>{formatPrice(order.total)}</span>
-                          <span>{order.totalItems} items</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </section>
-
-              <section className="profile-section-card">
-                <div className="profile-section-header">
-                  <div>
-                    <p className="profile-section-kicker">Settings</p>
-                    <h2 className="profile-section-title">Account Actions</h2>
-                  </div>
-                </div>
-                <div className="profile-actions-grid">
-                  <Link to={ROUTES.wishlist} className="profile-action-link">
-                    View Wishlist
+          <section className="profile-section" aria-label="Quick actions">
+            <h2 className="profile-section-title">Quick actions</h2>
+            <div className="profile-quick-grid">
+              {quickActions.map((action, index) => (
+                <Reveal
+                  key={action.to}
+                  variant="fade-up"
+                  delay={60 + Math.min(index, 4) * 35}
+                >
+                  <Link to={action.to} className="profile-quick-link">
+                    <span className="profile-quick-label">{action.label}</span>
+                    <span className="profile-quick-hint">{action.hint}</span>
                   </Link>
-                  <Link to={ROUTES.orders} className="profile-action-link">
-                    View All Orders
-                  </Link>
-                  <Link to={ROUTES.supportTickets} className="profile-action-link">
-                    Support Tickets
-                  </Link>
-                  <Link to={ROUTES.collection} className="profile-action-link">
-                    Shop Collection
-                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          <Reveal as="section" className="profile-section" variant="fade-up" delay={80} id="profile-details">
+            <h2 className="profile-section-title">Personal information</h2>
+            <dl className="profile-details-list">
+              <div>
+                <dt>Name</dt>
+                <dd>{customer?.name || '—'}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{customer?.email || '—'}</dd>
+              </div>
+              {customer?.phone ? (
+                <div>
+                  <dt>Phone</dt>
+                  <dd>{customer.phone}</dd>
                 </div>
-                <button type="button" className="profile-logout-btn" onClick={handleLogout}>
-                  Logout
+              ) : null}
+            </dl>
+            <p className="profile-helper">
+              Profile details come from your account registration. Password changes use the{' '}
+              <Link to={ROUTES.forgetPassword}>Forgot Password</Link> flow from the sign-in page —
+              there is no in-account password form yet.
+            </p>
+          </Reveal>
+
+          <Reveal as="section" className="profile-section" variant="fade-up" delay={90} id="profile-security">
+            <h2 className="profile-section-title">Password &amp; security</h2>
+            <p className="profile-helper">
+              To reset your password, request a secure link via email. You will be signed out of this
+              session only after you complete the reset on the recovery pages.
+            </p>
+            <Link to={ROUTES.forgetPassword} className="profile-text-link">
+              Reset password
+            </Link>
+          </Reveal>
+
+          <Reveal
+            as="section"
+            className="profile-section"
+            variant="fade-up"
+            delay={100}
+            id="profile-addresses"
+          >
+            <div className="profile-section-header">
+              <h2 className="profile-section-title">Saved addresses</h2>
+              <button type="button" className="profile-add-btn" onClick={openAddAddress}>
+                Add Address
+              </button>
+            </div>
+
+            {addressSuccess ? (
+              <p className="profile-success" role="status">
+                {addressSuccess}
+              </p>
+            ) : null}
+
+            {addressesError ? (
+              <div className="profile-error-banner" role="alert">
+                <p>{addressesError}</p>
+                <button type="button" className="profile-retry-btn" onClick={loadAddresses}>
+                  Retry
                 </button>
-              </section>
-            </>
-          )}
+              </div>
+            ) : null}
+
+            {!addressesError && addresses.length === 0 ? (
+              <div className="profile-empty">
+                <p>You have not saved any addresses yet.</p>
+                <button type="button" className="profile-add-btn" onClick={openAddAddress}>
+                  Add Address
+                </button>
+              </div>
+            ) : null}
+
+            {addresses.length > 0 ? (
+              <div className="profile-addresses-list">
+                {addresses.map((address, index) => (
+                  <Reveal
+                    as="article"
+                    key={address.id}
+                    className="profile-address-card"
+                    variant="fade-up"
+                    delay={Math.min(index, 5) * 30}
+                  >
+                    <div className="profile-address-top">
+                      <strong>{address.name}</strong>
+                      {address.isDefault ? (
+                        <span className="profile-address-default">Default</span>
+                      ) : null}
+                    </div>
+                    {address.phone ? <p className="profile-address-line">{address.phone}</p> : null}
+                    <p className="profile-address-line">
+                      {[address.street, address.city, address.province, address.postalCode]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                    <div className="profile-address-actions">
+                      <button
+                        type="button"
+                        className="profile-address-action"
+                        onClick={() => openEditAddress(address)}
+                        disabled={Boolean(addressActionId)}
+                        aria-label={`Edit address for ${address.name}`}
+                      >
+                        Edit
+                      </button>
+                      {!address.isDefault ? (
+                        <button
+                          type="button"
+                          className="profile-address-action"
+                          disabled={addressActionId === address.id}
+                          onClick={() => handleSetDefaultAddress(address.id)}
+                          aria-label={`Set ${address.name} address as default`}
+                        >
+                          {addressActionId === address.id ? 'Updating…' : 'Set Default'}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="profile-address-action profile-address-action-danger"
+                        disabled={addressActionId === address.id}
+                        onClick={() => handleDeleteAddress(address.id)}
+                        aria-label={`Delete address for ${address.name}`}
+                      >
+                        {addressActionId === address.id ? 'Deleting…' : 'Delete'}
+                      </button>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            ) : null}
+          </Reveal>
+
+          <Reveal as="section" className="profile-section" variant="fade-up" delay={120}>
+            <div className="profile-section-header">
+              <h2 className="profile-section-title">Recent orders</h2>
+              {orders.length > 0 ? (
+                <Link to={ROUTES.orders} className="profile-text-link">
+                  View all
+                </Link>
+              ) : null}
+            </div>
+
+            {ordersError ? (
+              <div className="profile-error-banner" role="alert">
+                <p>{ordersError}</p>
+                <button type="button" className="profile-retry-btn" onClick={loadOrders}>
+                  Retry
+                </button>
+              </div>
+            ) : null}
+
+            {!ordersError && orders.length === 0 ? (
+              <div className="profile-empty">
+                <p>You have not placed any orders yet.</p>
+                <Link to={ROUTES.collection} className="profile-add-btn">
+                  Browse Collection
+                </Link>
+              </div>
+            ) : null}
+
+            {orders.length > 0 ? (
+              <div className="profile-orders-list">
+                {orders.slice(0, 3).map((order) => (
+                  <Link key={order._id} to={orderPath(order._id)} className="profile-order-card">
+                    <div className="profile-order-top">
+                      <strong>{order.orderNumber}</strong>
+                      <StatusBadge type="order" status={order.orderStatus} />
+                    </div>
+                    <div className="profile-order-meta">
+                      <span>{formatOrderDate(order.createdAt)}</span>
+                      <span>{formatPrice(order.total)}</span>
+                      <span>
+                        {order.totalItems === 1 ? '1 item' : `${order.totalItems} items`}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </Reveal>
         </div>
-      </main>
-      <Footer />
+      ) : null}
 
       <DeliveryAddressModal
         isOpen={addressModalOpen}
         address={editingAddress}
         onClose={() => {
-          setAddressModalOpen(false);
-          setEditingAddress(null);
+          if (!addressSaving) {
+            setAddressModalOpen(false);
+            setEditingAddress(null);
+          }
         }}
         onSave={handleSaveAddress}
         saving={addressSaving}
         error={addressModalError}
       />
-    </>
+    </AccountShell>
   );
 }

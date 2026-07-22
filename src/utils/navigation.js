@@ -96,7 +96,6 @@ export const FOOTER_LINKS = {
   Collection: ROUTES.collection,
   Collections: ROUTES.collection,
   Gifts: ROUTES.collection,
-  Testimonials: homeSection('testimonials'),
   Contact: ROUTES.contact,
   About: ROUTES.about,
 };
@@ -105,8 +104,8 @@ export const NAV_ROUTES = {
   HOME: ROUTES.home,
   COLLECTION: ROUTES.collection,
   BUNDLES: homeSection('bundles'),
-  TESTIMONIALS: homeSection('testimonials'),
   CONTACT: ROUTES.contact,
+  ABOUT: ROUTES.about,
 };
 
 export function getAccountRoute(isAuthenticated) {

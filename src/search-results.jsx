@@ -1,52 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES, NAV_ROUTES, FOOTER_LINKS, getAccountRoute, searchPath, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
-import { useAuth } from './context/AuthContext.jsx';
+import { useLocation } from 'react-router-dom';
+import { ROUTES, searchPath, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
 import { usePageTitle } from './hooks/usePageTitle.js';
 import { publicCatalogApi } from './services/api.js';
 import { formatPrice, getProductImage, hasSale } from './utils/products.js';
 import { PRICE_RANGES, SORT_OPTIONS, getSortLabel } from './utils/catalogFilters.js';
 import WishlistButton from './components/WishlistButton.jsx';
 import SafeImage from './components/SafeImage.jsx';
+import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
 
 const PAGE_SIZE = 24;
-
-const footerLinks = ['Home', 'Collection', 'Gifts', 'Testimonials', 'Contact'];
-
-function SearchIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <circle cx="11" cy="11" r="7" />
-      <path d="M20 20L16 16" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M12 21s-7-4.5-9.5-8.5C.5 7.5 3.5 4 7.5 4c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 7 3.5 5 6.5C19 16.5 12 21 12 21z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ShoppingBagIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M6 7h12l-1.2 12H7.2L6 7z" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 7V5a3 3 0 016 0v2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function FilterIcon() {
   return (
@@ -63,32 +27,6 @@ function ChevronDownIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function InstagramIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="3" y="3" width="18" height="18" rx="5" />
-      <circle cx="12" cy="12" r="3.5" />
-      <circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function TikTokIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48V13.4a8.16 8.16 0 005.58 2.18V12a4.83 4.83 0 003.82-1.84z" />
-    </svg>
-  );
-}
-
-function FacebookIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M14 8h3V4h-3c-2.76 0-5 2.24-5 5v2H6v4h3v8h4v-8h3l1-4h-4V9c0-.55.45-1 1-1z" />
     </svg>
   );
 }
@@ -154,10 +92,8 @@ function ProductCard({ product, variant }) {
 }
 
 export default function SearchResults() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const accountPath = getAccountRoute(isAuthenticated);
-  const initialQuery = getSearchQueryFromUrl();
+  const location = useLocation();
+  const searchQuery = getSearchQueryFromUrl();
   const initialCategory = getSearchCategoryFromUrl();
   const filtersRef = useRef(null);
 
@@ -166,8 +102,6 @@ export default function SearchResults() {
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchInput, setSearchInput] = useState(initialQuery);
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [categoryFilter, setCategoryFilter] = useState(initialCategory);
   const [sort, setSort] = useState('newest');
   const [priceRangeId, setPriceRangeId] = useState('');
@@ -246,16 +180,7 @@ export default function SearchResults() {
     return () => {
       isMounted = false;
     };
-  }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page]);
-
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    setLoading(true);
-    const nextQuery = searchInput.trim();
-    setSearchQuery(nextQuery);
-    setPage(1);
-    navigate(searchPath({ q: nextQuery, category: categoryFilter }));
-  };
+  }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page, location.search]);
 
   const handleCategoryChange = (categoryId) => {
     setCategoryFilter((current) => (current === categoryId ? '' : categoryId));
@@ -293,7 +218,7 @@ export default function SearchResults() {
   const displayQuery = searchQuery || 'all products';
   const productCount = pagination?.total ?? products.length;
 
-  usePageTitle(searchQuery ? `Search: ${searchQuery} | Zivora` : 'Search | Zivora');
+  usePageTitle(searchQuery ? `Search: ${searchQuery} | Zivorah` : 'Search | Zivorah');
 
   return (
     <>
@@ -1307,72 +1232,9 @@ export default function SearchResults() {
       `}</style>
 
       <div className="sr-page">
-        {/* Desktop Header */}
-        <header className="sr-header-desktop">
-          <div className="sr-header-inner">
-            <a href={ROUTES.home} className="sr-logo">ZIVORAH</a>
-            <nav className="sr-nav">
-              <a href={NAV_ROUTES.HOME} className="sr-nav-link">HOME</a>
-              <a href={NAV_ROUTES.COLLECTION} className="sr-nav-link sr-nav-link-active">COLLECTION</a>
-              <a href={NAV_ROUTES.BUNDLES} className="sr-nav-link">BUNDLES</a>
-              <a href={NAV_ROUTES.TESTIMONIALS} className="sr-nav-link">TESTIMONIALS</a>
-              <a href={NAV_ROUTES.CONTACT} className="sr-nav-link">CONTACT</a>
-            </nav>
-            <div className="sr-header-actions">
-              <form className="sr-search-wrap" onSubmit={handleSearchSubmit}>
-                <input
-                  type="search"
-                  value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      e.target.blur();
-                    }
-                  }}
-                  className="sr-search-input"
-                  aria-label="Search"
-                />
-                <button type="submit" aria-label="Search" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex' }}>
-                  <SearchIcon />
-                </button>
-              </form>
-              <a href={ROUTES.cart} className="sr-icon-btn sr-cart-btn" aria-label="Cart">
-                <ShoppingBagIcon />
-              </a>
-              <a href={accountPath} className="sr-icon-btn sr-user-btn" aria-label="Account">
-                <UserIcon />
-              </a>
-            </div>
-          </div>
-        </header>
+        <Navbar homeHref={ROUTES.home} />
 
-        {/* Mobile Header */}
-        <header className="sr-header-mobile">
-          <div className="sr-mobile-header-row">
-            <div className="sr-mobile-search">
-              <input
-                type="search"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                placeholder="Search"
-                aria-label="Search"
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    event.preventDefault();
-                    handleSearchSubmit(event);
-                  }
-                }}
-              />
-              <SearchIcon />
-            </div>
-            <button type="button" className="sr-mobile-menu-btn" aria-label="Menu">
-              <span />
-              <span />
-            </button>
-          </div>
-        </header>
-
-        <main className="sr-main">
+        <main id="main-content" className="sr-main">
           <p className="sr-breadcrumbs">
             <a href={ROUTES.home}>Home</a> &gt; <a href={searchPath()}>Products</a> &gt; <span>{displayQuery}</span>
           </p>
@@ -1598,58 +1460,7 @@ export default function SearchResults() {
           </div>
         </main>
 
-        <footer className="sr-footer">
-          <div className="sr-footer-inner">
-            <a href={ROUTES.home} className="sr-footer-logo">ZIVORAH</a>
-
-            <form className="sr-footer-form" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Enter Your Email Address" className="sr-footer-email" />
-              <button type="submit" className="sr-footer-submit">Submit</button>
-            </form>
-
-            <nav className="sr-footer-nav">
-              {footerLinks.map((link) => (
-                <a key={link} href={FOOTER_LINKS[link]} className="sr-footer-nav-item">
-                  <span>•</span> {link}
-                </a>
-              ))}
-            </nav>
-
-            <nav className="sr-footer-nav-mobile">
-              <a href={FOOTER_LINKS.Home} className="sr-footer-nav-item"><span>•</span> Home</a>
-              <a href={FOOTER_LINKS.Collections} className="sr-footer-nav-item"><span>•</span> Collections</a>
-              <a href={FOOTER_LINKS.Gifts} className="sr-footer-nav-item"><span>•</span> Gifts</a>
-              <a href={FOOTER_LINKS.Testimonials} className="sr-footer-nav-item"><span>•</span> Testimonials</a>
-              <a href={FOOTER_LINKS.Contact} className="sr-footer-nav-item"><span>•</span> Contact</a>
-            </nav>
-
-            <div className="sr-footer-bottom">
-              <p>©2026 ZIVORAH. ALL RIGHTS RESERVED</p>
-              <div className="sr-footer-legal">
-                <a href="/privacy-policy">PRIVACY POLICY</a>
-                <a href="/terms-of-use">TERMS OF USE</a>
-              </div>
-              <div className="sr-footer-social">
-                <a href="#" aria-label="Instagram"><InstagramIcon /></a>
-                <a href="#" aria-label="TikTok"><TikTokIcon /></a>
-                <a href="#" aria-label="Facebook"><FacebookIcon /></a>
-              </div>
-            </div>
-
-            <div className="sr-footer-bottom-mobile">
-              <div className="sr-footer-social-mobile">
-                <a href="#" aria-label="Instagram"><InstagramIcon /></a>
-                <a href="#" aria-label="TikTok"><TikTokIcon /></a>
-                <a href="#" aria-label="Facebook"><FacebookIcon /></a>
-              </div>
-              <div className="sr-footer-legal-mobile">
-                <a href="/privacy-policy">PRIVACY POLICY</a>
-                <a href="/terms-of-use">TERMS OF USE</a>
-              </div>
-              <p className="sr-footer-copyright-mobile">©2026 ZIVORAH. ALL RIGHTS RESERVED</p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   );

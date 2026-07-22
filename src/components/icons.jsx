@@ -7,19 +7,42 @@ export function SearchIcon({ className = 'w-5 h-5' }) {
   );
 }
 
-export function HeartIcon({ className = 'w-4 h-4' }) {
+export function HeartIcon({ className = 'w-4 h-4', filled = false }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M12 21s-7-4.5-9.5-8.5C.5 7.5 3.5 4 7.5 4c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 7 3.5 5 6.5C19 16.5 12 21 12 21z" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
+      <path
+        d="M12 21s-7-4.5-9.5-8.5C.5 7.5 3.5 4 7.5 4c2 0 3.5 1.5 4.5 3 1-1.5 2.5-3 4.5-3 4 0 7 3.5 5 6.5C19 16.5 12 21 12 21z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 export function ShoppingBagIcon({ className = 'w-4 h-4' }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
       <path d="M6 7h12l-1.2 12H7.2L6 7z" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M9 7V5a3 3 0 016 0v2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Classic shopping cart — used in navbar */
+export function ShoppingCartIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="9" cy="20" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="20" r="1.25" fill="currentColor" stroke="none" />
+      <path d="M3 4h2l2.2 11.2a1.5 1.5 0 001.5 1.2h7.6a1.5 1.5 0 001.5-1.15L19.5 8H7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 8h12.5" strokeLinecap="round" />
     </svg>
   );
 }

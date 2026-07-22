@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Reveal from '../components/Reveal.jsx';
 import CartItem from '../components/cart/CartItem';
 import OrderSummary from '../components/cart/OrderSummary';
 import RecommendedProducts from '../components/cart/RecommendedProducts';
 import DeliveryAddressSection from '../components/cart/DeliveryAddressSection';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
+import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
-import { ChevronDownIcon } from '../components/icons';
 import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -18,6 +19,74 @@ import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import './CartPage.css';
+
+function friendlyCartError(message, fallback) {
+  const text = (message || '').trim();
+  if (!text) {
+    return fallback;
+  }
+
+  const lower = text.toLowerCase();
+  if (lower.includes('stock') || lower.includes('available') || lower.includes('quantity')) {
+    return 'Not enough stock available for that quantity.';
+  }
+  if (lower.includes('promo') || lower.includes('coupon') || lower.includes('expired')) {
+    return text;
+  }
+  if (
+    lower.includes('unauthorized') ||
+    lower.includes('token') ||
+    lower.includes('session') ||
+    lower.includes('login')
+  ) {
+    return 'Your session has expired. Please sign in again to place your order.';
+  }
+  if (lower.includes('empty') || lower.includes('no items')) {
+    return 'Your cart changed. Please review your items and try again.';
+  }
+  if (text.length > 140 || lower.includes('mongo') || lower.includes('stack')) {
+    return fallback;
+  }
+
+  return text;
+}
+
+function scrollToCheckoutSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function CartSkeleton() {
+  return (
+    <div className="cart-skeleton" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Loading your cart</span>
+      <div className="cart-skeleton-body">
+        <div className="cart-skeleton-items">
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="cart-skeleton-item">
+              <div className="cart-skeleton-image" />
+              <div className="cart-skeleton-lines">
+                <span className="cart-skeleton-line cart-skeleton-line-lg" />
+                <span className="cart-skeleton-line cart-skeleton-line-md" />
+                <span className="cart-skeleton-line cart-skeleton-line-sm" />
+                <span className="cart-skeleton-block" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="cart-skeleton-summary">
+          <span className="cart-skeleton-line cart-skeleton-line-lg" />
+          <span className="cart-skeleton-block cart-skeleton-block-tall" />
+          <span className="cart-skeleton-line" />
+          <span className="cart-skeleton-line" />
+          <span className="cart-skeleton-block" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CartPage() {
   usePageTitle('Shopping Cart | Zivorah');
@@ -37,20 +106,25 @@ export default function CartPage() {
   } = useCart();
   const { addToWishlist } = useWishlist();
 
-  const [sortBy, setSortBy] = useState('latest');
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [addressLoading, setAddressLoading] = useState(false);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
   const [addressSaving, setAddressSaving] = useState(false);
   const [addressModalError, setAddressModalError] = useState('');
+  const [addressSectionError, setAddressSectionError] = useState('');
+  const [selectingAddressId, setSelectingAddressId] = useState(null);
   const [itemToRemove, setItemToRemove] = useState(null);
   const [actionError, setActionError] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
   const [updatingItemId, setUpdatingItemId] = useState(null);
+  const [exitingIds, setExitingIds] = useState([]);
   const [clearing, setClearing] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [paymentSectionError, setPaymentSectionError] = useState('');
   const [promoInput, setPromoInput] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoCartSignature, setPromoCartSignature] = useState('');
@@ -136,27 +210,17 @@ export default function CartPage() {
       setAppliedPromo(response.data);
       setPromoCartSignature(cartSignature);
       setPromoInput(response.data.code);
+      setStatusMessage(`Promo code ${response.data.code} applied.`);
     } catch (err) {
       setAppliedPromo(null);
-      setPromoError(err.message || 'Invalid promo code.');
+      setPromoError(friendlyCartError(err.message, 'This promo code is invalid or expired.'));
     } finally {
       setPromoApplying(false);
     }
   };
 
-  const sortedItems = useMemo(() => {
-    const list = [...items];
-    if (sortBy === 'price-low') {
-      return list.sort((a, b) => a.unitPrice - b.unitPrice);
-    }
-    if (sortBy === 'price-high') {
-      return list.sort((a, b) => b.unitPrice - a.unitPrice);
-    }
-    return list;
-  }, [items, sortBy]);
-
   const handleQuantityChange = async (id, newQty) => {
-    if (newQty < 1 || !isAuthenticated) {
+    if (newQty < 1 || !isAuthenticated || updatingItemId || exitingIds.includes(id)) {
       return;
     }
 
@@ -166,15 +230,40 @@ export default function CartPage() {
     try {
       await updateCartItem(id, { quantity: newQty });
       resetPromo();
+      setStatusMessage('Cart quantity updated.');
     } catch (err) {
-      setActionError(err.message || 'Failed to update cart item.');
+      setActionError(friendlyCartError(err.message, 'Unable to update quantity. Please try again.'));
     } finally {
       setUpdatingItemId(null);
     }
   };
 
   const handleRemoveRequest = (item) => {
+    if (updatingItemId || exitingIds.includes(item.id)) {
+      return;
+    }
     setItemToRemove(item);
+  };
+
+  const runRemoveWithExit = async (item, afterRemove) => {
+    setActionError('');
+    setItemToRemove(null);
+    setExitingIds((ids) => (ids.includes(item.id) ? ids : [...ids, item.id]));
+    setUpdatingItemId(item.id);
+
+    try {
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 280);
+      });
+      await afterRemove();
+      resetPromo();
+      setStatusMessage(`${item.title || 'Item'} removed from cart.`);
+    } catch (err) {
+      setActionError(friendlyCartError(err.message, 'Unable to remove item. Please try again.'));
+    } finally {
+      setExitingIds((ids) => ids.filter((value) => value !== item.id));
+      setUpdatingItemId(null);
+    }
   };
 
   const handleRemoveConfirm = async () => {
@@ -182,50 +271,54 @@ export default function CartPage() {
       return;
     }
 
-    setActionError('');
-    setUpdatingItemId(itemToRemove.id);
-
-    try {
-      await removeCartItem(itemToRemove.id);
-      setItemToRemove(null);
-      resetPromo();
-    } catch (err) {
-      setActionError(err.message || 'Failed to remove cart item.');
-    } finally {
-      setUpdatingItemId(null);
-    }
+    const item = itemToRemove;
+    await runRemoveWithExit(item, () => removeCartItem(item.id));
   };
 
   const handleMoveToWishlist = async () => {
-    if (!itemToRemove?.productId) {
-      await handleRemoveConfirm();
+    if (!itemToRemove) {
       return;
     }
 
-    setUpdatingItemId(itemToRemove.id);
-    setActionError('');
+    const item = itemToRemove;
 
-    try {
-      await addToWishlist(itemToRemove.productId);
-      await removeCartItem(itemToRemove.id);
-      resetPromo();
-      setItemToRemove(null);
-    } catch (err) {
-      setActionError(err.message || 'Failed to move item to wishlist.');
-    } finally {
-      setUpdatingItemId(null);
+    if (!item.productId) {
+      await runRemoveWithExit(item, () => removeCartItem(item.id));
+      return;
     }
+
+    await runRemoveWithExit(item, async () => {
+      await addToWishlist(item.productId);
+      await removeCartItem(item.id);
+    });
+  };
+
+  const openAddAddress = () => {
+    setEditingAddress(null);
+    setAddressModalError('');
+    setAddressModalOpen(true);
+  };
+
+  const openEditAddress = (address) => {
+    setEditingAddress(address);
+    setAddressModalError('');
+    setAddressModalOpen(true);
   };
 
   const handleSaveAddress = async (form) => {
+    if (addressSaving) {
+      return;
+    }
+
     setAddressModalError('');
     setAddressSaving(true);
 
     try {
       const payload = mapAddressForApi(form);
 
-      if (selectedAddress?.id) {
-        await addressApi.updateAddress(selectedAddress.id, payload);
+      if (editingAddress?.id) {
+        await addressApi.updateAddress(editingAddress.id, payload);
+        setSelectedAddressId(editingAddress.id);
       } else {
         const response = await addressApi.createAddress(payload);
         setSelectedAddressId(response.data._id);
@@ -233,32 +326,53 @@ export default function CartPage() {
 
       await loadAddresses();
       setAddressModalOpen(false);
+      setEditingAddress(null);
+      setAddressSectionError('');
+      setStatusMessage('Delivery address saved.');
     } catch (err) {
-      setAddressModalError(err.message || 'Failed to save address.');
+      setAddressModalError(
+        friendlyCartError(err.message, 'Unable to save address. Please try again.')
+      );
     } finally {
       setAddressSaving(false);
     }
   };
 
   const handleSelectAddress = async (addressId) => {
+    if (selectingAddressId || addressId === selectedAddressId) {
+      return;
+    }
+
     setActionError('');
+    setAddressSectionError('');
+    setSelectingAddressId(addressId);
     setSelectedAddressId(addressId);
 
     try {
       await addressApi.setDefaultAddress(addressId);
       await loadAddresses();
+      setStatusMessage('Delivery address updated.');
     } catch (err) {
-      setActionError(err.message || 'Failed to update default address.');
+      setActionError(
+        friendlyCartError(err.message, 'Unable to update the selected address.')
+      );
+    } finally {
+      setSelectingAddressId(null);
     }
   };
 
   const handleClearCart = async () => {
+    if (clearing || updatingItemId) {
+      return;
+    }
+
     setActionError('');
     setClearing(true);
 
     try {
       await clearCart();
       resetPromo();
+      setStatusMessage('Cart cleared.');
     } catch (err) {
       setActionError(err.message || 'Failed to clear cart.');
     } finally {
@@ -267,8 +381,14 @@ export default function CartPage() {
   };
 
   const handleCheckout = async () => {
+    if (checkingOut) {
+      return;
+    }
+
     setCheckoutError('');
     setActionError('');
+    setAddressSectionError('');
+    setPaymentSectionError('');
 
     if (!isAuthenticated) {
       navigate('/login', { state: { from: ROUTES.cart } });
@@ -281,7 +401,18 @@ export default function CartPage() {
     }
 
     if (!selectedAddress?.id) {
-      setCheckoutError('Please add a delivery address before checkout.');
+      const message = 'Please add a delivery address before placing your order.';
+      setAddressSectionError(message);
+      setCheckoutError(message);
+      scrollToCheckoutSection('checkout-delivery');
+      return;
+    }
+
+    if (!paymentMethod) {
+      const message = 'Please select a payment method.';
+      setPaymentSectionError(message);
+      setCheckoutError(message);
+      scrollToCheckoutSection('checkout-payment');
       return;
     }
 
@@ -298,76 +429,110 @@ export default function CartPage() {
       await refreshCart();
       navigate(`/order-success/${response.data._id}`, { replace: true });
     } catch (err) {
-      setCheckoutError(err.message || 'Checkout failed. Please try again.');
+      const message = friendlyCartError(
+        err.message,
+        'Unable to place your order. Please try again.'
+      );
+      setCheckoutError(message);
+
+      if (message.toLowerCase().includes('sign in')) {
+        navigate('/login', { state: { from: ROUTES.cart } });
+      }
     } finally {
       setCheckingOut(false);
     }
   };
 
+  const handleRetryCart = async () => {
+    setActionError('');
+    setStatusMessage('Refreshing cart…');
+    try {
+      await refreshCart();
+      setStatusMessage('Cart refreshed.');
+    } catch (err) {
+      setActionError(err.message || 'Unable to refresh cart.');
+    }
+  };
+
   const showEmptyState = !loading && items.length === 0;
   const showCartContent = !loading && items.length > 0;
+  const itemCountLabel = totalItems === 1 ? '1 item' : `${totalItems} items`;
 
   return (
     <div className="cart-page">
       <Navbar activeLink="HOME" homeHref="/?home=true" />
 
-      <main className="cart-main">
+      <main id="main-content" className="cart-main">
         <div className="cart-container">
-          <div className="cart-header">
-            <div className="cart-title-row">
-              <h1 className="cart-title">Shopping Cart</h1>
-              {totalItems > 0 && (
-                <span className="cart-badge">{totalItems}</span>
-              )}
-            </div>
-            {showCartContent && (
-              <div className="cart-sort-wrap">
-                <label htmlFor="cart-sort" className="cart-sort-label">Sort by:</label>
-                <div className="cart-sort-select-wrap">
-                  <select
-                    id="cart-sort"
-                    className="cart-sort-select"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option value="latest">Latest added</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                  </select>
-                  <ChevronDownIcon className="cart-sort-chevron w-3.5 h-3.5" />
-                </div>
+          <Reveal className="cart-header" variant="fade-up">
+            <nav className="cart-breadcrumb" aria-label="Breadcrumb">
+              <Link to={ROUTES.home}>Home</Link>
+              <span className="cart-breadcrumb-sep" aria-hidden="true">
+                /
+              </span>
+              <span className="cart-breadcrumb-current">Shopping Cart</span>
+            </nav>
+
+            <div className="cart-header-row">
+              <div className="cart-title-row">
+                <h1 className="cart-title">Shopping Cart</h1>
+                {isAuthenticated && totalItems > 0 ? (
+                  <span className="cart-count">{itemCountLabel}</span>
+                ) : null}
               </div>
-            )}
+
+              <Link to={ROUTES.collection} className="cart-continue-link">
+                Continue shopping
+              </Link>
+            </div>
+          </Reveal>
+
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            {statusMessage}
           </div>
 
-          {!isAuthenticated && (
-            <p className="cart-auth-message">
-              Please <a href="/login">sign in</a> to view and manage your cart.
+          {!isAuthenticated ? (
+            <p className="cart-auth-message" role="status">
+              Please <Link to={ROUTES.login} state={{ from: ROUTES.cart }}>sign in</Link> to view
+              and manage your cart.
             </p>
-          )}
+          ) : null}
 
           {(error || actionError) && (
-            <p className="cart-error-message">{error || actionError}</p>
+            <div className="cart-error-banner" role="alert">
+              <p className="cart-error-message">{error || actionError}</p>
+              {error ? (
+                <button type="button" className="cart-retry-btn" onClick={handleRetryCart}>
+                  Retry
+                </button>
+              ) : null}
+            </div>
           )}
 
-          {loading && isAuthenticated && (
-            <p className="cart-loading-message">Loading your cart...</p>
-          )}
+          {loading && isAuthenticated ? <CartSkeleton /> : null}
 
-          <div className="cart-body">
-            <div className="cart-items-section">
-              {showCartContent && (
-                <DeliveryAddressSection
-                  address={selectedAddress}
-                  addresses={addresses}
-                  loading={addressLoading}
-                  onChangeClick={() => {
-                    setAddressModalError('');
-                    setAddressModalOpen(true);
-                  }}
-                  onSelectAddress={handleSelectAddress}
-                />
-              )}
+          {showEmptyState ? (
+            <Reveal className="cart-empty" variant="fade-up">
+              <h2 className="cart-empty-title">Your cart is empty</h2>
+              <p className="cart-empty-text">
+                Discover refined pieces and add something you love.
+              </p>
+              <div className="cart-empty-actions">
+                <Link to={ROUTES.collection} className="cart-empty-primary">
+                  Browse Collection
+                </Link>
+                {!isAuthenticated ? (
+                  <Link
+                    to={ROUTES.login}
+                    state={{ from: ROUTES.cart }}
+                    className="cart-empty-secondary"
+                  >
+                    Sign in
+                  </Link>
+                ) : null}
+              </div>
+            </Reveal>
+          ) : null}
 
               {showCartContent && (
                 <div className="checkout-payment-section">
@@ -463,58 +628,103 @@ export default function CartPage() {
                   <span className="cart-col-product">PRODUCT</span>
                   <span className="cart-col-count">COUNT</span>
                   <span className="cart-col-price">PRICE</span>
+                </div>
+              )}
+
+          {showCartContent ? (
+            <div className="cart-body">
+              <div className="cart-items-column">
+                <div className="cart-items-toolbar">
+                  <p className="cart-items-toolbar-label">
+                    Bag · {itemCountLabel}
+                  </p>
                   <button
                     type="button"
                     className="cart-clear-btn"
                     onClick={handleClearCart}
-                    disabled={clearing}
+                    disabled={clearing || Boolean(updatingItemId)}
                   >
-                    {clearing ? 'CLEARING...' : '✕ CLEAR CART'}
+                    {clearing ? 'Clearing…' : 'Clear cart'}
                   </button>
                 </div>
-              )}
 
-              {showEmptyState ? (
-                <div className="cart-empty">
-                  <h2 className="cart-empty-title">Your cart is empty</h2>
-                  <p className="cart-empty-text">Start adding jewelry pieces you love.</p>
-                  <a href={ROUTES.collection} className="cart-empty-link">Continue shopping</a>
-                </div>
-              ) : showCartContent ? (
                 <div className="cart-items-list">
-                  {sortedItems.map((item) => (
-                    <CartItem
+                  {items.map((item, index) => (
+                    <Reveal
                       key={item.id}
-                      item={item}
-                      onQuantityChange={handleQuantityChange}
-                      onRemove={handleRemoveRequest}
-                      updating={updatingItemId === item.id}
-                    />
+                      variant="fade-up"
+                      delay={Math.min(index, 7) * 40}
+                    >
+                      <CartItem
+                        item={item}
+                        onQuantityChange={handleQuantityChange}
+                        onRemove={handleRemoveRequest}
+                        updating={updatingItemId === item.id && !exitingIds.includes(item.id)}
+                        removing={exitingIds.includes(item.id)}
+                      />
+                    </Reveal>
                   ))}
                 </div>
-              ) : null}
-            </div>
 
-            {showCartContent && (
-              <OrderSummary
-                itemCount={totalItems}
-                subtotal={subtotal}
-                discount={discount}
-                taxFee={taxFee}
-                total={orderTotal}
-                onCheckout={handleCheckout}
-                checkingOut={checkingOut}
-                checkoutError={checkoutError}
-                canCheckout={isAuthenticated && Boolean(selectedAddress?.id) && items.length > 0}
-                promoCode={promoInput}
-                onPromoCodeChange={setPromoInput}
-                onApplyPromo={handleApplyPromo}
-                promoApplying={promoApplying}
-                promoError={promoError}
-                appliedPromo={activePromo}
-              />
-            )}
-          </div>
+                <Reveal className="cart-checkout-details" variant="fade-up" delay={80}>
+                  <h2 className="cart-details-heading">Complete your order</h2>
+                  <p className="cart-details-subheading">
+                    Confirm delivery, payment, and review your totals before placing the order.
+                  </p>
+
+                  <DeliveryAddressSection
+                    address={selectedAddress}
+                    addresses={addresses}
+                    loading={addressLoading}
+                    error={addressSectionError}
+                    selectingId={selectingAddressId}
+                    onAddClick={openAddAddress}
+                    onEditClick={openEditAddress}
+                    onSelectAddress={handleSelectAddress}
+                  />
+
+                  <CheckoutPaymentSection
+                    paymentMethod={paymentMethod}
+                    onPaymentMethodChange={(method) => {
+                      setPaymentMethod(method);
+                      setPaymentSectionError('');
+                    }}
+                    orderTotal={orderTotal}
+                    error={paymentSectionError}
+                    disabled={checkingOut}
+                  />
+                </Reveal>
+              </div>
+
+              <Reveal variant="fade-up" delay={100}>
+                <OrderSummary
+                  itemCount={totalItems}
+                  subtotal={subtotal}
+                  discount={discount}
+                  taxFee={taxFee}
+                  total={orderTotal}
+                  onCheckout={handleCheckout}
+                  checkingOut={checkingOut}
+                  checkoutError={checkoutError}
+                  canCheckout={isAuthenticated && Boolean(selectedAddress?.id) && items.length > 0}
+                  promoCode={promoInput}
+                  onPromoCodeChange={setPromoInput}
+                  onApplyPromo={handleApplyPromo}
+                  onRemovePromo={resetPromo}
+                  promoApplying={promoApplying}
+                  promoError={promoError}
+                  appliedPromo={activePromo}
+                  reviewAddress={selectedAddress}
+                  paymentMethod={paymentMethod}
+                  reviewItems={items.map((item) => ({
+                    id: item.id,
+                    title: item.title,
+                    quantity: item.quantity,
+                  }))}
+                />
+              </Reveal>
+            </div>
+          ) : null}
         </div>
 
         <RecommendedProducts />
@@ -524,21 +734,31 @@ export default function CartPage() {
 
       <DeliveryAddressModal
         isOpen={addressModalOpen}
-        address={selectedAddress}
-        onClose={() => setAddressModalOpen(false)}
+        address={editingAddress}
+        onClose={() => {
+          if (!addressSaving) {
+            setAddressModalOpen(false);
+            setEditingAddress(null);
+          }
+        }}
         onSave={handleSaveAddress}
         saving={addressSaving}
         error={addressModalError}
       />
 
-      {itemToRemove && (
+      {itemToRemove ? (
         <RemoveFromBagModal
           item={itemToRemove}
-          onClose={() => setItemToRemove(null)}
+          busy={Boolean(updatingItemId)}
+          onClose={() => {
+            if (!updatingItemId) {
+              setItemToRemove(null);
+            }
+          }}
           onRemove={handleRemoveConfirm}
           onMoveToWishlist={handleMoveToWishlist}
         />
-      )}
+      ) : null}
     </div>
   );
 }

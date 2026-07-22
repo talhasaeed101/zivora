@@ -6,6 +6,7 @@ import { searchPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import { formatPrice, getProductImage, hasSale, getCategoryName } from '../utils/products.js';
 import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';
+import Reveal from './Reveal.jsx';
 import './PremiumBundles.css';
 
 export default function PremiumBundles() {
@@ -44,12 +45,12 @@ export default function PremiumBundles() {
   return (
     <section id="bundles" className="bundles-section">
       <div className="bundles-inner">
-        <div className="bundles-header-row">
+        <Reveal className="bundles-header-row" variant="fade-up">
           <h2 className="bundles-heading">Bundles</h2>
           <a href={searchPath()} className="bundles-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </a>
-        </div>
+        </Reveal>
 
         {loading ? (
           <ProductRowSkeleton
@@ -63,17 +64,20 @@ export default function PremiumBundles() {
         ) : products.length === 0 ? (
           <SectionMessage message="No featured products available right now." />
         ) : (
-          <div className="bundles-products-row">
-            {products.map((product) => {
+          <div className="bundles-products-row reveal-stagger">
+            {products.map((product, index) => {
               const image = getProductImage(product);
               const showSale = hasSale(product);
               const categoryName = getCategoryName(product.category);
 
               return (
-                <a
+                <Reveal
                   key={product._id}
+                  as="a"
                   href={`/product/${product.slug}`}
                   className="bundles-product-card-link"
+                  variant="fade-up"
+                  delay={Math.min(index, 7) * 70}
                 >
                   <article className="bundles-product-card" style={{ position: 'relative' }}>
                     <div className="bundles-product-image-wrap">
@@ -104,7 +108,7 @@ export default function PremiumBundles() {
                       )}
                     </div>
                   </article>
-                </a>
+                </Reveal>
               );
             })}
           </div>

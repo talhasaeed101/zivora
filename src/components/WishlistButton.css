@@ -2,3 +2,35 @@
   opacity: 0.55;
   cursor: wait;
 }
+
+.wishlist-btn-loading svg {
+  animation: wishlist-pulse 900ms ease-in-out infinite;
+}
+
+/* Filled heart when item is wishlisted — used across cards */
+.catalog-wishlist-btn-active,
+.trending-wishlist-btn-active,
+.bundles-wishlist-btn-active,
+.sr-wishlist-btn-active,
+.cart-rec-wishlist-active,
+.pd-wishlist-btn-active {
+  color: #967259;
+}
+
+@keyframes wishlist-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wishlist-btn-loading svg {
+    animation: none;
+  }
+}

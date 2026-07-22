@@ -1,23 +1,78 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductGallery from '../components/product-details/ProductGallery';
 import ProductInfo from '../components/product-details/ProductInfo';
-import ProductCard from '../components/product-details/ProductCard';
 import ProductReviewsSection from '../components/product-details/ProductReviewsSection';
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from '../components/icons';
-import { ROUTES, searchPath } from '../utils/navigation';
+import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
+import Reveal from '../components/Reveal.jsx';
+import { ArrowRightIcon } from '../components/icons';
+import { ROUTES, categoryPath, searchPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import {
   LEGACY_STATIC_PRODUCT,
   getCategoryName,
   PLACEHOLDER_IMAGE,
 } from '../utils/products.js';
-import { FALLBACK_REVIEW_SUMMARY } from '../utils/reviews.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { trackProductView } from '../utils/analytics.js';
+import './Collection.css';
 import './ProductDetails.css';
+
+function ProductDetailsSkeleton() {
+  return (
+    <div className="pd-skeleton" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Loading product</span>
+      <div className="pd-skeleton-breadcrumb" />
+      <div className="pd-hero-grid">
+        <div className="pd-skeleton-gallery">
+          <div className="pd-skeleton-main" />
+          <div className="pd-skeleton-thumbs">
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+        <div className="pd-skeleton-info">
+          <div className="pd-skeleton-line pd-skeleton-line-sm" />
+          <div className="pd-skeleton-line pd-skeleton-line-lg" />
+          <div className="pd-skeleton-line" />
+          <div className="pd-skeleton-line pd-skeleton-line-md" />
+          <div className="pd-skeleton-block" />
+          <div className="pd-skeleton-block" />
+          <div className="pd-skeleton-actions">
+            <span />
+            <span />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductAccordion({ title, children, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className={`pd-accordion${open ? ' is-open' : ''}`}>
+      <button
+        type="button"
+        className="pd-accordion-trigger"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span>{title}</span>
+        <span className="pd-accordion-icon" aria-hidden="true">
+          {open ? '−' : '+'}
+        </span>
+      </button>
+      <div className="pd-accordion-panel" hidden={!open}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function ProductDetails() {
   const { slug: routeSlug } = useParams();
@@ -25,20 +80,21 @@ export default function ProductDetails() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(Boolean(routeSlug));
   const [error, setError] = useState('');
+  const [reloadToken, setReloadToken] = useState(0);
   const [selectedColor, setSelectedColor] = useState('gold');
-  const [reviewSummary, setReviewSummary] = useState(FALLBACK_REVIEW_SUMMARY);
-  const sliderRef = useRef(null);
+  const [reviewSummary, setReviewSummary] = useState(null);
 
   useEffect(() => {
     if (!routeSlug) {
       setProduct(LEGACY_STATIC_PRODUCT);
       setLoading(false);
-      return;
+      return undefined;
     }
 
     let isMounted = true;
     setLoading(true);
     setError('');
+    setReviewSummary(null);
 
     publicCatalogApi
       .getPublicProductBySlug(routeSlug)
@@ -68,12 +124,12 @@ export default function ProductDetails() {
     return () => {
       isMounted = false;
     };
-  }, [routeSlug]);
+  }, [routeSlug, reloadToken]);
 
   useEffect(() => {
     if (!product?.category) {
       setRelatedProducts([]);
-      return;
+      return undefined;
     }
 
     const categoryId =
@@ -81,7 +137,7 @@ export default function ProductDetails() {
 
     if (!categoryId) {
       setRelatedProducts([]);
-      return;
+      return undefined;
     }
 
     let isMounted = true;
@@ -109,28 +165,25 @@ export default function ProductDetails() {
     };
   }, [product]);
 
-  const activeProduct = product || LEGACY_STATIC_PRODUCT;
-  const categoryName = getCategoryName(activeProduct.category) || 'Rings';
+  const activeProduct = product;
+  const categoryName = getCategoryName(activeProduct?.category);
+  const categorySlug =
+    typeof activeProduct?.category === 'object' ? activeProduct.category?.slug : null;
 
-  usePageTitle(`${activeProduct.title || 'Product'} | Zivorah`);
-  const galleryImages = activeProduct.images?.length
+  usePageTitle(`${activeProduct?.title || 'Product'} | Zivorah`);
+
+  const galleryImages = activeProduct?.images?.length
     ? activeProduct.images
-    : [PLACEHOLDER_IMAGE];
-
-  const displayGalleryImages = galleryImages;
-
-  const scrollSlider = (direction) => {
-    if (!sliderRef.current) return;
-    const cardWidth = sliderRef.current.querySelector('.pd-product-card')?.offsetWidth || 280;
-    sliderRef.current.scrollBy({ left: direction * (cardWidth + 20), behavior: 'smooth' });
-  };
+    : activeProduct
+      ? [PLACEHOLDER_IMAGE]
+      : [];
 
   if (loading) {
     return (
       <div className="pd-page">
         <Navbar activeLink="COLLECTION" homeHref="/?home=true" />
-        <main className="pd-main">
-          <p className="pd-state-message">Loading product...</p>
+        <main id="main-content" className="pd-main">
+          <ProductDetailsSkeleton />
         </main>
         <Footer />
       </div>
@@ -138,121 +191,154 @@ export default function ProductDetails() {
   }
 
   if (error && !product) {
+    const isNotFound = /not found/i.test(error);
     return (
       <div className="pd-page">
         <Navbar activeLink="COLLECTION" homeHref="/?home=true" />
-        <main className="pd-main">
-          <p className="pd-state-message pd-state-error">{error}</p>
-          <a href={searchPath()} className="pd-view-all-link">Browse products</a>
+        <main id="main-content" className="pd-main">
+          <div className="pd-state-panel" role="alert">
+            <h1 className="pd-state-title">
+              {isNotFound ? 'Product not found' : 'We couldn’t load this product'}
+            </h1>
+            <p className="pd-state-copy">
+              {isNotFound
+                ? 'This piece may have been moved or is no longer available.'
+                : 'Please try again in a moment.'}
+            </p>
+            <div className="pd-state-actions">
+              {!isNotFound && (
+                <button
+                  type="button"
+                  className="pd-btn pd-btn-primary"
+                  onClick={() => setReloadToken((value) => value + 1)}
+                >
+                  Retry
+                </button>
+              )}
+              <a href={ROUTES.collection} className="pd-btn pd-btn-secondary">
+                Browse Collection
+              </a>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
     );
   }
 
+  if (!activeProduct) {
+    return null;
+  }
+
+  const detailItems = [
+    activeProduct.material,
+    ...(activeProduct.tags || []),
+  ].filter(Boolean);
+
   return (
     <div className="pd-page">
-      <Navbar activeLink="COLLECTION" showWishlist homeHref="/?home=true" />
+      <Navbar activeLink="COLLECTION" homeHref="/?home=true" />
 
-      <main className="pd-main">
-        <nav className="pd-breadcrumb" aria-label="Breadcrumb">
+      <main id="main-content" className="pd-main">
+        <Reveal as="nav" className="pd-breadcrumb" variant="fade-up" aria-label="Breadcrumb">
           <a href={ROUTES.home}>Home</a>
-          <span className="pd-breadcrumb-sep">&gt;</span>
-          <a href={searchPath()}>Products</a>
-          <span className="pd-breadcrumb-sep">&gt;</span>
-          <a href={searchPath({ q: categoryName })}>{categoryName}</a>
-          <span className="pd-breadcrumb-sep">&gt;</span>
+          <span className="pd-breadcrumb-sep" aria-hidden="true">
+            /
+          </span>
+          <a href={ROUTES.collection}>Collection</a>
+          {categoryName && (
+            <>
+              <span className="pd-breadcrumb-sep" aria-hidden="true">
+                /
+              </span>
+              <a href={categorySlug ? categoryPath(categorySlug) : searchPath({ q: categoryName })}>
+                {categoryName}
+              </a>
+            </>
+          )}
+          <span className="pd-breadcrumb-sep" aria-hidden="true">
+            /
+          </span>
           <span className="pd-breadcrumb-current">{activeProduct.title}</span>
-        </nav>
+        </Reveal>
 
         <section className="pd-hero-section">
           <div className="pd-hero-grid">
-            <ProductGallery
-              key={selectedColor}
-              images={displayGalleryImages}
-              title={activeProduct.title}
-              productId={activeProduct._id}
-            />
-            <ProductInfo
-              product={activeProduct}
-              reviewSummary={reviewSummary}
-              onColorChange={setSelectedColor}
-            />
+            <Reveal variant="fade-up" className="pd-gallery-reveal">
+              <ProductGallery
+                key={`${activeProduct._id || activeProduct.slug}-${selectedColor}`}
+                images={galleryImages}
+                title={activeProduct.title}
+                productId={activeProduct._id}
+              />
+            </Reveal>
+            <Reveal variant="fade-up" delay={80} className="pd-info-reveal">
+              <ProductInfo
+                product={activeProduct}
+                reviewSummary={reviewSummary}
+                onColorChange={setSelectedColor}
+              />
+            </Reveal>
           </div>
         </section>
 
-        <section className="pd-description-section">
-          <h2 className="pd-section-title">Description</h2>
-          <p className="pd-description-text">
-            {activeProduct.description ||
-              'Crafted with meticulous attention to detail, our jewelry embodies understated luxury with refined finishes made for everyday wear.'}
-          </p>
-          <ul className="pd-description-list">
-            {activeProduct.material && <li>{activeProduct.material}</li>}
-            {activeProduct.tags?.length > 0 ? (
-              activeProduct.tags.map((tag) => <li key={tag}>{tag}</li>)
-            ) : (
-              <>
-                <li>Premium craftsmanship</li>
-                <li>Hypoallergenic materials</li>
-                <li>Everyday wear comfort</li>
-                <li>Handmade detailing</li>
-              </>
-            )}
-          </ul>
-          <div className="pd-features-row">
-            <div className="pd-feature-item">
-              <span className="pd-feature-check">✓</span>
-              Guarantee for 30 days
-            </div>
-            <div className="pd-feature-item">
-              <span className="pd-feature-check">✓</span>
-              Shipped in 25 June, 2026
-            </div>
-            <div className="pd-feature-item">
-              <span className="pd-feature-check">✓</span>
-              Made to order jewelry
-            </div>
-          </div>
-        </section>
+        <Reveal as="section" className="pd-details-section" variant="fade-up">
+          <ProductAccordion title="Description" defaultOpen>
+            <p className="pd-description-text">
+              {activeProduct.description ||
+                'Crafted with meticulous attention to detail, this Zivorah piece is designed for refined everyday wear.'}
+            </p>
+          </ProductAccordion>
 
-        <section className="pd-related-section">
-          <div className="pd-related-header">
-            <h2 className="pd-section-title">You might also like</h2>
-            <a href={searchPath()} className="pd-view-all-link">
-              View All <ArrowRightIcon className="w-3.5 h-3.5" />
-            </a>
-          </div>
-          {relatedProducts.length > 0 ? (
-            <>
-              <div className="pd-slider-wrap">
-                <button type="button" className="pd-slider-btn pd-slider-btn-prev" onClick={() => scrollSlider(-1)} aria-label="Previous products">
-                  <ChevronLeftIcon className="w-5 h-5" />
-                </button>
-                <div className="pd-slider" ref={sliderRef}>
-                  {relatedProducts.map((relatedProduct) => (
-                    <ProductCard key={relatedProduct._id} product={relatedProduct} />
-                  ))}
-                </div>
-                <button type="button" className="pd-slider-btn pd-slider-btn-next" onClick={() => scrollSlider(1)} aria-label="Next products">
-                  <ChevronRightIcon className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="pd-related-mobile">
-                {relatedProducts.map((relatedProduct) => (
-                  <ProductCard key={relatedProduct._id} product={relatedProduct} variant="mobile" />
+          {detailItems.length > 0 && (
+            <ProductAccordion title="Details">
+              <ul className="pd-description-list">
+                {detailItems.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
-              </div>
-            </>
-          ) : (
-            <p className="pd-state-message">No related products available.</p>
+              </ul>
+            </ProductAccordion>
           )}
-        </section>
 
-        <ProductReviewsSection
-          productId={activeProduct._id || activeProduct.id}
-          onSummaryChange={setReviewSummary}
-        />
+          {activeProduct.isCustomizable && (
+            <ProductAccordion title="Customization">
+              <p className="pd-description-text">
+                This piece can be customized. Use Customize Now to choose engraving and personal
+                options before adding it to your bag.
+              </p>
+            </ProductAccordion>
+          )}
+        </Reveal>
+
+        {relatedProducts.length > 0 && (
+          <Reveal as="section" className="pd-related-section catalog-page" variant="fade-up">
+            <div className="pd-related-header">
+              <h2 className="pd-section-title">You might also like</h2>
+              <a href={ROUTES.collection} className="pd-view-all-link">
+                View All <ArrowRightIcon className="w-3.5 h-3.5" />
+              </a>
+            </div>
+            <div className="pd-related-grid">
+              {relatedProducts.slice(0, 4).map((relatedProduct, index) => (
+                <Reveal
+                  key={relatedProduct._id}
+                  variant="fade-up"
+                  delay={Math.min(index, 3) * 50}
+                  className="catalog-card-reveal"
+                >
+                  <CatalogProductCard product={relatedProduct} variant="desktop" />
+                </Reveal>
+              ))}
+            </div>
+          </Reveal>
+        )}
+
+        <Reveal variant="fade-up">
+          <ProductReviewsSection
+            productId={activeProduct._id || activeProduct.id}
+            onSummaryChange={setReviewSummary}
+          />
+        </Reveal>
       </main>
 
       <Footer />

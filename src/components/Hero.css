@@ -89,6 +89,33 @@
   width: 865px;
   max-width: 100%;
   margin: 0;
+  min-height: 2.8em;
+}
+
+.hero-tagline-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 0.95em;
+  margin-left: 2px;
+  background-color: currentColor;
+  vertical-align: -0.08em;
+  animation: hero-tagline-caret-blink 0.9s step-end infinite;
+}
+
+@keyframes hero-tagline-caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tagline-caret {
+    display: none;
+  }
 }
 
 .hero-collection-row-container {
@@ -197,9 +224,19 @@
 {
   display:flex
 }
+.hero-circular-badge-container:focus-visible {
+  outline: 2px solid #967259;
+  outline-offset: 4px;
+}
+
 .hero-circular-badge-container:hover {
   transform: translateY(-50%) scale(1.04);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+}
+
+.hero-arch-image-wrapper,
+.hero-pill-image-wrapper {
+  background-color: #f0ebe4;
 }
 
 .hero-circular-rotating-svg {
@@ -403,11 +440,12 @@
 
   .hero-tagline-text {
     width: 100%;
-    max-width: 214px;
+    max-width: 100%;
     font-size: 13px;
     line-height: 1.55;
     color: #7c7c7c;
     margin: 0 0 16px;
+    min-height: 4.8em;
   }
 
   .mobile-hero-badge {
@@ -439,19 +477,23 @@
   .mobile-collection-row .hero-collection-row-container {
     margin: 0;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .djdjdjdjdjdjddj {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     gap: 8px;
   }
-  .djdjdjdjdjdjddj
-  {
-    display: flex;
-    flex-direction: column;
-  }
-  .hero-collection-thumbnails-container
-  {
-        position: absolute;
-    left: 40%;
-    top: 36%;
+
+  .hero-collection-thumbnails-container {
+    position: static;
+    left: auto;
+    top: auto;
+    margin-left: 0;
   }
 
   .hero-collection-meta-row {
@@ -503,4 +545,26 @@
     border-radius: 22px;
   }
 
+  .mobile-hero-top {
+    flex-wrap: wrap;
+  }
+
+  .hero-left-zone-container {
+    max-width: 96px;
+  }
+
+  .hero-tagline-text {
+    font-size: 12px;
+    min-height: 5.2em;
+  }
+
+  .mobile-hero-badge {
+    width: 78px;
+    height: 78px;
+  }
+
+  .mobile-hero-badge .hero-circular-rotating-svg {
+    width: 78px;
+    height: 78px;
+  }
 }

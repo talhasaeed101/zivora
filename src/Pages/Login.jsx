@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { useAuth } from '../context/AuthContext.jsx';
+import AuthShell from '../components/auth/AuthShell.jsx';
+import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
-import { ROUTES } from '../utils/navigation';
+import { useAuth } from '../context/AuthContext.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { getSafeReturnPath, friendlyAuthError } from '../utils/authUi.js';
+import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function Login() {
@@ -13,6 +14,8 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const emailId = useId();
+  const errorRef = useRef(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,11 +25,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
-    return <div className="auth-page-loading"><p>Loading...</p></div>;
+    return (
+      <div className="auth-page-loading" aria-busy="true" aria-live="polite">
+        <p>Loading…</p>
+      </div>
+    );
   }
 
   if (isAuthenticated) {
-    return <Navigate to={ROUTES.profile} replace />;
+    return <Navigate to={getSafeReturnPath(location.state?.from, ROUTES.profile)} replace />;
   }
 
   const validate = () => {
@@ -48,26 +55,39 @@ export default function Login() {
     return Object.keys(nextErrors).length === 0;
   };
 
+  const focusError = () => {
+    window.requestAnimationFrame(() => {
+      errorRef.current?.focus?.();
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (loading) {
+      return;
+    }
+
     setApiError('');
     setSuccessMessage('');
 
-    if (!validate()) return;
-
-    if (loading) return;
+    if (!validate()) {
+      return;
+    }
 
     setLoading(true);
 
     try {
       await login(email.trim(), password);
-      const redirectTo = location.state?.from || ROUTES.home;
+      const redirectTo = getSafeReturnPath(location.state?.from, ROUTES.home);
       navigate(redirectTo, { replace: true });
     } catch (error) {
       if (error.data?.errorCode === 'EMAIL_NOT_VERIFIED' || error.message === 'Email not verified') {
         navigate(ROUTES.verifyEmail, { state: { email: email.trim() } });
       } else {
-        setApiError(error.message || 'Login failed');
+        setApiError(
+          friendlyAuthError(error, 'Unable to sign in with those details. Please check and try again.')
+        );
+        focusError();
       }
     } finally {
       setLoading(false);
@@ -75,72 +95,97 @@ export default function Login() {
   };
 
   return (
-    <>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="auth-page">
-        <div className="auth-card">
-          <h1 className="auth-heading">Welcome back</h1>
-          <p className="auth-subheading">Sign in to your Zivorah account</p>
+    <AuthShell>
+      <h1 className="auth-heading">Welcome Back</h1>
+      <p className="auth-subheading">
+        Sign in to view your orders, wishlist, and account details.
+      </p>
 
-          {successMessage && <div className="auth-success-banner">{successMessage}</div>}
-          {apiError && <div className="auth-error-banner">{apiError}</div>}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {loading ? 'Signing in' : apiError || successMessage || ''}
+      </div>
 
-          <SocialLoginButtons 
-            onSuccess={() => {
-              const redirectTo = location.state?.from || ROUTES.home;
-              navigate(redirectTo, { replace: true });
-            }}
-            onError={(msg) => setApiError(msg)}
-          />
-
-          <div className="auth-divider">OR</div>
-
-          <form onSubmit={handleSubmit} noValidate>
-
-            <div className="auth-field">
-              <label htmlFor="login-email">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                disabled={loading}
-              />
-              {errors.email && <span className="auth-field-error">{errors.email}</span>}
-            </div>
-
-            <div className="auth-field">
-              <div className="auth-field-row">
-                <label htmlFor="login-password">Password</label>
-                <Link to="/forget-password" className="auth-forgot-link">
-                  Forgot password?
-                </Link>
-              </div>
-              <input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                disabled={loading}
-              />
-              {errors.password && <span className="auth-field-error">{errors.password}</span>}
-            </div>
-
-            <button type="submit" className="auth-submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
-
-          <p className="auth-switch">
-            Don&apos;t have an account? <Link to={ROUTES.register}>Create one</Link>
-          </p>
+      {successMessage ? (
+        <div className="auth-success-banner" role="status">
+          {successMessage}
         </div>
-      </main>
-      <Footer />
-    </>
+      ) : null}
+
+      {apiError ? (
+        <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
+          {apiError}
+        </div>
+      ) : null}
+
+      <SocialLoginButtons
+        onSuccess={() => {
+          const redirectTo = getSafeReturnPath(location.state?.from, ROUTES.home);
+          navigate(redirectTo, { replace: true });
+        }}
+        onError={(msg) => {
+          setApiError(
+            friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.')
+          );
+          focusError();
+        }}
+      />
+
+      <div className="auth-divider">Or</div>
+
+      <form onSubmit={handleSubmit} noValidate>
+        <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
+          <label htmlFor={emailId}>
+            Email <span className="auth-required" aria-hidden="true">*</span>
+          </label>
+          <input
+            id={emailId}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            autoComplete="email"
+            disabled={loading}
+            required
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? `${emailId}-error` : undefined}
+          />
+          {errors.email ? (
+            <span id={`${emailId}-error`} className="auth-field-error" role="alert">
+              {errors.email}
+            </span>
+          ) : null}
+        </div>
+
+        <PasswordInput
+          id="login-password"
+          label="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          autoComplete="current-password"
+          error={errors.password}
+          disabled={loading}
+          required
+          labelAside={
+            <Link to={ROUTES.forgetPassword} className="auth-forgot-link">
+              Forgot password?
+            </Link>
+          }
+        />
+
+        <button
+          type="submit"
+          className="auth-submit"
+          disabled={loading}
+          aria-busy={loading || undefined}
+        >
+          {loading ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+
+      <p className="auth-switch">
+        Don&apos;t have an account? <Link to={ROUTES.register}>Create one</Link>
+      </p>
+    </AuthShell>
   );
 }

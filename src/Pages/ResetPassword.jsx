@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import AuthShell from '../components/auth/AuthShell.jsx';
 import GuestRoute from '../components/GuestRoute.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import { customerAuthApi } from '../services/api.js';
+import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import './Auth.css';
@@ -17,6 +17,7 @@ export default function ResetPassword() {
 
   const navigate = useNavigate();
   const { token } = useParams();
+  const errorRef = useRef(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -58,16 +59,11 @@ export default function ResetPassword() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (loading) {
+    if (loading || isTokenMissing) {
       return;
     }
 
     setApiError('');
-
-    if (isTokenMissing) {
-      setApiError(INVALID_TOKEN_MESSAGE);
-      return;
-    }
 
     if (!validate()) {
       return;
@@ -77,15 +73,20 @@ export default function ResetPassword() {
 
     try {
       const response = await customerAuthApi.resetPassword(token, password, confirmPassword);
+      setPassword('');
+      setConfirmPassword('');
       navigate(ROUTES.login, {
         replace: true,
         state: {
           successMessage:
-            response.message || 'Your password has been reset successfully. You can now sign in.',
+            response.message && response.message.length < 140
+              ? response.message
+              : 'Your password has been reset successfully. You can now sign in.',
         },
       });
     } catch (error) {
-      setApiError(error.message || INVALID_TOKEN_MESSAGE);
+      setApiError(friendlyAuthError(error, INVALID_TOKEN_MESSAGE));
+      window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
       setLoading(false);
     }
@@ -93,34 +94,38 @@ export default function ResetPassword() {
 
   return (
     <GuestRoute>
-      <Navbar homeHref={ROUTES.home} />
-      <main className="auth-page">
-        <div className="auth-card">
-          <h1 className="auth-heading">Create new password</h1>
-          <p className="auth-subheading">
-            Choose a strong password with at least 8 characters.
-          </p>
+      <AuthShell>
+        <h1 className="auth-heading">Create New Password</h1>
+        <p className="auth-subheading">Choose a strong password with at least 8 characters.</p>
 
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {loading ? 'Updating password' : apiError || ''}
+        </div>
+
+        {(apiError || isTokenMissing) && (
+          <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
+            <p>{apiError || INVALID_TOKEN_MESSAGE}</p>
+            {showResendLink ? (
+              <p className="auth-inline-action">
+                <Link to={ROUTES.forgetPassword}>Request a new reset link</Link>
+              </p>
+            ) : null}
+          </div>
+        )}
+
+        {!isTokenMissing ? (
           <form onSubmit={handleSubmit} noValidate>
-            {(apiError || isTokenMissing) && (
-              <div className="auth-error-banner">
-                <p>{apiError || INVALID_TOKEN_MESSAGE}</p>
-                {showResendLink && (
-                  <p className="auth-inline-action">
-                    <Link to={ROUTES.forgetPassword}>Request a new reset link</Link>
-                  </p>
-                )}
-              </div>
-            )}
-
             <PasswordInput
               id="reset-password"
               label="New password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Minimum 8 characters"
+              autoComplete="new-password"
               error={errors.password}
-              disabled={loading || isTokenMissing}
+              hint="Use at least 8 characters."
+              disabled={loading}
+              required
             />
 
             <PasswordInput
@@ -129,25 +134,27 @@ export default function ResetPassword() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Re-enter your password"
+              autoComplete="new-password"
               error={errors.confirmPassword}
-              disabled={loading || isTokenMissing}
+              disabled={loading}
+              required
             />
 
             <button
               type="submit"
               className="auth-submit"
-              disabled={loading || isTokenMissing}
+              disabled={loading}
+              aria-busy={loading || undefined}
             >
-              {loading ? 'Updating password...' : 'Reset password'}
+              {loading ? 'Updating password…' : 'Reset password'}
             </button>
           </form>
+        ) : null}
 
-          <p className="auth-switch">
-            <Link to={ROUTES.login}>Back to sign in</Link>
-          </p>
-        </div>
-      </main>
-      <Footer />
+        <p className="auth-switch">
+          <Link to={ROUTES.login}>Back to sign in</Link>
+        </p>
+      </AuthShell>
     </GuestRoute>
   );
 }

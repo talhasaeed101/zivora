@@ -51,6 +51,10 @@ export const mapProductForCard = (product) => ({
 
 export const mapCartItemForUi = (item) => {
   const product = item.product;
+  const ringSize = item.ringSize || null;
+  const metalColor = item.metalColor || null;
+  const material = item.material || metalColor || null;
+  const oldPrice = typeof item.oldPrice === 'number' ? item.oldPrice : null;
 
   return {
     id: item._id,
@@ -59,15 +63,16 @@ export const mapCartItemForUi = (item) => {
     product: typeof product === 'object' ? product : null,
     image: item.image || PLACEHOLDER_IMAGE,
     title: item.title,
-    material: item.material || item.metalColor || '—',
+    material,
+    ringSize,
+    metalColor,
     quantity: item.quantity,
     unitPrice: item.price,
+    oldPrice: oldPrice && oldPrice > item.price ? oldPrice : null,
     basePrice: item.basePrice ?? item.price,
     extraPrice: item.extraPrice || 0,
     isCustomized: Boolean(item.isCustomized),
     customization: item.customization || null,
-    deliveryDate: '10 Jun, 2026',
-    returnPolicy: '7 days return available',
   };
 };
 
@@ -77,7 +82,7 @@ export const LEGACY_STATIC_PRODUCT = {
   shortDescription:
     'Delicately crafted minimal stacked rings designed to blend subtle elegance with modern sophistication. Perfect for effortless everyday luxury.',
   description:
-    'Crafted with meticulous attention to detail, our Minimal Stacked Rings embody the essence of understated luxury. Each ring is individually handmade using premium materials, designed to be worn alone or layered for a personalized look. The sleek silhouette and refined finish make these rings a timeless addition to any jewelry collection.',
+    'Crafted with meticulous attention to detail, our Minimal Stacked Rings embody the essence of understated luxury. Designed to be worn alone or layered for a personalized look, the sleek silhouette and refined finish make these rings a timeless addition to any jewelry collection.',
   images: [PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE, PLACEHOLDER_IMAGE],
   price: 1999,
   oldPrice: 2499,

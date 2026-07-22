@@ -16,10 +16,10 @@
 }
 
 .order-success-card {
-  background: #ffffff;
-  border: 1px solid #e5e5e5;
-  padding: 40px 32px;
-  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  text-align: left;
 }
 
 .order-success-kicker {
@@ -42,14 +42,15 @@
 .order-success-text {
   font-family: Inter, sans-serif;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: #767676;
   margin: 0 0 28px;
+  max-width: 520px;
 }
 
 .order-success-details {
-  border-top: 1px solid #eeeeee;
-  border-bottom: 1px solid #eeeeee;
+  border-top: 1px solid #e8e4df;
+  border-bottom: 1px solid #e8e4df;
   padding: 20px 0;
   margin-bottom: 24px;
 }
@@ -67,20 +68,25 @@
 .order-success-row strong {
   color: #000000;
   font-weight: 600;
+  text-align: right;
 }
 
 .order-success-address {
   text-align: left;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e8e4df;
 }
 
-.order-success-address h2 {
+.order-success-address h2,
+.success-bank-title {
   font-family: Inter, sans-serif;
   font-size: 12px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
   margin: 0 0 12px;
   color: #000000;
+  font-weight: 500;
 }
 
 .order-success-address p {
@@ -89,11 +95,20 @@
   line-height: 1.6;
   color: #767676;
   margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.order-success-tracking-note {
+  margin: 0 0 24px;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #9a9a9a;
 }
 
 .order-success-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -102,11 +117,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 180px;
+  min-width: 160px;
+  min-height: 46px;
   padding: 12px 20px;
   font-family: Inter, sans-serif;
-  font-size: 13px;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
   border: 1px solid transparent;
@@ -124,10 +140,6 @@
 }
 
 @media (max-width: 640px) {
-  .order-success-card {
-    padding: 32px 20px;
-  }
-
   .order-success-title {
     font-size: 28px;
   }
@@ -139,23 +151,18 @@
   .order-success-btn {
     width: 100%;
   }
+
+  .success-bank-row {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* ── Bank Details and WhatsApp Verification ── */
 .success-bank-card {
-  border: 1px dashed #967259;
-  background: #fdfcf9;
+  border: 1px solid #e8e4df;
+  background: #faf8f6;
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   text-align: left;
-}
-
-.success-bank-card h3 {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 16px;
-  margin-top: 0;
-  margin-bottom: 16px;
-  color: #000;
 }
 
 .success-bank-grid {
@@ -168,7 +175,8 @@
   grid-template-columns: 140px 1fr;
   font-family: Inter, sans-serif;
   font-size: 13px;
-  align-items: center;
+  align-items: start;
+  gap: 8px;
 }
 
 .success-bank-row .label {
@@ -178,72 +186,83 @@
 .success-bank-row .value {
   color: #000;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .success-bank-row .value.flex-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
 .copy-btn-success {
   background: #fff;
-  border: 1px solid #e5e5e5;
-  padding: 2px 8px;
+  border: 1px solid #e8e4df;
+  padding: 6px 10px;
+  min-height: 32px;
   font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.2s ease;
+  color: #967259;
+  transition: border-color 0.2s ease;
 }
 
 .copy-btn-success:hover {
-  background: #f5f5f5;
   border-color: #967259;
 }
 
 .whatsapp-verification-box {
-  background: #f4fbf7;
-  border: 1px solid #c7eed8;
+  background: #f7f5f2;
+  border: 1px solid #e8e4df;
   padding: 20px;
   margin-bottom: 24px;
-  text-align: center;
+  text-align: left;
 }
 
 .whatsapp-note-text {
   font-family: Inter, sans-serif;
   font-size: 13px;
-  color: #27623f;
-  margin-top: 0;
-  margin-bottom: 16px;
-  line-height: 1.5;
+  color: #767676;
+  margin: 0 0 14px;
+  line-height: 1.55;
 }
 
 .order-success-whatsapp-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: #25d366;
+  min-height: 46px;
+  background: #000;
   color: #ffffff;
-  padding: 12px 24px;
+  padding: 12px 20px;
   font-family: Inter, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
-  transition: all 0.2s ease;
+  border: 1px solid #000;
+  transition: opacity 0.2s ease;
 }
 
 .order-success-whatsapp-btn:hover {
-  background: #20ba56;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+  opacity: 0.85;
 }
 
-.whatsapp-icon {
-  flex-shrink: 0;
+.order-success-btn:focus-visible,
+.copy-btn-success:focus-visible,
+.order-success-whatsapp-btn:focus-visible {
+  outline: 2px solid #967259;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-success-page .reveal,
+  .order-success-page .reveal.is-revealed {
+    animation: none !important;
+    transition: none !important;
+  }
 }

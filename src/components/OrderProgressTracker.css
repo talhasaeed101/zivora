@@ -1,13 +1,26 @@
 .order-progress-wrapper {
-  padding: 2rem 0;
-  margin-bottom: 2rem;
+  padding: 8px 0 4px;
   overflow-x: auto;
+}
+
+.order-progress-cancelled-banner {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #8f4a45;
+  background: #f7f0ef;
+  border: 1px solid #e8d6d3;
 }
 
 .order-progress-track {
   display: flex;
   align-items: flex-start;
-  min-width: 600px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 560px;
 }
 
 .progress-step {
@@ -19,7 +32,11 @@
 }
 
 .progress-step.cancelled {
-  flex: 0.5;
+  flex: 0.55;
+}
+
+.progress-step.muted {
+  opacity: 0.45;
 }
 
 .progress-step-indicator {
@@ -30,23 +47,23 @@
 }
 
 .progress-step-dot {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background-color: #e5e7eb;
-  border: 2px solid #e5e7eb;
+  background-color: #ece7e1;
+  border: 2px solid #ece7e1;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
   margin: 0 auto;
-  color: white;
-  transition: all 0.3s ease;
+  color: #fff;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .progress-step-dot svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .progress-step-line {
@@ -55,7 +72,7 @@
   left: 50%;
   width: 100%;
   height: 2px;
-  background-color: #e5e7eb;
+  background-color: #ece7e1;
   z-index: 1;
   transform: translateY(-50%);
 }
@@ -74,30 +91,36 @@
 }
 
 .progress-step.current .progress-step-dot {
-  background-color: white;
+  background-color: #fff;
   border-color: #967259;
-  border-width: 4px;
+  border-width: 3px;
 }
 
 .progress-step.cancelled .progress-step-dot {
-  background-color: #ef4444;
-  border-color: #ef4444;
+  background-color: #8f4a45;
+  border-color: #8f4a45;
 }
 
 .progress-step.cancelled .cancelled-line {
-  background-color: #e5e7eb;
+  background-color: #ece7e1;
+}
+
+.progress-step-content {
+  margin-top: 12px;
+  text-align: center;
+  padding: 0 4px;
 }
 
 .progress-step-label {
-  margin-top: 1rem;
-  font-size: 0.875rem;
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
-  text-align: center;
+  color: #767676;
 }
 
 .progress-step.completed .progress-step-label {
-  color: #111827;
+  color: #111;
 }
 
 .progress-step.current .progress-step-label {
@@ -106,10 +129,31 @@
 }
 
 .progress-step-label.text-red {
-  color: #ef4444 !important;
+  color: #8f4a45 !important;
 }
 
-@media (max-width: 640px) {
+.progress-step-date {
+  display: block;
+  margin-top: 4px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  color: #9a9a9a;
+  line-height: 1.35;
+}
+
+.order-progress-wrapper .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 768px) {
   .order-progress-track {
     flex-direction: column;
     min-width: 100%;
@@ -117,8 +161,9 @@
 
   .progress-step {
     flex-direction: row;
+    align-items: flex-start;
     width: 100%;
-    padding-bottom: 2rem;
+    padding-bottom: 24px;
   }
 
   .progress-step:last-child {
@@ -126,9 +171,10 @@
   }
 
   .progress-step-indicator {
-    width: 24px;
-    height: 100%;
+    width: 22px;
+    height: auto;
     flex-direction: column;
+    flex-shrink: 0;
   }
 
   .progress-step-dot {
@@ -136,21 +182,29 @@
   }
 
   .progress-step-line {
-    top: 24px;
-    left: 11px;
+    top: 22px;
+    left: 10px;
     width: 2px;
-    height: calc(100% + 2rem);
+    height: calc(100% + 24px);
     transform: none;
   }
-  
+
   .cancelled-line {
-    top: -2rem;
-    height: 2rem;
+    top: -24px;
+    left: 10px;
+    height: 24px;
+    width: 2px;
   }
 
-  .progress-step-label {
+  .progress-step-content {
     margin-top: 0;
-    margin-left: 1rem;
+    margin-left: 14px;
     text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-step-dot {
+    transition: none;
   }
 }

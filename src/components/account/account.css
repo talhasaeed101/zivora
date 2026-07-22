@@ -1,0 +1,238 @@
+.account-page {
+  --account-bg: #f7f5f2;
+  --account-white: #ffffff;
+  --account-black: #000000;
+  --account-gray: #767676;
+  --account-muted: #9a9a9a;
+  --account-border: #e8e4df;
+  --account-accent: #967259;
+  --account-accent-hover: #c8815f;
+  --account-soft: #f0ebe4;
+  --account-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  min-height: 100vh;
+  background: var(--account-bg);
+  color: var(--account-black);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.account-page .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.account-main {
+  padding: 40px 40px 80px;
+}
+
+.account-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 40px 48px;
+  align-items: start;
+}
+
+.account-sidebar {
+  position: sticky;
+  top: 110px;
+}
+
+.account-nav-label {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--account-muted);
+}
+
+.account-nav-mobile {
+  display: none;
+}
+
+.account-nav-select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  border: 1px solid var(--account-border);
+  background: var(--account-white);
+  color: var(--account-black);
+}
+
+.account-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-nav-link {
+  display: block;
+  padding: 11px 12px;
+  font-size: 14px;
+  color: var(--account-gray);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.account-nav-link:hover {
+  color: var(--account-black);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.account-nav-link.is-active {
+  color: var(--account-black);
+  border-left-color: var(--account-accent);
+  background: var(--account-white);
+  font-weight: 500;
+}
+
+.account-nav-logout {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 11px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  color: #8f4a45;
+  background: transparent;
+  border: 1px solid transparent;
+  border-top: 1px solid var(--account-border);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.account-nav-logout:hover:not(:disabled) {
+  color: #6f3531;
+}
+
+.account-nav-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account-content {
+  min-width: 0;
+}
+
+.account-content-header {
+  margin-bottom: 28px;
+}
+
+.account-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--account-gray);
+}
+
+.account-breadcrumb a {
+  color: var(--account-gray);
+  text-decoration: none;
+}
+
+.account-breadcrumb a:hover {
+  color: var(--account-accent);
+}
+
+.account-breadcrumb-sep {
+  color: var(--account-muted);
+}
+
+.account-breadcrumb-current {
+  color: var(--account-black);
+}
+
+.account-page-title {
+  margin: 0;
+  font-family: Teneka, serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.account-page-description {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--account-gray);
+  max-width: 480px;
+}
+
+.account-page-count {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--account-muted);
+}
+
+.account-nav-link:focus-visible,
+.account-nav-logout:focus-visible,
+.account-nav-select:focus-visible,
+.account-breadcrumb a:focus-visible {
+  outline: 2px solid var(--account-accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 960px) {
+  .account-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .account-sidebar {
+    position: static;
+  }
+
+  .account-nav-list,
+  .account-nav-label {
+    display: none;
+  }
+
+  .account-nav-mobile {
+    display: block;
+  }
+
+  .account-nav-logout {
+    display: block;
+    margin-top: 12px;
+    border-top: none;
+    border: 1px solid var(--account-border);
+    background: var(--account-white);
+    text-align: center;
+  }
+
+  .account-main {
+    padding: 28px 16px 64px;
+  }
+
+  .account-page-title {
+    font-size: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-page .reveal,
+  .account-page .reveal.is-revealed {
+    animation: none !important;
+    transition: none !important;
+  }
+}

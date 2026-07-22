@@ -543,7 +543,7 @@ export default function CustomizationModal({
               <div className="cm-trust-list">
                 <span>◷ 3–5 days production</span>
                 <span>↗ 2–4 days shipping</span>
-                <span>◇ Handcrafted with care</span>
+                <span>◇ Finished with care</span>
               </div>
             </div>
           </aside>

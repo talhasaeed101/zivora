@@ -1,30 +1,47 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from './icons';
 import SafeImage from './SafeImage.jsx';
+import Reveal from './Reveal.jsx';
 import { AVATAR_PLACEHOLDER } from '../utils/images.js';
 import { TESTIMONIALS } from '../data/testimonials.js';
 import './Testimonials.css';
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
+  const [switching, setSwitching] = useState(false);
+  const isFirstRender = useRef(true);
   const t = TESTIMONIALS[current];
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return undefined;
+    }
+
+    setSwitching(true);
+    const timer = window.setTimeout(() => setSwitching(false), 480);
+    return () => window.clearTimeout(timer);
+  }, [current]);
 
   const prev = () => setCurrent((c) => (c === 0 ? TESTIMONIALS.length - 1 : c - 1));
   const next = () => setCurrent((c) => (c === TESTIMONIALS.length - 1 ? 0 : c + 1));
 
   return (
     <section id="testimonials" className="testimonial-section">
-      <div className="testimonial-inner">
+      <Reveal className="testimonial-inner" variant="fade-up">
         <div className="testimonial-slider-row">
           <button type="button" className="testimonial-nav-btn" onClick={prev} aria-label="Previous testimonial">
             <ChevronLeftIcon className="w-6 h-6" />
           </button>
 
-          <div className="testimonial-content-block">
+          <div
+            key={current}
+            className={`testimonial-content-block${switching ? ' is-switching' : ''}`}
+          >
             <div className="testimonial-profile-row">
               <SafeImage src={AVATAR_PLACEHOLDER} alt={t.name} className="testimonial-avatar" />
               <div className="testimonial-profile-meta">
-                <div className="testimonial-stars-row">
+                <div className="testimonial-stars-row" aria-label={`${t.rating} out of 5 stars`}>
                   {[...Array(5)].map((_, i) => (
                     <StarIcon
                       key={i}
@@ -43,7 +60,7 @@ export default function Testimonials() {
             <ChevronRightIcon className="w-6 h-6" />
           </button>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

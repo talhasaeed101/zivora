@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './NewsletterOffer.css';
 import { publicEngagementApi } from '../services/api.js';
+import Reveal from './Reveal.jsx';
 
 export default function NewsletterOffer() {
   const [email, setEmail] = useState('');
@@ -27,7 +28,7 @@ export default function NewsletterOffer() {
 
   return (
     <section className="offer-section" aria-label="Newsletter offer">
-      <div className="offer-content">
+      <Reveal className="offer-content" variant="fade-up">
         <div className="offer-label-row">
           <span className="offer-label-line" />
           <span className="offer-label-text">OFFER</span>
@@ -44,14 +45,27 @@ export default function NewsletterOffer() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             disabled={submitting}
+            aria-label="Email address"
           />
-          <button type="submit" className="offer-submit-btn" disabled={submitting}>
+          <button
+            type="submit"
+            className={`offer-submit-btn${submitting ? ' is-loading' : ''}`}
+            disabled={submitting}
+          >
             {submitting ? 'Subscribing...' : 'Subscribe'}
           </button>
         </form>
-        {message && <p className="offer-feedback offer-feedback-success">{message}</p>}
-        {error && <p className="offer-feedback offer-feedback-error">{error}</p>}
-      </div>
+        {message && (
+          <p className="offer-feedback offer-feedback-success" role="status">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="offer-feedback offer-feedback-error" role="alert">
+            {error}
+          </p>
+        )}
+      </Reveal>
     </section>
   );
 }

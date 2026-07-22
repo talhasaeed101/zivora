@@ -6,6 +6,7 @@ import { searchPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import { formatPrice, getProductImage, hasSale, getCategoryName } from '../utils/products.js';
 import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';
+import Reveal from './Reveal.jsx';
 import './TrendingProducts.css';
 
 export default function TrendingProducts() {
@@ -44,12 +45,12 @@ export default function TrendingProducts() {
   return (
     <section id="collection" className="trending-section">
       <div className="trending-inner">
-        <div className="trending-header-row">
+        <Reveal className="trending-header-row" variant="fade-up">
           <h2 className="trending-heading">Trending</h2>
           <a href={searchPath()} className="trending-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </a>
-        </div>
+        </Reveal>
 
         {loading ? (
           <ProductRowSkeleton
@@ -63,17 +64,20 @@ export default function TrendingProducts() {
         ) : products.length === 0 ? (
           <SectionMessage message="No trending products available right now." />
         ) : (
-          <div className="trending-products-row">
-            {products.map((product) => {
+          <div className="trending-products-row reveal-stagger">
+            {products.map((product, index) => {
               const image = getProductImage(product);
               const showSale = hasSale(product);
               const categoryName = getCategoryName(product.category);
 
               return (
-                <a
+                <Reveal
                   key={product._id}
+                  as="a"
                   href={`/product/${product.slug}`}
                   className="trending-product-card-link"
+                  variant="fade-up"
+                  delay={Math.min(index, 7) * 70}
                 >
                   <article className="trending-product-card" style={{ position: 'relative' }}>
                     <div className="trending-product-image-wrap">
@@ -104,7 +108,7 @@ export default function TrendingProducts() {
                       )}
                     </div>
                   </article>
-                </a>
+                </Reveal>
               );
             })}
           </div>
