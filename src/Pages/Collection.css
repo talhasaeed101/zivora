@@ -9,7 +9,6 @@
   --catalog-soft: #f7f5f2;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   color: var(--catalog-black);
-  background: var(--catalog-white);
   min-height: 100vh;
 }
 
