@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import { useAuth } from '../context/AuthContext.jsx';
 import './SocialLoginButtons.css';
@@ -10,17 +10,20 @@ export default function SocialLoginButtons({ onSuccess, onError }) {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const facebookAppId = import.meta.env.VITE_FACEBOOK_APP_ID;
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      setLoading(true);
-      await googleLogin(credentialResponse.credential);
-      onSuccess();
-    } catch (err) {
-      onError(err.message || 'Google login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        await googleLogin(tokenResponse.access_token);
+        onSuccess();
+      } catch (err) {
+        onError(err.message || 'Google login failed');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => onError('Google login was cancelled or failed')
+  });
 
   const handleFacebookSuccess = async (response) => {
     if (!response.accessToken) {
@@ -41,16 +44,20 @@ export default function SocialLoginButtons({ onSuccess, onError }) {
   return (
     <div className={`social-login-container ${loading ? 'loading' : ''}`}>
       {googleClientId && (
-        <div className="google-btn-wrapper">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => onError('Google login failed')}
-            text="continue_with"
-            theme="outline"
-            size="large"
-            width="100%"
+        <button
+          type="button"
+          onClick={() => loginWithGoogle()}
+          disabled={loading}
+          className="custom-google-btn"
+        >
+          <img 
+            src="https://www.svgrepo.com/show/475656/google-color.svg" 
+            alt="Google" 
+            width="20" 
+            height="20" 
           />
-        </div>
+          <span>Continue with Google</span>
+        </button>
       )}
       
       {facebookAppId && (
