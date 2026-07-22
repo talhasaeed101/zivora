@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../context/AuthContext.jsx';
 import './AuthLayout.css';
 import { ROUTES } from '../../utils/navigation';
@@ -11,22 +11,23 @@ export default function SignIn() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setGoogleError('');
-    setGoogleLoading(true);
-    try {
-      await googleLogin(credentialResponse.credential);
-      navigate('/');
-    } catch (err) {
-      setGoogleError(err.message || 'Google sign-in failed. Please try again.');
-    } finally {
-      setGoogleLoading(false);
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGoogleError('');
+      setGoogleLoading(true);
+      try {
+        await googleLogin(tokenResponse.access_token);
+        navigate('/');
+      } catch (err) {
+        setGoogleError(err.message || 'Google sign-in failed. Please try again.');
+      } finally {
+        setGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setGoogleError('Google sign-in was cancelled or failed. Please try again.');
     }
-  };
-
-  const handleGoogleError = () => {
-    setGoogleError('Google sign-in was cancelled or failed. Please try again.');
-  };
+  });
 
   return (
     <div className="auth-layout-container">
@@ -41,18 +42,15 @@ export default function SignIn() {
           <div style={{ marginBottom: '2rem' }}></div>
 
           <div className="auth-social-row">
-            {/* Google — real OAuth button, styled to match */}
-            <div style={{ width: '100%' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                text="continue_with"
-                theme="outline"
-                size="large"
-                width="100%"
-                disabled={googleLoading}
-              />
-            </div>
+            <button 
+              type="button" 
+              className="auth-social-btn" 
+              onClick={() => loginWithGoogle()} 
+              disabled={googleLoading}
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="auth-social-icon" />
+              Google
+            </button>
             <button className="auth-social-btn">
               <img src="https://www.svgrepo.com/show/511330/apple-173.svg" alt="Apple" className="auth-social-icon" />
               Apple
