@@ -1,9 +1,9 @@
 /** Customer-visible bank transfer details already used on cart and order success. */
 export const BANK_TRANSFER_DETAILS = {
-  bankName: 'Meezan Bank',
-  accountTitle: 'TALHA SAEED',
-  accountNumber: '03380113919907',
-  iban: 'PK62MEZN0003380113919907',
+  bankName: 'United Bank Limited (UBL)',
+  accountTitle: 'ZIVORAH',
+  accountNumber: '0000385727723',
+  iban: 'PK09UNIL0109000385727723',
   whatsappNumber: '923392215181',
 };
 

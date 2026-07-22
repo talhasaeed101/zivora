@@ -108,7 +108,7 @@
 
 .cm-section-title {
   font-family: 'Teneka', Georgia, serif;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 400;
   margin: 0 0 12px;
   color: var(--cm-text);
@@ -165,7 +165,7 @@
 
 .cm-font-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -338,7 +338,7 @@
 
 .cm-birthstone-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 10px;
 }
 

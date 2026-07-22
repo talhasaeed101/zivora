@@ -580,17 +580,17 @@ export default function CartPage() {
                         </div>
                         <div className="bank-detail-row">
                           <span className="label">Account Title</span>
-                          <span className="value">TALHA SAEED</span>
+                          <span className="value">ZIVORAH</span>
                         </div>
                         <div className="bank-detail-row">
                           <span className="label">Account Number</span>
                           <span className="value flex-row">
-                            <strong>0109000385727723</strong>
+                            <strong>0000385727723</strong>
                             <button
                               type="button"
                               className="copy-btn"
                               onClick={() => {
-                                navigator.clipboard.writeText('0109000385727723');
+                                navigator.clipboard.writeText('0000385727723');
                                 alert('Account Number copied!');
                               }}
                             >

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { InstagramIcon, TikTokIcon } from './icons';
+import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons';
 import { ROUTES } from '../utils/navigation';
 import { publicEngagementApi } from '../services/api.js';
 import './Footer.css';
@@ -33,6 +33,11 @@ const SOCIAL_LINKS = [
     label: 'TikTok',
     href: 'https://vt.tiktok.com/ZSCvChaAS/',
     Icon: TikTokIcon,
+  },
+  {
+    label: 'Facebook',
+    href: 'https://www.facebook.com/profile.php?id=61591280865014',
+    Icon: FacebookIcon,
   },
 ];
 

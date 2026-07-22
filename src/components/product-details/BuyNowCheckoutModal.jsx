@@ -254,14 +254,14 @@ export default function BuyNowCheckoutModal({
                   <div className="buy-now-bank-badge">UBL</div>
                   <div className="buy-now-bank-info">
                     <p><strong>Bank:</strong> United Bank Limited (UBL)</p>
-                    <p><strong>Title:</strong> TALHA SAEED</p>
+                    <p><strong>Title:</strong> ZIVORAH</p>
                     <p className="copyable-row">
-                      <strong>Account:</strong> <span>0109000385727723</span>
+                      <strong>Account:</strong> <span>0000385727723</span>
                       <button
                         type="button"
                         className="buy-now-copy-btn"
                         onClick={() => {
-                          navigator.clipboard.writeText('0109000385727723');
+                          navigator.clipboard.writeText('0000385727723');
                           alert('Account Number copied!');
                         }}
                       >

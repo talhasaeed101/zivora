@@ -487,19 +487,19 @@ export default function OrderDetails() {
                 <div className="od-bank-card">
                   <div className="od-bank-row">
                     <span>Bank</span>
-                    <strong>Meezan Bank</strong>
+                    <strong>United Bank Limited (UBL)</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>Account title</span>
-                    <strong>TALHA SAEED</strong>
+                    <strong>ZIVORAH</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>Account number</span>
-                    <strong>03380113919907</strong>
+                    <strong>0000385727723</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>IBAN</span>
-                    <strong className="od-tracking-id">PK62MEZN0003380113919907</strong>
+                    <strong className="od-tracking-id">PK09UNIL0109000385727723</strong>
                   </div>
                 </div>
                 <a
