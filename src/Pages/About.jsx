@@ -12,6 +12,8 @@ const ABOUT_IMAGE_FALLBACK = '/images/image 1 (3).png';
 export default function About() {
   usePageTitle('About Zivorah | Premium Jewelry');
 
+  
+
   return (
     <InfoPageShell
       title="About Zivorah"
