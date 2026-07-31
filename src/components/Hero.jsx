@@ -4,7 +4,8 @@ import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
 const HERO_ARCH_IMAGE = '/images/image 3.png';
-const HERO_PILL_IMAGE = '/images/hero1.svg';
+const HERO_PILL_IMAGE_SVG = '/images/hero1.svg';
+const HERO_PILL_IMAGE = '/images/hero111.png';
 
 const HERO_TAGLINE =
   'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';

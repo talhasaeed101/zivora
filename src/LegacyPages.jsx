@@ -1,5 +1,19 @@
 import { useLocation } from 'react-router-dom';
 import Home from './Pages/Home.jsx';
+import { useEffect, useState } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import Testimonials from './components/Testimonials';
+import TrendingProducts from './components/TrendingProducts';
+import FeaturedCategory from './components/FeaturedCategory';
+import MakeItCustom from './components/MakeItCustom';
+import PremiumBundles from './components/PremiumBundles';
+import NewsletterOffer from './components/NewsletterOffer';
+import Footer from './components/Footer';
+import BrandQuote from './components/BrandQuote';
+import LaunchTimer from './components/LaunchTimer';
+import './components/landing/landing-tokens.css';
+import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';
@@ -26,6 +40,28 @@ function resolveLegacyPage(pathname, search) {
 export default function LegacyPages() {
   const location = useLocation();
   const page = resolveLegacyPage(location.pathname, location.search);
+  const [isTimerEnded, setIsTimerEnded] = useState(false);
+
+  // From incoming branch (kept for popstate handling if needed, though useLocation handles most)
+  const [legacyPage, setLegacyPage] = useState('home');
+  useEffect(() => {
+    const resolvePage = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('cart')) {
+        setLegacyPage('cart');
+      } else if (params.has('product') || window.location.pathname === '/product') {
+        setLegacyPage('product');
+      } else if (params.has('search')) {
+        setLegacyPage('search');
+      } else {
+        setLegacyPage('home');
+      }
+    };
+
+    resolvePage();
+    window.addEventListener('popstate', resolvePage);
+    return () => window.removeEventListener('popstate', resolvePage);
+  }, []);
 
   const pageTitle =
     page === 'home'
@@ -54,5 +90,27 @@ export default function LegacyPages() {
     return <SearchResults />;
   }
 
-  return <Home />;
+  return (
+    <>
+      <Home />
+      <div className="landing-page">
+        <Navbar homeHref="/?home=true" />
+        <main>
+          <Hero />
+          <LaunchTimer onTimerEnd={() => setIsTimerEnded(true)} />
+          {isTimerEnded && (
+            <>
+              <TrendingProducts />
+              <FeaturedCategory />
+              <MakeItCustom />
+              <PremiumBundles />
+              <NewsletterOffer />
+              <Testimonials />
+            </>
+          )}
+        </main>
+        {isTimerEnded && <Footer />}
+      </div>
+    </>
+  );
 }
