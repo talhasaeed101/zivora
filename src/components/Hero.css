@@ -78,6 +78,7 @@
   padding: 140px 24px 252px 48px;
   max-width: 920px;
   box-sizing: border-box;
+  z-index: 100
 }
 
 .hero-tagline-text {
@@ -146,6 +147,7 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  margin-left: -22px
 }
 
 .hero-collection-thumbnails-container {

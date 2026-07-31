@@ -3,19 +3,14 @@ import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
-const HERO_ARCH_IMAGE = '/images/image 3.png';
+const HERO_ARCH_IMAGE = '/images/hero00.png';
 const HERO_PILL_IMAGE_SVG = '/images/hero1.svg';
 const HERO_PILL_IMAGE = '/images/hero111.png';
 
 const HERO_TAGLINE =
   'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';
 
-const THUMBNAIL_IMAGES = [
-  '/images/stack1.png',
-  '/images/stack2.png',
-  '/images/stack3.png',
-  '/images/stack4.png',
-];
+
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined'
@@ -110,14 +105,12 @@ function CollectionRow() {
           </svg>
         </div>
         <div className="hero-collection-thumbnails-container">
-          {THUMBNAIL_IMAGES.map((src, index) => (
-            <SafeImage
-              key={src}
-              src={src}
-              alt={`Collection preview ${index + 1}`}
-              className="hero-collection-thumbnail"
-            />
-          ))}
+          <SafeImage
+            src="/images/collection.svg"
+            alt="Collection preview"
+            className="hero-collection-thumbnail-single"
+            style={{ width: '180px', height: '60px' }}
+          />
         </div>
       </div>
     </div>

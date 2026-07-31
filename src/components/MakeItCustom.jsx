@@ -7,21 +7,21 @@ const CUSTOM_CARDS = [
   {
     label: 'NECKLACES',
     title: 'Minimal Necklace',
-    image: '/images/necklace image 1.png',
+    image: '/images/Minimal Necklace.png',
     alt: 'Minimal necklace close-up',
     showButton: true,
   },
   {
     label: 'RINGS',
     title: 'Minimal Rings',
-    image: '/images/aaa.png',
+    image: '/images/mmrings.png',
     alt: 'Minimal rings on hand',
     showButton: false,
   },
   {
     label: 'EARRINGS',
     title: 'Minimal Earrings',
-    image: '/images/Rectangle 3298.png',
+    image: '/images/mmearning.png',
     alt: 'Minimal earrings close-up',
     showButton: false,
   },
@@ -73,7 +73,7 @@ export default function MakeItCustom() {
           <div className="custom-left-image-block">
             <a href={ROUTES.collection} className="custom-image-link">
               <SafeImage
-                src="/images/necklace image 1.png"
+                src="/images/Minimal Necklace.png"
                 alt="Minimal necklace close-up"
                 className="custom-grid-image"
               />
@@ -92,7 +92,7 @@ export default function MakeItCustom() {
             <div className="custom-right-top-block">
               <a href={ROUTES.collection} className="custom-image-link">
                 <SafeImage
-                  src="/images/aaa.png"
+                  src="/images/mmrings.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
                 />
@@ -102,7 +102,7 @@ export default function MakeItCustom() {
             <div className="custom-right-bottom-block">
               <a href={ROUTES.collection} className="custom-image-link">
                 <SafeImage
-                  src="/images/Rectangle 3298.png"
+                  src="/images/mmearning.png"
                   alt="Minimal earrings close-up"
                   className="custom-grid-image"
                 />
