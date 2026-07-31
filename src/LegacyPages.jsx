@@ -18,69 +18,65 @@ import CartPage from './Pages/CartPage.jsx';
 import { usePageTitle } from './hooks/usePageTitle.js';
 
 export default function LegacyPages() {
-  const [page, setPage] = useState('home');
-  const [isTimerEnded, setIsTimerEnded] = useState(false);
+  const [page, setPage] = useState('home');
+  // const [isTimerEnded, setIsTimerEnded] = useState(false);
 
-  useEffect(() => {
-    const resolvePage = () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('cart')) {
-        setPage('cart');
-      } else if (params.has('product') || window.location.pathname === '/product') {
-        setPage('product');
-      } else if (params.has('search')) {
-        setPage('search');
-      } else {
-        setPage('home');
-      }
-    };
+  useEffect(() => {
+    const resolvePage = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('cart')) {
+        setPage('cart');
+      } else if (params.has('product') || window.location.pathname === '/product') {
+        setPage('product');
+      } else if (params.has('search')) {
+        setPage('search');
+      } else {
+        setPage('home');
+      }
+    };
 
-    resolvePage();
-    window.addEventListener('popstate', resolvePage);
-    return () => window.removeEventListener('popstate', resolvePage);
-  }, []);
+    resolvePage();
+    window.addEventListener('popstate', resolvePage);
+    return () => window.removeEventListener('popstate', resolvePage);
+  }, []);
 
-  const pageTitle =
-    page === 'home'
-      ? 'Zivorah | Premium Jewelry'
-      : page === 'search'
-        ? 'Search | Zivorah'
-        : page === 'cart'
-          ? 'Shopping Cart | Zivorah'
-          : 'Zivorah';
+  const pageTitle =
+    page === 'home'
+      ? 'Zivorah | Premium Jewelry'
+      : page === 'search'
+        ? 'Search | Zivorah'
+        : page === 'cart'
+          ? 'Shopping Cart | Zivorah'
+          : 'Zivorah';
 
-  usePageTitle(pageTitle);
+  usePageTitle(pageTitle);
 
-  if (page === 'cart') {
-    return <CartPage />;
-  }
+  if (page === 'cart') {
+    return <CartPage />;
+  }
 
-  if (page === 'product') {
-    return <ProductDetails />;
-  }
+  if (page === 'product') {
+    return <ProductDetails />;
+  }
 
-  if (page === 'search') {
-    return <SearchResults />;
-  }
+  if (page === 'search') {
+    return <SearchResults />;
+  }
 
-  return (
-    <div className="landing-page">
-      <Navbar homeHref="/?home=true" />
-      <main>
-        <Hero />
-        <LaunchTimer onTimerEnd={() => setIsTimerEnded(true)} />
-        {isTimerEnded && (
-          <>
-            <TrendingProducts />
-            <FeaturedCategory />
-            <MakeItCustom />
-            <PremiumBundles />
-            <NewsletterOffer />
-            <Testimonials />
-          </>
-        )}
-      </main>
-      {isTimerEnded && <Footer />}
-    </div>
-  );
+  return (
+    <div className="landing-page">
+      <Navbar homeHref="/?home=true" />
+      <main>
+        <Hero />
+        {/* <LaunchTimer onTimerEnd={() => setIsTimerEnded(true)} /> */}
+        <TrendingProducts />
+        <FeaturedCategory />
+        <MakeItCustom />
+        <PremiumBundles />
+        <NewsletterOffer />
+        <Testimonials />
+      </main>
+      <Footer />
+    </div>
+  );
 }
