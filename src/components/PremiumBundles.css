@@ -87,7 +87,7 @@
   transition: transform 0.3s ease;
 }
 
-.bundles-product-card:hover .bundles-product-image {
+.bundles-product-image-wrap:hover .bundles-product-image {
   transform: scale(1.03);
 }
 

@@ -4,7 +4,7 @@ import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
 const HERO_ARCH_IMAGE = '/images/image 3.png';
-const HERO_PILL_IMAGE = '/images/image 1 (3).png';
+const HERO_PILL_IMAGE = '/images/hero1.svg';
 
 const HERO_TAGLINE =
   'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';
@@ -97,27 +97,27 @@ function CollectionRow() {
       <div className="hero-collection-separator-line" />
 
       <div className='djdjdjdjdjdjddj'>
-      <div className="hero-collection-arrow-icon-wrapper">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M5 12H19M19 12L12 5M19 12L12 19"
-            stroke="black"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <div className="hero-collection-thumbnails-container">
-        {THUMBNAIL_IMAGES.map((src, index) => (
-          <SafeImage
-            key={src}
-            src={src}
-            alt={`Collection preview ${index + 1}`}
-            className="hero-collection-thumbnail"
-          />
-        ))}
-      </div>
+        <div className="hero-collection-arrow-icon-wrapper">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12H19M19 12L12 5M19 12L12 19"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <div className="hero-collection-thumbnails-container">
+          {THUMBNAIL_IMAGES.map((src, index) => (
+            <SafeImage
+              key={src}
+              src={src}
+              alt={`Collection preview ${index + 1}`}
+              className="hero-collection-thumbnail"
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
