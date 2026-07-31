@@ -95,7 +95,7 @@ export default function Login() {
   };
 
   return (
-    <AuthShell>
+    <AuthShell imageSrc="/images/signin.png">
       <h1 className="auth-heading">Welcome Back</h1>
       <p className="auth-subheading">
         Sign in to view your orders, wishlist, and account details.

@@ -8,7 +8,8 @@
   --auth-accent: #967259;
   --auth-accent-hover: #c8815f;
   --auth-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--auth-white);
 }
 
@@ -28,14 +29,15 @@
 .auth-split {
   display: grid;
   grid-template-columns: 1fr;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
 .auth-split-visual {
   display: none;
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
   background: #ebe4dc;
 }
@@ -64,10 +66,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   padding: 36px 20px 48px;
   background: var(--auth-white);
-  overflow-y: auto;
 }
 
 .auth-panel {
@@ -130,6 +132,7 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    flex-shrink: 0;
   }
 
   .auth-split-form {
