@@ -358,6 +358,10 @@
   background: transparent;
 }
 
+.header-search-input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
 .header-search-clear,
 .header-search-submit,
 .header-search-close,
