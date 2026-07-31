@@ -9,6 +9,7 @@ import PremiumBundles from './components/PremiumBundles';
 import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
+import LaunchTimer from './components/LaunchTimer';
 import './components/landing/landing-tokens.css';
 import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
@@ -18,6 +19,7 @@ import { usePageTitle } from './hooks/usePageTitle.js';
 
 export default function LegacyPages() {
   const [page, setPage] = useState('home');
+  const [isTimerEnded, setIsTimerEnded] = useState(false);
 
   useEffect(() => {
     const resolvePage = () => {
@@ -66,15 +68,19 @@ export default function LegacyPages() {
       <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
-        <BrandQuote />
-        <TrendingProducts />
-        <FeaturedCategory />
-        <MakeItCustom />
-        <PremiumBundles />
-        <NewsletterOffer />
-        <Testimonials />
+        <LaunchTimer onTimerEnd={() => setIsTimerEnded(true)} />
+        {isTimerEnded && (
+          <>
+            <TrendingProducts />
+            <FeaturedCategory />
+            <MakeItCustom />
+            <PremiumBundles />
+            <NewsletterOffer />
+            <Testimonials />
+          </>
+        )}
       </main>
-      <Footer />
+      {isTimerEnded && <Footer />}
     </div>
   );
 }

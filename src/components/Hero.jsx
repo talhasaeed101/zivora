@@ -3,7 +3,7 @@ import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
 const HERO_ARCH_IMAGE = '/images/image 3.png';
-const HERO_PILL_IMAGE = '/images/image 1 (3).png';
+const HERO_PILL_IMAGE = '/images/hero111.png';
 
 const THUMBNAIL_IMAGES = [
   '/images/stack1.png',
