@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
 .launch-timer-section {
   background-color: #000;
   color: #fff;
@@ -25,7 +27,7 @@
 }
 
 .timer-subtitle {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Cabin', sans-serif;
   font-size: 20px;
   color: #7c7c7c;
   margin-bottom: 40px;
@@ -66,7 +68,7 @@
 }
 
 .timer-ended-text {
-  font-family: 'Arial', sans-serif;
+  font-family: 'Cabin', sans-serif;
   font-size: 24px;
   color: #fff;
 }
