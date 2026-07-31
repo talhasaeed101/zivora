@@ -15,6 +15,7 @@ import { formatOrderDate } from '../utils/orderDisplay.js';
 import '../components/orders/orderStatus.css';
 import './Profile.css';
 import './CartPage.css';
+import { toast } from '../context/ToastContext.jsx';
 
 function getInitials(name) {
   if (!name) {
@@ -73,10 +74,8 @@ export default function Profile() {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [addressSaving, setAddressSaving] = useState(false);
-  const [addressModalError, setAddressModalError] = useState('');
   const [addressActionId, setAddressActionId] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
-  const [addressSuccess, setAddressSuccess] = useState('');
 
   const pageLoading = authLoading || ordersLoading || addressesLoading;
   const memberSince = formatMemberSince(customer?.createdAt);
@@ -121,18 +120,15 @@ export default function Profile() {
 
   const openAddAddress = () => {
     setEditingAddress(null);
-    setAddressModalError('');
     setAddressModalOpen(true);
   };
 
   const openEditAddress = (address) => {
     setEditingAddress(address);
-    setAddressModalError('');
     setAddressModalOpen(true);
   };
 
   const handleSaveAddress = async (form) => {
-    setAddressModalError('');
     setAddressSaving(true);
 
     try {
@@ -140,10 +136,10 @@ export default function Profile() {
 
       if (editingAddress?.id) {
         await addressApi.updateAddress(editingAddress.id, payload);
-        setAddressSuccess('Address updated.');
+        toast.success('Address updated successfully.');
       } else {
         await addressApi.createAddress(payload);
-        setAddressSuccess('Address saved.');
+        toast.success('Address saved successfully.');
       }
 
       await loadAddresses();
@@ -151,7 +147,7 @@ export default function Profile() {
       setEditingAddress(null);
       setStatusMessage('Address saved successfully.');
     } catch (err) {
-      setAddressModalError(err.message || 'Failed to save address.');
+      // Error toast handled automatically by api.js
     } finally {
       setAddressSaving(false);
     }
@@ -163,16 +159,14 @@ export default function Profile() {
     }
 
     setAddressActionId(addressId);
-    setAddressesError('');
-    setAddressSuccess('');
 
     try {
       await addressApi.deleteAddress(addressId);
       await loadAddresses();
-      setAddressSuccess('Address deleted.');
+      toast.success('Address deleted.');
       setStatusMessage('Address deleted.');
     } catch (err) {
-      setAddressesError(err.message || 'Failed to delete address.');
+      // Error toast handled automatically by api.js
     } finally {
       setAddressActionId(null);
     }
@@ -184,16 +178,14 @@ export default function Profile() {
     }
 
     setAddressActionId(addressId);
-    setAddressesError('');
-    setAddressSuccess('');
 
     try {
       await addressApi.setDefaultAddress(addressId);
       await loadAddresses();
-      setAddressSuccess('Default address updated.');
+      toast.success('Default address updated.');
       setStatusMessage('Default address updated.');
     } catch (err) {
-      setAddressesError(err.message || 'Failed to set default address.');
+      // Error toast handled automatically by api.js
     } finally {
       setAddressActionId(null);
     }
@@ -314,20 +306,7 @@ export default function Profile() {
               </button>
             </div>
 
-            {addressSuccess ? (
-              <p className="profile-success" role="status">
-                {addressSuccess}
-              </p>
-            ) : null}
 
-            {addressesError ? (
-              <div className="profile-error-banner" role="alert">
-                <p>{addressesError}</p>
-                <button type="button" className="profile-retry-btn" onClick={loadAddresses}>
-                  Retry
-                </button>
-              </div>
-            ) : null}
 
             {!addressesError && addresses.length === 0 ? (
               <div className="profile-empty">
@@ -459,7 +438,6 @@ export default function Profile() {
         }}
         onSave={handleSaveAddress}
         saving={addressSaving}
-        error={addressModalError}
       />
     </AccountShell>
   );

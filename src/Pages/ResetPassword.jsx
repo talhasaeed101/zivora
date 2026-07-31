@@ -7,6 +7,7 @@ import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
 const INVALID_TOKEN_MESSAGE =
@@ -21,7 +22,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
+  const [tokenError, setTokenError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const isTokenMissing = !token?.trim();
@@ -30,12 +31,11 @@ export default function ResetPassword() {
     if (isTokenMissing) {
       return true;
     }
-
     return (
-      apiError?.toLowerCase().includes('invalid') ||
-      apiError?.toLowerCase().includes('expired')
+      tokenError?.toLowerCase().includes('invalid') ||
+      tokenError?.toLowerCase().includes('expired')
     );
-  }, [apiError, isTokenMissing]);
+  }, [tokenError, isTokenMissing]);
 
   const validate = () => {
     const nextErrors = {};
@@ -63,8 +63,6 @@ export default function ResetPassword() {
       return;
     }
 
-    setApiError('');
-
     if (!validate()) {
       return;
     }
@@ -75,17 +73,14 @@ export default function ResetPassword() {
       const response = await customerAuthApi.resetPassword(token, password, confirmPassword);
       setPassword('');
       setConfirmPassword('');
-      navigate(ROUTES.login, {
-        replace: true,
-        state: {
-          successMessage:
-            response.message && response.message.length < 140
-              ? response.message
-              : 'Your password has been reset successfully. You can now sign in.',
-        },
-      });
+      const successMsg =
+        response.message && response.message.length < 140
+          ? response.message
+          : 'Your password has been reset successfully. You can now sign in.';
+      toast.success(successMsg);
+      navigate(ROUTES.login, { replace: true });
     } catch (error) {
-      setApiError(friendlyAuthError(error, INVALID_TOKEN_MESSAGE));
+      setTokenError(friendlyAuthError(error, INVALID_TOKEN_MESSAGE));
       window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
       setLoading(false);
@@ -99,12 +94,12 @@ export default function ResetPassword() {
         <p className="auth-subheading">Choose a strong password with at least 8 characters.</p>
 
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {loading ? 'Updating password' : apiError || ''}
+          {loading ? 'Updating password' : ''}
         </div>
 
-        {(apiError || isTokenMissing) && (
+        {(tokenError || isTokenMissing) && (
           <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
-            <p>{apiError || INVALID_TOKEN_MESSAGE}</p>
+            <p>{tokenError || INVALID_TOKEN_MESSAGE}</p>
             {showResendLink ? (
               <p className="auth-inline-action">
                 <Link to={ROUTES.forgetPassword}>Request a new reset link</Link>

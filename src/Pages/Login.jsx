@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { getSafeReturnPath, friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
+import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
 export default function Login() {
@@ -20,8 +21,6 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(location.state?.successMessage || '');
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
@@ -67,9 +66,6 @@ export default function Login() {
       return;
     }
 
-    setApiError('');
-    setSuccessMessage('');
-
     if (!validate()) {
       return;
     }
@@ -84,9 +80,7 @@ export default function Login() {
       if (error.data?.errorCode === 'EMAIL_NOT_VERIFIED' || error.message === 'Email not verified') {
         navigate(ROUTES.verifyEmail, { state: { email: email.trim() } });
       } else {
-        setApiError(
-          friendlyAuthError(error, 'Unable to sign in with those details. Please check and try again.')
-        );
+        // Error toast is automatically handled by api.js
         focusError();
       }
     } finally {
@@ -102,20 +96,8 @@ export default function Login() {
       </p>
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {loading ? 'Signing in' : apiError || successMessage || ''}
+        {loading ? 'Signing in' : ''}
       </div>
-
-      {successMessage ? (
-        <div className="auth-success-banner" role="status">
-          {successMessage}
-        </div>
-      ) : null}
-
-      {apiError ? (
-        <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
-          {apiError}
-        </div>
-      ) : null}
 
       <SocialLoginButtons
         onSuccess={() => {
@@ -123,9 +105,7 @@ export default function Login() {
           navigate(redirectTo, { replace: true });
         }}
         onError={(msg) => {
-          setApiError(
-            friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.')
-          );
+          toast.error(friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.'));
           focusError();
         }}
       />

@@ -5,6 +5,7 @@ import Reveal from '../components/Reveal.jsx';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { ticketApi } from '../services/api';
 import { ROUTES, ticketPath } from '../utils/navigation';
+import { toast } from '../context/ToastContext.jsx';
 import './Tickets.css';
 
 const TICKET_CATEGORIES = [
@@ -102,7 +103,6 @@ export default function Tickets() {
   const [showForm, setShowForm] = useState(Boolean(entryState?.openForm));
   const [formData, setFormData] = useState(() => buildInitialForm(entryState));
   const [formError, setFormError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -139,18 +139,17 @@ export default function Tickets() {
 
     setSubmitting(true);
     setFormError('');
-    setSuccessMessage('');
 
     try {
       await ticketApi.submitTicket(formData);
       setFormData({ subject: '', category: 'general', message: '', orderId: '' });
       setShowForm(false);
-      setSuccessMessage('Ticket submitted. Our team will follow up soon.');
+      toast.success('Ticket submitted. Our team will follow up soon.');
       setStatusMessage('Support ticket submitted.');
       await loadTickets();
     } catch (err) {
       console.error('Failed to submit ticket:', err);
-      setFormError(friendlyTicketError(err));
+      // Error toast handled automatically by api.js
     } finally {
       setSubmitting(false);
     }
@@ -189,12 +188,6 @@ export default function Tickets() {
             {showForm ? 'Cancel' : 'Create Ticket'}
           </button>
         </div>
-
-        {successMessage ? (
-          <p className="tickets-success" role="status">
-            {successMessage}
-          </p>
-        ) : null}
 
         {showForm ? (
           <Reveal
@@ -264,11 +257,6 @@ export default function Tickets() {
                   rows={6}
                 />
               </div>
-              {formError ? (
-                <p className="tickets-form-error" role="alert">
-                  {formError}
-                </p>
-              ) : null}
               <button type="submit" className="ticket-submit-btn" disabled={submitting}>
                 {submitting ? 'Submitting…' : 'Submit Ticket'}
               </button>

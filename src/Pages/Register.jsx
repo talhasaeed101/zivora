@@ -5,8 +5,8 @@ import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePageTitle } from '../hooks/usePageTitle.js';
-import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
+import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
 export default function Register() {
@@ -26,7 +26,6 @@ export default function Register() {
     confirmPassword: '',
   });
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
   if (authLoading) {
@@ -80,8 +79,6 @@ export default function Register() {
       return;
     }
 
-    setApiError('');
-
     if (!validate()) {
       return;
     }
@@ -100,7 +97,7 @@ export default function Register() {
         state: { email: form.email.trim() },
       });
     } catch (error) {
-      setApiError(friendlyAuthError(error, 'Unable to create your account. Please try again.'));
+      // Error toast is automatically handled by api.js
       window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
       setLoading(false);
@@ -115,21 +112,13 @@ export default function Register() {
       </p>
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {loading ? 'Creating account' : apiError || ''}
+        {loading ? 'Creating account' : ''}
       </div>
-
-      {apiError ? (
-        <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
-          {apiError}
-        </div>
-      ) : null}
 
       <SocialLoginButtons
         onSuccess={() => navigate(ROUTES.home, { replace: true })}
         onError={(msg) => {
-          setApiError(
-            friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.')
-          );
+          toast.error('Social sign-in failed. Please try again.');
           window.requestAnimationFrame(() => errorRef.current?.focus?.());
         }}
       />

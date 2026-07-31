@@ -6,6 +6,7 @@ import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { usePageTitle } from '../hooks/usePageTitle.js';
+import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
 const GENERIC_SUCCESS_MESSAGE =
@@ -18,8 +19,7 @@ export default function ForgetPassword() {
 
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [isSent, setIsSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
@@ -42,9 +42,6 @@ export default function ForgetPassword() {
       return;
     }
 
-    setApiError('');
-    setSuccessMessage('');
-
     if (!validate()) {
       return;
     }
@@ -53,11 +50,9 @@ export default function ForgetPassword() {
 
     try {
       await customerAuthApi.forgotPassword(email.trim());
-      setSuccessMessage(GENERIC_SUCCESS_MESSAGE);
+      setIsSent(true);
+      toast.success(GENERIC_SUCCESS_MESSAGE);
     } catch (error) {
-      setApiError(
-        friendlyAuthError(error, 'Unable to process your request. Please try again.')
-      );
       window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
       setLoading(false);
@@ -74,20 +69,8 @@ export default function ForgetPassword() {
         </p>
 
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {loading ? 'Sending reset link' : successMessage || apiError || ''}
+          {loading ? 'Sending reset link' : ''}
         </div>
-
-        {successMessage ? (
-          <div className="auth-success-banner" role="status">
-            <p>{successMessage}</p>
-          </div>
-        ) : null}
-
-        {apiError ? (
-          <div className="auth-error-banner" role="alert" tabIndex={-1} ref={errorRef}>
-            {apiError}
-          </div>
-        ) : null}
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
@@ -119,7 +102,7 @@ export default function ForgetPassword() {
             disabled={loading}
             aria-busy={loading || undefined}
           >
-            {loading ? 'Sending link…' : successMessage ? 'Send again' : 'Send reset link'}
+            {loading ? 'Sending link…' : isSent ? 'Send again' : 'Send reset link'}
           </button>
         </form>
 

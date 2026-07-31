@@ -7,6 +7,7 @@ import { STORE_CONTACT } from '../constants/storeContact.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
 import { publicEngagementApi } from '../services/api.js';
 import { ROUTES } from '../utils/navigation';
+import { toast } from '../context/ToastContext.jsx';
 import './Contact.css';
 
 export default function Contact() {
@@ -17,7 +18,6 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
 
   const nameId = `${formId}-name`;
@@ -77,11 +77,9 @@ export default function Contact() {
       setFieldErrors({});
     } catch (err) {
       if (err.status === 429) {
-        setError(
-          'You have sent too many messages. Please wait about 15 minutes, then try again — or reach us on WhatsApp or email.'
-        );
+        toast.error('You have sent too many messages. Please wait about 15 minutes, then try again.');
       } else {
-        setError('We could not send your message right now. Please try again, or contact us by email or WhatsApp.');
+        toast.error('We could not send your message right now. Please try again, or contact us by email or WhatsApp.');
       }
     } finally {
       setSaving(false);
@@ -161,14 +159,6 @@ export default function Contact() {
             </div>
           ) : (
             <form className="contact-form" onSubmit={handleSubmit} noValidate>
-              <div className="contact-live" aria-live="polite" aria-atomic="true">
-                {error ? (
-                  <p id={errorId} className="contact-error" role="alert">
-                    {error}
-                  </p>
-                ) : null}
-              </div>
-
               <div className="contact-field">
                 <label htmlFor={nameId}>
                   Name <span className="contact-required" aria-hidden="true">*</span>

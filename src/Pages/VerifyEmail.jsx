@@ -5,6 +5,7 @@ import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ROUTES } from '../utils/navigation';
 import { customerAuthApi } from '../services/api';
 import { friendlyAuthError } from '../utils/authUi.js';
+import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
 export default function VerifyEmail() {
@@ -25,7 +26,7 @@ export default function VerifyEmail() {
     try {
       await customerAuthApi.verifyEmail(verificationToken);
       setStatus('success');
-      setMessage('Your email has been verified. You can now sign in.');
+      toast.success('Your email has been verified. You can now sign in.');
     } catch (error) {
       setStatus('error');
       setMessage(
@@ -57,10 +58,10 @@ export default function VerifyEmail() {
     setResendLoading(true);
     try {
       await customerAuthApi.resendVerificationEmail(email);
-      setMessage('A new verification link has been sent to your email.');
+      toast.success('A new verification link has been sent to your email.');
       setResendCooldown(60);
     } catch (error) {
-      setMessage(friendlyAuthError(error, 'Unable to resend the verification link.'));
+      // Error toast handled automatically by api.js
     } finally {
       setResendLoading(false);
     }
@@ -98,9 +99,9 @@ export default function VerifyEmail() {
       ) : null}
 
       {status === 'success' ? (
-        <div className="auth-success-banner" role="status">
-          {message}
-        </div>
+        <p className="auth-status-copy">
+          Your email has been verified! You can now sign in.
+        </p>
       ) : null}
 
       {status === 'error' ? (
@@ -116,14 +117,6 @@ export default function VerifyEmail() {
             {email ? <strong>{maskEmail(email)}</strong> : 'your email address'}. Check your inbox
             and verify to continue.
           </p>
-          {message ? (
-            <div
-              className={message.toLowerCase().includes('unable') || message.toLowerCase().includes('failed') ? 'auth-error-banner' : 'auth-success-banner'}
-              role="status"
-            >
-              {message}
-            </div>
-          ) : null}
         </>
       ) : null}
 
