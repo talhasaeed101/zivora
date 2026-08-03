@@ -54,10 +54,10 @@ function useHeroTaglineTypewriter(text) {
 
 function HeroTagline({ displayed, done }) {
   return (
-    <p className="hero-tagline-text" aria-label={HERO_TAGLINE}>
+    <h1 className="hero-tagline-text" aria-label={HERO_TAGLINE}>
       <span aria-hidden="true">{displayed}</span>
       {!done && <span className="hero-tagline-caret" aria-hidden="true" />}
-    </p>
+    </h1>
   );
 }
 const SHOP_BADGE = (

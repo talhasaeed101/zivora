@@ -1,14 +1,5 @@
-import { useEffect } from 'react';
-
-const DEFAULT_TITLE = 'Zivorah | Premium Jewelry';
+import { useSEO } from './useSEO.js';
 
 export function usePageTitle(title) {
-  useEffect(() => {
-    const previousTitle = document.title;
-    document.title = title ? title : DEFAULT_TITLE;
-
-    return () => {
-      document.title = previousTitle;
-    };
-  }, [title]);
+  useSEO({ title });
 }

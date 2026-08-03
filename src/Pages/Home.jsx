@@ -10,14 +10,34 @@ import BrandQuote from '../components/BrandQuote';
 import '../components/landing/landing-tokens.css';
 import '../components/landing/landing-interactions.css';
 import '../components/landing/landing-motion.css';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { useSEO } from '../hooks/useSEO.js';
 
 /**
  * Customer storefront Home / landing page.
  * Also used by LegacyPages for the `/` home view.
  */
 const Home = () => {
-  usePageTitle('Zivorah | Premium Jewelry');
+  useSEO({
+    title: 'Zivorah Pakistan | Premium Jewelry',
+    url: 'https://zivorah.store/',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'WebSite',
+          name: 'Zivorah',
+          alternateName: 'Zivorah Pakistan',
+          url: 'https://zivorah.store/',
+        },
+        {
+          '@type': 'Organization',
+          name: 'Zivorah',
+          url: 'https://zivorah.store/',
+          logo: 'https://zivorah.store/favicon.ico',
+        },
+      ],
+    },
+  });
 
   return (
     <div className="landing-page">

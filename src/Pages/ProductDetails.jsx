@@ -15,7 +15,7 @@ import {
   getCategoryName,
   PLACEHOLDER_IMAGE,
 } from '../utils/products.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { useSEO } from '../hooks/useSEO.js';
 import { trackProductView } from '../utils/analytics.js';
 import './Collection.css';
 import './ProductDetails.css';
@@ -170,7 +170,68 @@ export default function ProductDetails() {
   const categorySlug =
     typeof activeProduct?.category === 'object' ? activeProduct.category?.slug : null;
 
-  usePageTitle(`${activeProduct?.title || 'Product'} | Zivorah`);
+  const productUrl = `https://zivorah.store${productPath(activeProduct?.slug)}`;
+  
+  useSEO({
+    title: `${activeProduct?.title || 'Product'} | Zivorah Pakistan`,
+    description: activeProduct?.description || `Buy ${activeProduct?.title} at Zivorah Pakistan. Premium quality jewelry.`,
+    url: productUrl,
+    image: activeProduct?.images?.[0] || 'https://zivorah.store/favicon.ico',
+    type: 'product',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Product',
+          name: activeProduct?.title,
+          image: activeProduct?.images || [],
+          description: activeProduct?.description,
+          sku: activeProduct?.sku || activeProduct?._id,
+          brand: {
+            '@type': 'Brand',
+            name: 'Zivorah',
+          },
+          offers: {
+            '@type': 'Offer',
+            url: productUrl,
+            priceCurrency: 'PKR',
+            price: activeProduct?.price,
+            availability: (activeProduct?.stock > 0 || activeProduct?.stock === undefined) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition'
+          }
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://zivorah.store/'
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Collection',
+              item: 'https://zivorah.store/collection'
+            },
+            ...(categoryName ? [{
+              '@type': 'ListItem',
+              position: 3,
+              name: categoryName,
+              item: `https://zivorah.store${categorySlug ? categoryPath(categorySlug) : searchPath({ q: categoryName })}`
+            }] : []),
+            {
+              '@type': 'ListItem',
+              position: categoryName ? 4 : 3,
+              name: activeProduct?.title,
+              item: productUrl
+            }
+          ]
+        }
+      ]
+    }
+  });
 
   const galleryImages = activeProduct?.images?.length
     ? activeProduct.images
