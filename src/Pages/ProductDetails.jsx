@@ -8,7 +8,7 @@ import ProductReviewsSection from '../components/product-details/ProductReviewsS
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { ArrowRightIcon } from '../components/icons';
-import { ROUTES, categoryPath, searchPath } from '../utils/navigation';
+import { ROUTES, categoryPath, searchPath, productPath } from '../utils/navigation';
 import { publicCatalogApi } from '../services/api.js';
 import {
   LEGACY_STATIC_PRODUCT,
