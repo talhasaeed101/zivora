@@ -34,7 +34,7 @@ export default function NewsletterOffer() {
           <span className="offer-label-text">OFFER</span>
           <span className="offer-label-line" />
         </div>
-        <h2 className="offer-heading">Get 10% Off Your First<br />Purchase</h2>
+        <h2 className="offer-heading">Get 10% Off Your First Purchase</h2>
         <p className="offer-text">Subscribe to our newsletter and get 10% discount</p>
         <form className="offer-form" onSubmit={handleSubmit}>
           <input

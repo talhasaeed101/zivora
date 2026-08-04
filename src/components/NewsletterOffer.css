@@ -1,16 +1,16 @@
 .offer-section {
   position: relative;
   width: 100%;
-  min-height: 480px;
+  min-height: 600px;
   background: url('/images/bg12121.png') center/cover no-repeat;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
   padding: 64px 8%;
 }
 
 .offer-content {
-  max-width: 480px;
+  /* max-width: 480px; */
   text-align: left;
 }
 

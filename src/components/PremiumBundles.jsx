@@ -79,7 +79,10 @@ export default function PremiumBundles() {
                   variant="fade-up"
                   delay={Math.min(index, 7) * 70}
                 >
-                  <article className="bundles-product-card" style={{ position: 'relative' }}>
+                  <article
+                    className="bundles-product-card"
+                    style={{ position: "relative" }}
+                  >
                     <div className="bundles-product-image-wrap">
                       <SafeImage
                         src={image}
@@ -87,25 +90,37 @@ export default function PremiumBundles() {
                         className="bundles-product-image"
                       />
                     </div>
-                    {showSale && <span className="bundles-sale-badge">Sale!</span>}
-                    <div className="bundles-product-info-row">
-                      <h3 className="bundles-product-name">{product.title}</h3>
-                      <WishlistButton
-                        productId={product._id}
-                        className="bundles-wishlist-btn"
-                        activeClassName="bundles-wishlist-btn-active"
-                      />
-                    </div>
-                    {categoryName && (
-                      <p className="bundles-product-category">{categoryName}</p>
+                    {showSale && (
+                      <span className="bundles-sale-badge">Sale!</span>
                     )}
-                    <div className="bundles-price-row">
-                      <span className="bundles-price-current">{formatPrice(product.price)}</span>
-                      {product.oldPrice && (
-                        <span className="bundles-price-original">
-                          {formatPrice(product.oldPrice)}
+                    <div className="bundles-product-text-wrap">
+                      <div className="bundles-product-info-row">
+                        <h3 className="bundles-product-name">
+                          {product.title?.length > 20
+                            ? `${product.title.slice(0, 20)}...`
+                            : product.title}
+                        </h3>
+                        <WishlistButton
+                          productId={product._id}
+                          className="bundles-wishlist-btn"
+                          activeClassName="bundles-wishlist-btn-active"
+                        />
+                      </div>
+                      {/* {categoryName && (
+                        <p className="bundles-product-category">
+                          {categoryName}
+                        </p>
+                      )} */}
+                      <div className="bundles-price-row">
+                        <span className="bundles-price-current">
+                          {formatPrice(product.price)}
                         </span>
-                      )}
+                        {product.oldPrice && (
+                          <span className="bundles-price-original">
+                            {formatPrice(product.oldPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </article>
                 </Reveal>

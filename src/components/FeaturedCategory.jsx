@@ -51,7 +51,7 @@ export default function FeaturedCategory() {
     };
   }, []);
 
-  const activeCategory = hoveredCategory || categories[0];
+  const activeCategory = hoveredCategory;
   const displayImage = activeCategory?.image || FEATURED_IMAGE;
   const displayName = activeCategory?.name || 'Featured category';
   const displaySlug = activeCategory?.slug;
@@ -108,53 +108,55 @@ export default function FeaturedCategory() {
             )}
           </Reveal>
 
-          <Reveal className="featured-image-zone" variant="scale-in" delay={120}>
-            <div className="featured-organic-image-wrap">
-              <SafeImage
-                key={displayImage}
-                src={displayImage}
-                alt={displayName}
-                className="featured-organic-image"
-              />
-            </div>
-
-            <a
-              href={categoryPath(displaySlug)}
-              className="featured-circular-badge-container"
-              aria-label="Shop the collection"
-            >
-              <svg
-                viewBox="0 0 100 100"
-                width="120"
-                height="120"
-                className="featured-circular-rotating-svg"
-                aria-hidden="true"
-              >
-                <defs>
-                  <path
-                    id="featuredCirclePath"
-                    d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
-                  />
-                </defs>
-                <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#000">
-                  <textPath href="#featuredCirclePath" startOffset="0%">
-                    SHOP THE COLLECTION • SHOP THE COLLECTION •
-                  </textPath>
-                </text>
-              </svg>
-              <div className="featured-circular-inner-button">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M9 18L15 12L9 6"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+          {activeCategory && (
+            <Reveal className="featured-image-zone" variant="scale-in" delay={120}>
+              <div className="featured-organic-image-wrap">
+                <SafeImage
+                  key={displayImage}
+                  src={displayImage}
+                  alt={displayName}
+                  className="featured-organic-image"
+                />
               </div>
-            </a>
-          </Reveal>
+
+              <a
+                href={categoryPath(displaySlug)}
+                className="featured-circular-badge-container"
+                aria-label="Shop the collection"
+              >
+                <svg
+                  viewBox="0 0 100 100"
+                  width="120"
+                  height="120"
+                  className="featured-circular-rotating-svg"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <path
+                      id="featuredCirclePath"
+                      d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
+                    />
+                  </defs>
+                  <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#000">
+                    <textPath href="#featuredCirclePath" startOffset="0%">
+                      SHOP THE COLLECTION • SHOP THE COLLECTION •
+                    </textPath>
+                  </text>
+                </svg>
+                <div className="featured-circular-inner-button">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </a>
+            </Reveal>
+          )}
         </div>
       </div>
     </section>

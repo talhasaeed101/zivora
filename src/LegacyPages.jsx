@@ -68,7 +68,11 @@ export default function LegacyPages() {
       <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
-        {/* <LaunchTimer onTimerEnd={() => setIsTimerEnded(true)} /> */}
+        <section className="launch-timer-section">
+          <div className="launch-timer-inner">
+            <p className="timer-ended-text">“Don't just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.”</p>
+          </div>
+        </section>
         <TrendingProducts />
         <FeaturedCategory />
         <MakeItCustom />

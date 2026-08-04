@@ -53,7 +53,7 @@
   width: 100%;
   height: 72px;
   background: #F7F3ED;
-  border-bottom: 1px solid transparent;
+  border-bottom: 0.5px solid var(--Stroke, #C3C3C3);
   position: relative;
   transition: border-color 0.25s var(--nav-ease), box-shadow 0.25s var(--nav-ease);
 }
@@ -123,13 +123,14 @@
 }
 
 .navbar-link:hover,
-.navbar-link.is-active,
 .navbar-shop-trigger.is-open {
   color: var(--nav-black);
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .navbar-link:hover::after,
-.navbar-link.is-active::after,
 .navbar-shop-trigger.is-open::after {
   transform: scaleX(1);
 }
@@ -202,6 +203,9 @@
 
 .navbar-icon-btn:hover {
   color: var(--nav-accent);
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .navbar-badge {

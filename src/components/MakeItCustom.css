@@ -196,6 +196,9 @@
   box-sizing: border-box;
   pointer-events: auto;
   transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  max-width:201px;
+  width:100%;
+  white-space: nowrap;
 }
 
 .custom-shop-btn:hover {
