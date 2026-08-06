@@ -39,7 +39,7 @@ export default function Testimonials() {
             className={`testimonial-content-block${switching ? ' is-switching' : ''}`}
           >
             <div className="testimonial-profile-row">
-              <SafeImage src={AVATAR_PLACEHOLDER} alt={t.name} className="testimonial-avatar" />
+              <img src ="/images/avatar.svg" alt={t.name} className="testimonial-profile-image" onError={(e) => { e.target.src = AVATAR_PLACEHOLDER; }} />
               <div className="testimonial-profile-meta">
                 <div className="testimonial-stars-row" aria-label={`${t.rating} out of 5 stars`}>
                   {[...Array(5)].map((_, i) => (

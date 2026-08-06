@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { InstagramIcon, TikTokIcon, FacebookIcon } from './icons';
+import { InstagramIcon, FacebookIcon } from './icons';
 import { ROUTES } from '../utils/navigation';
 import { publicEngagementApi } from '../services/api.js';
 import './Footer.css';
@@ -13,6 +13,10 @@ const MAIN_LINKS = [
   { label: 'Contact', to: ROUTES.contact },
 ];
 
+const TikTokImageIcon = () => (
+  <img src="/images/tiktok.svg" alt="TikTok" width="22" height="22" style={{ display: 'block' }} />
+);
+
 const SOCIAL_LINKS = [
   {
     label: 'Instagram',
@@ -22,7 +26,7 @@ const SOCIAL_LINKS = [
   {
     label: 'TikTok',
     href: 'https://vt.tiktok.com/ZSCvChaAS/',
-    Icon: TikTokIcon,
+    Icon: TikTokImageIcon,
   },
   {
     label: 'Facebook',

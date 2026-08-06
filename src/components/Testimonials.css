@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap");
 .testimonial-section {
   width: 100%;
   background-color: #fff;
@@ -5,7 +6,7 @@
 }
 
 .testimonial-inner {
-  max-width: 800px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
@@ -40,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 25px;
   margin-bottom: 20px;
 }
 
@@ -64,26 +65,31 @@
 
 .testimonial-star-filled {
   color: #f5a623;
+  height: 22px;
+  width: 22px;
 }
 
 .testimonial-star-empty {
   color: #d1d5db;
+  height: 22px;
+  width: 22px;
 }
 
 .testimonial-author-name {
   font-family: Teneka, serif;
-  font-size: 18px;
+  font-size: 22px;
   color: #000;
   margin: 0;
 }
 
 .testimonial-quote-text {
-  font-size: 15px;
+  font-size: 30px;
   line-height: 1.7;
-  color: #888;
+  color: #7c7c7c;
   font-style: normal;
   margin: 0;
   padding: 0 8px;
+  font-family: "Cabin", sans-serif;
 }
 
 @media (max-width: 768px) {

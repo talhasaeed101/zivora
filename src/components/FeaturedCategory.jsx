@@ -137,7 +137,7 @@ export default function FeaturedCategory() {
                       d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
                     />
                   </defs>
-                  <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#000">
+                  <text fontSize="9.5" fontWeight="500" letterSpacing="1.5px" fill="#fff">
                     <textPath href="#featuredCirclePath" startOffset="0%">
                       SHOP THE COLLECTION • SHOP THE COLLECTION •
                     </textPath>

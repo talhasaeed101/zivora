@@ -1,12 +1,10 @@
 .bundles-section {
   width: 100%;
   /* background-color: #fff; */
-  padding: 72px 80px 80px;
+  padding: 72px 0 80px 80px;
 }
 
 .bundles-inner {
-  max-width: 1440px;
-  margin: 0 auto;
 }
 
 .bundles-header-row {
@@ -14,7 +12,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 60px;
+  padding-right: 80px;
 }
 
 .bundles-heading {
@@ -55,10 +54,16 @@
   height: 14px;
 }
 
+.bundles-product-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .bundles-products-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 60px) / 4);
+  grid-auto-columns: 368px;
   gap: 20px;
   overflow-x: auto;
   padding-bottom: 24px;
@@ -69,16 +74,14 @@
   display: none;
 }
 
-.bundles-product-card-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
 .bundles-product-card {
   padding: 0;
   border-radius: 0;
   background-color: transparent;
+  width: 368px;
+  height: 520px;
+  display: flex;
+  flex-direction: column;
 }
 
 .bundles-product-image-wrap {
@@ -86,19 +89,15 @@
   border-top-left-radius: 300px;
   border-top-right-radius: 300px;
   overflow: hidden;
+  flex: 1;
 }
 
 .bundles-product-image {
   width: 100%;
-  aspect-ratio: 368 / 470;
+  height: 100%;
   object-fit: cover;
   display: block;
   background-color: #f0ebe4;
-  transition: transform 0.3s ease;
-}
-
-.bundles-product-card:hover .bundles-product-image {
-  transform: scale(1.03);
 }
 
 .bundles-sale-badge {
@@ -107,10 +106,10 @@
   right: 30px;
   background-color: #000;
   color: #fff;
-  font-size: 10px;
+  font-size: 16px;
   font-style: italic;
-  width: 40px;
-  height: 40px;
+  width: 62px;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,7 +136,7 @@
 .bundles-wishlist-btn {
   background: none;
   border: none;
-  color: #999;
+  color: #7c7c7c;
   cursor: pointer;
   padding: 0;
   transition: color 0.3s ease;
@@ -162,13 +161,19 @@
 
 .bundles-price-original {
   font-size: 12px;
-  color: #999;
+  color: #7c7c7c;
   text-decoration: line-through;
+  margin-top: 2px;
 }
 
 .bundles-product-text-wrap {
   background-color: #fff;
-  padding: 16px;
+  padding: 20px;
+  position: relative;
+  margin-top: -40px;
+  z-index: 2;
+  max-width: 338px;
+  margin-left: 14px;
 }
 
 @media (max-width: 1200px) {
@@ -180,7 +185,6 @@
 @media (max-width: 768px) {
   .bundles-section {
     padding: 48px 16px;
-    background-color: #f8f6f3;
   }
 
   .bundles-heading {
@@ -216,13 +220,5 @@
   .bundles-product-image-wrap {
     border-top-left-radius: 180px;
     border-top-right-radius: 180px;
-  }
-}
-
-@media(max-width:600px)
-{
-  .bundles-heading
-  {
-    font-size: 25px;
   }
 }

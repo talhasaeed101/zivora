@@ -109,7 +109,7 @@ function CollectionRow() {
             src="/images/collection.svg"
             alt="Collection preview"
             className="hero-collection-thumbnail-single"
-            style={{ width: '180px', height: '60px' }}
+            style={{ width: '180px', height: '60px',objectFit: 'cover' }}
           />
         </div>
       </div>

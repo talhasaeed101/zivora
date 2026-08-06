@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
 .offer-section {
   position: relative;
   width: 100%;
@@ -10,7 +12,7 @@
 }
 
 .offer-content {
-  /* max-width: 480px; */
+  max-width: 810px;
   text-align: left;
 }
 
@@ -45,9 +47,9 @@
 }
 
 .offer-text {
-  font-family: Inter, sans-serif;
+  font-family: Cabin, sans-serif;
   font-size: 16px;
-  color: #333;
+  color: #000;
   margin: 0 0 32px;
 }
 
@@ -66,6 +68,7 @@
   font-size: 14px;
   outline: none;
   background-color: #fff;
+  max-width: 535px;
 }
 
 .offer-submit-btn {

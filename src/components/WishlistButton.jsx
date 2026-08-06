@@ -12,6 +12,7 @@ export default function WishlistButton({
   showLabel = false,
   stopPropagation = true,
   loginRedirectPath,
+  icon: Icon = HeartIcon,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -54,7 +55,7 @@ export default function WishlistButton({
       onClick={handleClick}
       disabled={loading}
     >
-      <HeartIcon className={iconClassName} filled={active} />
+      <Icon className={iconClassName} filled={active} />
       {showLabel && <span>Wishlist</span>}
     </button>
   );

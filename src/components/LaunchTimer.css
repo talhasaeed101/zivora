@@ -71,7 +71,8 @@
   font-family: 'Cabin', sans-serif;
   font-size: 24px;
   color: #fff;
-  max-width: 1000px
+  max-width: 1000px;
+  font-weight: 400;
 }
 
 @media (max-width: 768px) {
