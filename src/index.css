@@ -27,7 +27,7 @@
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
-  background: #F7F3ED;
+  background: #FFFFFF;
 }
 
 body {
@@ -36,7 +36,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #000;
-  background: #F7F3ED;
+  background: #FFFFFF;
   overflow-x: hidden;
 }
 
