@@ -153,8 +153,25 @@ export function getTrackingId(order) {
   return order?.shipping?.trackingId || order?.trackingNumber || '';
 }
 
+export function sanitizeHttpUrl(value) {
+  if (!value || typeof value !== 'string') {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(value.trim());
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+  } catch {
+    return '';
+  }
+
+  return '';
+}
+
 export function getTrackingUrl(order) {
-  const explicit = order?.shipping?.trackingUrl || order?.trackingUrl;
+  const explicit = sanitizeHttpUrl(order?.shipping?.trackingUrl || order?.trackingUrl);
   if (explicit) {
     return explicit;
   }

@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SafeImage from '../SafeImage.jsx';
 import { SearchIcon } from '../icons.jsx';
-import { publicCatalogApi } from '../../services/api.js';
+import { loadPublicProducts } from '../../services/catalogCache.js';
 import { ROUTES, productPath, searchPath, categoryPath } from '../../utils/navigation';
 import { formatPrice, getProductImage, hasSale } from '../../utils/products.js';
 
@@ -14,6 +14,7 @@ export default function HeaderSearch({ open, onClose, categories = [] }) {
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const requestId = useRef(0);
+  const abortRef = useRef(null);
   const inputId = useId();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -59,23 +60,29 @@ export default function HeaderSearch({ open, onClose, categories = [] }) {
     }
 
     const currentRequest = ++requestId.current;
+    abortRef.current?.abort();
     setLoading(true);
     setError('');
 
     const timer = window.setTimeout(async () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
       try {
-        const response = await publicCatalogApi.getPublicProducts({
-          search: trimmed,
-          page: 1,
-          limit: RESULT_LIMIT,
-        });
+        const response = await loadPublicProducts(
+          {
+            search: trimmed,
+            page: 1,
+            limit: RESULT_LIMIT,
+          },
+          { signal: controller.signal }
+        );
         if (currentRequest !== requestId.current) {
           return;
         }
         setResults((response.data?.products || []).slice(0, RESULT_LIMIT));
         setSearched(true);
       } catch (err) {
-        if (currentRequest !== requestId.current) {
+        if (err?.name === 'AbortError' || currentRequest !== requestId.current) {
           return;
         }
         setResults([]);
@@ -88,7 +95,10 @@ export default function HeaderSearch({ open, onClose, categories = [] }) {
       }
     }, DEBOUNCE_MS);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      abortRef.current?.abort();
+    };
   }, [query, open, retryToken]);
 
   if (!open) {

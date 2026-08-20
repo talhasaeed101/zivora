@@ -7,7 +7,7 @@ import { orderApi, reviewApi } from '../services/api.js';
 import { ROUTES } from '../utils/navigation';
 import { formatPrice, PLACEHOLDER_IMAGE } from '../utils/products.js';
 import { buildCustomizationSummaryLines } from '../utils/customizationSummary.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import SafeImage from '../components/SafeImage.jsx';
 import ReviewModal from '../components/product-details/ReviewModal.jsx';
 import OrderProgressTracker from '../components/OrderProgressTracker.jsx';
@@ -62,7 +62,7 @@ function OrderDetailsSkeleton() {
 }
 
 export default function OrderDetails() {
-  usePageTitle('Order Details | Zivorah');
+  usePrivatePageSeo({ title: 'Order Details', path: '/orders' });
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();

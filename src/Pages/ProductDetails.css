@@ -46,6 +46,10 @@
   color: var(--pd-accent-hover);
 }
 
+.pd-breadcrumb .page-breadcrumbs {
+  margin: 0;
+}
+
 .pd-breadcrumb-sep {
   color: var(--pd-gray-muted);
   font-size: 10px;
@@ -1478,6 +1482,20 @@
 .pd-info-option-btn.is-selected {
   border-color: var(--pd-black);
   background: #fafafa;
+}
+
+.pd-info-option-btn:disabled,
+.pd-info-option-btn.is-unavailable {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.pd-info-swatch:disabled,
+.pd-info-swatch.is-unavailable {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .pd-info-field-error {

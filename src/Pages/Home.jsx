@@ -10,14 +10,22 @@ import BrandQuote from '../components/BrandQuote';
 import '../components/landing/landing-tokens.css';
 import '../components/landing/landing-interactions.css';
 import '../components/landing/landing-motion.css';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import JsonLd from '../components/seo/JsonLd.jsx';
+import { useSeo } from '../hooks/useSeo.js';
+import { SEO_DEFAULT_DESCRIPTION, SEO_DEFAULT_TITLE } from '../constants/seo.js';
+import { organizationJsonLd, websiteJsonLd } from '../utils/structuredData.js';
 
 /**
  * Customer storefront Home / landing page.
  * Also used by LegacyPages for the `/` home view.
  */
 const Home = () => {
-  usePageTitle('Zivorah | Premium Jewelry');
+  useSeo({
+    title: SEO_DEFAULT_TITLE,
+    description: SEO_DEFAULT_DESCRIPTION,
+    path: '/',
+    prefetch: ['/collection', '/about', '/contact'],
+  });
 
   return (
     <div className="landing-page">
@@ -32,6 +40,7 @@ const Home = () => {
         <NewsletterOffer />
       </main>
       <Footer />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
     </div>
   );
 };

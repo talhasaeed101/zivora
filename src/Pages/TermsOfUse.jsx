@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import InfoPageShell from '../components/info/InfoPageShell.jsx';
 import { STORE_CONTACT } from '../constants/storeContact.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ROUTES } from '../utils/navigation';
 import './Legal.css';
 
@@ -17,12 +16,12 @@ const SECTIONS = [
 ];
 
 export default function TermsOfUse() {
-  usePageTitle('Terms of Use | Zivorah');
-
   return (
     <InfoPageShell
       title="Terms of Use"
       breadcrumbCurrent="Terms of Use"
+      path="/terms-of-use"
+      description="The terms that govern your use of the Zivorah website and related jewelry shopping services."
       intro="The terms that govern your use of the Zivorah website and related services."
       cta={
         <Link to={ROUTES.contact} className="info-btn info-btn-primary">

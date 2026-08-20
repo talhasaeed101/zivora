@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
@@ -58,10 +59,11 @@ function useHeroTaglineTypewriter(text) {
 
 function HeroTagline({ displayed, done }) {
   return (
-    <p className="hero-tagline-text" aria-label={HERO_TAGLINE}>
+    <h1 className="hero-tagline-text">
+      <span className="sr-only">{HERO_TAGLINE}</span>
       <span aria-hidden="true">{displayed}</span>
       {!done && <span className="hero-tagline-caret" aria-hidden="true" />}
-    </p>
+    </h1>
   );
 }
 const SHOP_BADGE = (
@@ -115,6 +117,9 @@ function CollectionRow() {
             src={src}
             alt={`Collection preview ${index + 1}`}
             className="hero-collection-thumbnail"
+            loading="lazy"
+            width={64}
+            height={64}
           />
         ))}
       </div>
@@ -137,6 +142,9 @@ export default function Hero() {
                 alt="Zivorah jewelry collection"
                 className="hero-pill-image"
                 eager
+                fetchPriority="high"
+                width={420}
+                height={640}
               />
             </div>
             <div className="hero-vertical-text-container">
@@ -164,12 +172,15 @@ export default function Hero() {
               alt="Featured jewelry"
               className="hero-arch-image"
               eager
+              fetchPriority="high"
+              width={720}
+              height={900}
             />
           </div>
 
-          <a href={ROUTES.collection} className="hero-circular-badge-container" aria-label="Shop the collection">
+          <Link to={ROUTES.collection} className="hero-circular-badge-container" aria-label="Shop the collection" prefetch="intent">
             {SHOP_BADGE}
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -183,6 +194,9 @@ export default function Hero() {
                   alt="Zivorah jewelry collection"
                   className="hero-pill-image"
                   eager
+                  fetchPriority="high"
+                  width={420}
+                  height={640}
                 />
               </div>
               <div className="hero-vertical-text-container">
@@ -200,13 +214,14 @@ export default function Hero() {
           <div className="mobile-hero-copy-block">
             <HeroTagline displayed={displayed} done={done} />
 
-            <a
-              href={ROUTES.collection}
+            <Link
+              to={ROUTES.collection}
               className="hero-circular-badge-container mobile-hero-badge"
               aria-label="Shop the collection"
+              prefetch="intent"
             >
               {SHOP_BADGE}
-            </a>
+            </Link>
 
             <div className="mobile-collection-row">
               <CollectionRow />
@@ -221,6 +236,9 @@ export default function Hero() {
               alt="Featured jewelry"
               className="hero-arch-image"
               eager
+              fetchPriority="high"
+              width={720}
+              height={900}
             />
           </div>
         </div>

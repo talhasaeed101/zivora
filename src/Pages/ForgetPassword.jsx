@@ -5,14 +5,14 @@ import GuestRoute from '../components/GuestRoute.jsx';
 import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import './Auth.css';
 
 const GENERIC_SUCCESS_MESSAGE =
   'If an account exists for this email, password reset instructions have been sent.';
 
 export default function ForgetPassword() {
-  usePageTitle('Forgot Password | Zivorah');
+  usePrivatePageSeo({ title: 'Forgot Password', path: '/forget-password' });
   const emailId = useId();
   const errorRef = useRef(null);
 

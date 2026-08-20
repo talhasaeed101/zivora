@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import WishlistButton from '../WishlistButton.jsx';
 import SafeImage from '../SafeImage.jsx';
 import { productPath } from '../../utils/navigation';
@@ -9,10 +10,16 @@ export default function ProductCard({ product, variant = 'slider' }) {
   const productId = product._id || cardProduct.id;
 
   return (
-    <a href={href} className="pd-product-card-link">
+    <Link to={href} prefetch="intent" className="pd-product-card-link">
       <article className={`pd-product-card ${variant === 'mobile' ? 'pd-product-card-mobile' : ''}`}>
       <div className="pd-product-card-image-wrap">
-        <SafeImage src={cardProduct.image} alt={cardProduct.name} className="pd-product-card-image" />
+        <SafeImage
+          src={cardProduct.image}
+          alt={cardProduct.name || 'Jewelry product'}
+          className="pd-product-card-image"
+          width={400}
+          height={500}
+        />
         {cardProduct.showSale && <span className="pd-product-card-sale">Sale!</span>}
         {variant === 'mobile' && (
           <div className="pd-product-card-overlay">
@@ -52,6 +59,6 @@ export default function ProductCard({ product, variant = 'slider' }) {
         </>
       )}
       </article>
-    </a>
+    </Link>
   );
 }

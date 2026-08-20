@@ -36,7 +36,15 @@ const Contact = lazy(() => import('./Pages/Contact.jsx'));
 function RouteFallback() {
   return (
     <div className="route-fallback" aria-busy="true" aria-live="polite">
-      <p>Loading…</p>
+      <span className="sr-only">Loading page</span>
+      <div className="route-fallback-shell">
+        <div className="route-fallback-bar" />
+        <div className="route-fallback-grid">
+          <div className="route-fallback-card" />
+          <div className="route-fallback-card" />
+          <div className="route-fallback-card" />
+        </div>
+      </div>
     </div>
   );
 }

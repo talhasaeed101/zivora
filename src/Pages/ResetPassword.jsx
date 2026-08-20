@@ -6,14 +6,14 @@ import PasswordInput from '../components/PasswordInput.jsx';
 import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import './Auth.css';
 
 const INVALID_TOKEN_MESSAGE =
   'This reset link is invalid or has expired. Please request a new one.';
 
 export default function ResetPassword() {
-  usePageTitle('Reset Password | Zivorah');
+  usePrivatePageSeo({ title: 'Reset Password', path: '/reset-password' });
 
   const navigate = useNavigate();
   const { token } = useParams();

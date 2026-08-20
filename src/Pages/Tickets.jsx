@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePrivatePageSeo } from '../hooks/useSeo';
 import { ticketApi } from '../services/api';
 import { ROUTES, ticketPath } from '../utils/navigation';
 import './Tickets.css';
@@ -90,7 +90,7 @@ function friendlyTicketError(err) {
 }
 
 export default function Tickets() {
-  usePageTitle('Support Tickets | Zivorah');
+  usePrivatePageSeo({ title: 'Support Tickets', path: '/support/tickets' });
   const location = useLocation();
   const entryState = location.state || null;
   const formId = useId();

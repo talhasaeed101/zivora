@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
-import { usePageTitle } from '../hooks/usePageTitle';
+import { usePrivatePageSeo } from '../hooks/useSeo';
 import { ticketApi } from '../services/api';
 import { ROUTES } from '../utils/navigation';
 import './TicketDetail.css';
@@ -58,7 +58,7 @@ function friendlyTicketError(err) {
 }
 
 export default function TicketDetail() {
-  usePageTitle('Support Ticket | Zivorah');
+  usePrivatePageSeo({ title: 'Support Ticket', path: '/support/tickets' });
   const { id } = useParams();
   const navigate = useNavigate();
   const replyId = useId();

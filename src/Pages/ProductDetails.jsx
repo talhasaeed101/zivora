@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductGallery from '../components/product-details/ProductGallery';
@@ -7,15 +7,19 @@ import ProductInfo from '../components/product-details/ProductInfo';
 import ProductReviewsSection from '../components/product-details/ProductReviewsSection';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import Reveal from '../components/Reveal.jsx';
+import JsonLd from '../components/seo/JsonLd.jsx';
+import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { ArrowRightIcon } from '../components/icons';
-import { ROUTES, categoryPath, searchPath } from '../utils/navigation';
-import { publicCatalogApi } from '../services/api.js';
+import { ROUTES, categoryPath } from '../utils/navigation';
+import { loadPublicProductBySlug, loadPublicProducts } from '../services/catalogCache.js';
 import {
   LEGACY_STATIC_PRODUCT,
   getCategoryName,
   PLACEHOLDER_IMAGE,
 } from '../utils/products.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { useSeo } from '../hooks/useSeo.js';
+import { productJsonLd } from '../utils/structuredData.js';
+import { truncateText } from '../utils/seo.js';
 import { trackProductView } from '../utils/analytics.js';
 import './Collection.css';
 import './ProductDetails.css';
@@ -96,16 +100,21 @@ export default function ProductDetails() {
     setError('');
     setReviewSummary(null);
 
-    publicCatalogApi
-      .getPublicProductBySlug(routeSlug)
-      .then((response) => {
+    loadPublicProductBySlug(routeSlug)
+      .then((data) => {
         if (!isMounted) {
           return;
         }
 
-        setProduct(response.data);
+        if (!data) {
+          setError('Unable to load product.');
+          setProduct(null);
+          return;
+        }
+
+        setProduct(data);
         setError('');
-        trackProductView(response.data);
+        trackProductView(data);
       })
       .catch((err) => {
         if (!isMounted) {
@@ -142,8 +151,7 @@ export default function ProductDetails() {
 
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicProducts({ category: categoryId, limit: 8 })
+    loadPublicProducts({ category: categoryId, limit: 8 })
       .then((response) => {
         if (!isMounted) {
           return;
@@ -169,8 +177,36 @@ export default function ProductDetails() {
   const categoryName = getCategoryName(activeProduct?.category);
   const categorySlug =
     typeof activeProduct?.category === 'object' ? activeProduct.category?.slug : null;
+  const productPathValue = activeProduct?.slug ? `/product/${activeProduct.slug}` : '/product';
+  const productImage = Array.isArray(activeProduct?.images) ? activeProduct.images[0] : null;
+  const ratingCount = Number(reviewSummary?.reviewCount ?? activeProduct?.reviewCount) || 0;
+  const ratingValue = Number(reviewSummary?.averageRating ?? activeProduct?.averageRating) || 0;
 
-  usePageTitle(`${activeProduct?.title || 'Product'} | Zivorah`);
+  useSeo({
+    title: activeProduct?.title || (loading ? 'Product' : 'Product'),
+    description: truncateText(
+      activeProduct?.shortDescription ||
+        activeProduct?.description ||
+        (activeProduct?.title
+          ? `${activeProduct.title} from Zivorah — premium jewelry.`
+          : 'View this Zivorah jewelry piece.'),
+      160
+    ),
+    path: productPathValue,
+    robots: activeProduct?.slug ? 'index, follow' : 'noindex, follow',
+    type: 'product',
+    image: productImage,
+    prefetch: ['/collection'],
+  });
+
+  const productCrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Jewelry', path: '/collection' },
+    ...(categoryName
+      ? [{ name: categoryName, path: categorySlug ? categoryPath(categorySlug) : '/collection' }]
+      : []),
+    ...(activeProduct?.title ? [{ name: activeProduct.title }] : []),
+  ];
 
   const galleryImages = activeProduct?.images?.length
     ? activeProduct.images
@@ -215,9 +251,9 @@ export default function ProductDetails() {
                   Retry
                 </button>
               )}
-              <a href={ROUTES.collection} className="pd-btn pd-btn-secondary">
+              <Link to={ROUTES.collection} className="pd-btn pd-btn-secondary">
                 Browse Collection
-              </a>
+              </Link>
             </div>
           </div>
         </main>
@@ -227,7 +263,23 @@ export default function ProductDetails() {
   }
 
   if (!activeProduct) {
-    return null;
+    return (
+      <div className="pd-page">
+        <Navbar activeLink="COLLECTION" homeHref="/?home=true" />
+        <main id="main-content" className="pd-main">
+          <div className="pd-state-panel">
+            <h1 className="pd-state-title">Product unavailable</h1>
+            <p className="pd-state-copy">This piece could not be displayed.</p>
+            <div className="pd-state-actions">
+              <Link to={ROUTES.collection} className="pd-btn pd-btn-primary">
+                Browse Collection
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const detailItems = [
@@ -240,26 +292,8 @@ export default function ProductDetails() {
       <Navbar activeLink="COLLECTION" homeHref="/?home=true" />
 
       <main id="main-content" className="pd-main">
-        <Reveal as="nav" className="pd-breadcrumb" variant="fade-up" aria-label="Breadcrumb">
-          <a href={ROUTES.home}>Home</a>
-          <span className="pd-breadcrumb-sep" aria-hidden="true">
-            /
-          </span>
-          <a href={ROUTES.collection}>Collection</a>
-          {categoryName && (
-            <>
-              <span className="pd-breadcrumb-sep" aria-hidden="true">
-                /
-              </span>
-              <a href={categorySlug ? categoryPath(categorySlug) : searchPath({ q: categoryName })}>
-                {categoryName}
-              </a>
-            </>
-          )}
-          <span className="pd-breadcrumb-sep" aria-hidden="true">
-            /
-          </span>
-          <span className="pd-breadcrumb-current">{activeProduct.title}</span>
+        <Reveal as="div" className="pd-breadcrumb" variant="fade-up">
+          <PageBreadcrumbs items={productCrumbs} />
         </Reveal>
 
         <section className="pd-hero-section">
@@ -314,9 +348,9 @@ export default function ProductDetails() {
           <Reveal as="section" className="pd-related-section catalog-page" variant="fade-up">
             <div className="pd-related-header">
               <h2 className="pd-section-title">You might also like</h2>
-              <a href={ROUTES.collection} className="pd-view-all-link">
+              <Link to={ROUTES.collection} prefetch="intent" className="pd-view-all-link">
                 View All <ArrowRightIcon className="w-3.5 h-3.5" />
-              </a>
+              </Link>
             </div>
             <div className="pd-related-grid">
               {relatedProducts.slice(0, 4).map((relatedProduct, index) => (
@@ -342,6 +376,16 @@ export default function ProductDetails() {
       </main>
 
       <Footer />
+      <JsonLd
+        data={productJsonLd(
+          {
+            ...activeProduct,
+            reviewCount: ratingCount,
+            averageRating: ratingValue,
+          },
+          { url: productPathValue }
+        )}
+      />
     </div>
   );
 }

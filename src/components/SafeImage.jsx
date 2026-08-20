@@ -12,6 +12,10 @@ function SafeImageInner({
   fallback = PLACEHOLDER_IMAGE,
   className,
   eager = false,
+  loading,
+  decoding,
+  width = 800,
+  height = 1000,
   ...props
 }) {
   const [currentSrc, setCurrentSrc] = useState(() => resolveInitialSrc(src, fallback));
@@ -31,9 +35,12 @@ function SafeImageInner({
       {...props}
       src={currentSrc}
       alt={alt}
+      width={width}
+      height={height}
       className={imageClassName}
-      loading={eager ? 'eager' : props.loading || 'lazy'}
-      decoding={props.decoding || 'async'}
+      loading={eager ? 'eager' : loading || 'lazy'}
+      decoding={decoding || 'async'}
+      fetchPriority={eager ? props.fetchPriority || 'high' : props.fetchPriority || 'auto'}
       onLoad={(event) => {
         setLoaded(true);
         props.onLoad?.(event);

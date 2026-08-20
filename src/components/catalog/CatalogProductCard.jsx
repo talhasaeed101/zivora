@@ -3,6 +3,7 @@ import WishlistButton from '../WishlistButton.jsx';
 import SafeImage from '../SafeImage.jsx';
 import { formatPrice, getProductImage, getCategoryName, hasSale } from '../../utils/products.js';
 import { productPath } from '../../utils/navigation';
+import { isCatalogOutOfStock } from '../../utils/inventory.js';
 
 export default function CatalogProductCard({
   product,
@@ -15,7 +16,7 @@ export default function CatalogProductCard({
   const secondaryImage =
     Array.isArray(product?.images) && product.images.length > 1 ? product.images[1] : null;
   const showSale = hasSale(product);
-  const outOfStock = typeof product?.stock === 'number' && product.stock <= 0;
+  const outOfStock = isCatalogOutOfStock(product);
   const categoryName = getCategoryName(product?.category);
   const href = productPath(product.slug);
   const isMobile = variant === 'mobile';
@@ -33,13 +34,24 @@ export default function CatalogProductCard({
 
   const imageInner = (
     <>
-      <SafeImage src={image} alt={product.title || 'Product'} className="catalog-product-image" />
+      <SafeImage
+        src={image}
+        alt={product.title || 'Product'}
+        className="catalog-product-image"
+        sizes="(max-width: 768px) 50vw, 25vw"
+        width={480}
+        height={600}
+      />
       {secondaryImage ? (
         <SafeImage
           src={secondaryImage}
           alt=""
           className="catalog-product-image catalog-product-image-secondary"
           aria-hidden="true"
+          loading="lazy"
+          sizes="(max-width: 768px) 50vw, 25vw"
+          width={480}
+          height={600}
         />
       ) : null}
     </>
@@ -82,8 +94,8 @@ export default function CatalogProductCard({
   }
 
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className={`catalog-product-card-link${isMobile ? ' catalog-product-card-link-mobile' : ''}`}
     >
       <article className={cardClass}>
@@ -135,6 +147,6 @@ export default function CatalogProductCard({
           </>
         ) : null}
       </article>
-    </a>
+    </Link>
   );
 }

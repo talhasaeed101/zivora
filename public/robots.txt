@@ -1,16 +1,32 @@
 User-agent: *
 Allow: /
+Allow: /collection
+Allow: /category
+Allow: /product
+Allow: /search
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms-of-use
+
 Disallow: /admin
+Disallow: /admin/
 Disallow: /profile
+Disallow: /profile/
 Disallow: /cart
+Disallow: /wishlist
 Disallow: /checkout
 Disallow: /orders
+Disallow: /orders/
+Disallow: /order-success
 Disallow: /notifications
 Disallow: /support
+Disallow: /support/
 Disallow: /login
 Disallow: /register
 Disallow: /forget-password
 Disallow: /reset-password
 Disallow: /verify-email
+Disallow: /resend-verification
 
 Sitemap: https://zivorah.store/sitemap.xml

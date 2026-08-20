@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { ROUTES, searchPath, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
-import { usePageTitle } from './hooks/usePageTitle.js';
-import { publicCatalogApi } from './services/api.js';
+import { Link } from 'react-router-dom';
+import { ROUTES, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
+import { useSeo } from './hooks/useSeo.js';
+import { useMediaQuery } from './hooks/useMediaQuery.js';
+import { loadPublicCategories, loadPublicProducts } from './services/catalogCache.js';
 import { formatPrice, getProductImage, hasSale } from './utils/products.js';
+import { isCatalogOutOfStock } from './utils/inventory.js';
 import { PRICE_RANGES, SORT_OPTIONS, getSortLabel } from './utils/catalogFilters.js';
 import WishlistButton from './components/WishlistButton.jsx';
 import SafeImage from './components/SafeImage.jsx';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
+import PageBreadcrumbs from './components/seo/PageBreadcrumbs.jsx';
+import { ShimmerProductGrid } from './components/Shimmer.jsx';
 
 const PAGE_SIZE = 24;
 
@@ -34,13 +38,15 @@ function ChevronDownIcon() {
 function ProductCard({ product, variant }) {
   const image = getProductImage(product);
   const showSale = hasSale(product);
+  const outOfStock = isCatalogOutOfStock(product);
   const href = `/product/${product.slug}`;
 
   const cardContent = variant === 'mobile' ? (
     <>
         <div className="sr-product-image-wrap sr-product-image-wrap-mobile">
-          <SafeImage src={image} alt={product.title} className="sr-product-image" />
+          <SafeImage src={image} alt={product.title} className="sr-product-image" width={400} height={500} />
           {showSale && <span className="sr-sale-badge">Sale!</span>}
+          {outOfStock ? <span className="sr-sale-badge">Out of stock</span> : null}
           <div className="sr-product-overlay">
             <div className="sr-product-info-row">
               <h3 className="sr-product-name sr-product-name-mobile">{product.title}</h3>
@@ -62,8 +68,9 @@ function ProductCard({ product, variant }) {
   ) : (
     <>
       <div className="sr-product-image-wrap">
-        <SafeImage src={image} alt={product.title} className="sr-product-image" />
+        <SafeImage src={image} alt={product.title} className="sr-product-image" sizes="(max-width: 768px) 100vw, 25vw" width={400} height={500} />
         {showSale && <span className="sr-sale-badge">Sale!</span>}
+        {outOfStock ? <span className="sr-sale-badge">Out of stock</span> : null}
       </div>
       <div className="sr-product-info-row">
         <h3 className="sr-product-name">{product.title}</h3>
@@ -83,19 +90,20 @@ function ProductCard({ product, variant }) {
   );
 
   return (
-    <a href={href} className={`sr-product-card-link ${variant === 'mobile' ? 'sr-product-card-link-mobile' : ''}`}>
+    <Link to={href} className={`sr-product-card-link ${variant === 'mobile' ? 'sr-product-card-link-mobile' : ''}`}>
       <article className={`sr-product-card ${variant === 'mobile' ? 'sr-product-card-mobile' : ''}`}>
         {cardContent}
       </article>
-    </a>
+    </Link>
   );
 }
 
 export default function SearchResults() {
-  const location = useLocation();
   const searchQuery = getSearchQueryFromUrl();
   const initialCategory = getSearchCategoryFromUrl();
   const filtersRef = useRef(null);
+  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
+  const [reloadToken, setReloadToken] = useState(0);
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -107,6 +115,8 @@ export default function SearchResults() {
   const [priceRangeId, setPriceRangeId] = useState('');
   const [customMinPrice, setCustomMinPrice] = useState('');
   const [customMaxPrice, setCustomMaxPrice] = useState('');
+  const [appliedMinPrice, setAppliedMinPrice] = useState('');
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState('');
   const [page, setPage] = useState(1);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
@@ -115,23 +125,22 @@ export default function SearchResults() {
   const selectedPriceRange = PRICE_RANGES.find((range) => range.id === priceRangeId);
   const minPrice = selectedPriceRange
     ? selectedPriceRange.minPrice
-    : customMinPrice
-      ? Number(customMinPrice)
+    : appliedMinPrice
+      ? Number(appliedMinPrice)
       : undefined;
   const maxPrice = selectedPriceRange
     ? selectedPriceRange.maxPrice ?? undefined
-    : customMaxPrice
-      ? Number(customMaxPrice)
+    : appliedMaxPrice
+      ? Number(appliedMaxPrice)
       : undefined;
 
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicCategories()
-      .then((response) => {
+    loadPublicCategories()
+      .then((items) => {
         if (isMounted) {
-          setCategories(response.data || []);
+          setCategories(items);
         }
       })
       .catch(() => {
@@ -146,10 +155,11 @@ export default function SearchResults() {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
+    setLoading(true);
 
-    publicCatalogApi
-      .getPublicProducts({
+    loadPublicProducts(
+      {
         search: searchQuery || undefined,
         category: categoryFilter || undefined,
         sort,
@@ -157,30 +167,31 @@ export default function SearchResults() {
         maxPrice: maxPrice ?? undefined,
         page,
         limit: PAGE_SIZE,
-      })
+      },
+      { signal: controller.signal }
+    )
       .then((response) => {
-        if (isMounted) {
-          setProducts(response.data?.products || []);
-          setPagination(response.data?.pagination || null);
-          setError('');
-        }
+        setProducts(response.data?.products || []);
+        setPagination(response.data?.pagination || null);
+        setError('');
       })
       .catch((err) => {
-        if (isMounted) {
-          setError(err.message || 'Unable to load products.');
-          setProducts([]);
+        if (err?.name === 'AbortError') {
+          return;
         }
+        setError(err.message || 'Unable to load products.');
+        setProducts([]);
       })
       .finally(() => {
-        if (isMounted) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       });
 
     return () => {
-      isMounted = false;
+      controller.abort();
     };
-  }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page, location.search]);
+  }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page, reloadToken]);
 
   const handleCategoryChange = (categoryId) => {
     setCategoryFilter((current) => (current === categoryId ? '' : categoryId));
@@ -192,12 +203,16 @@ export default function SearchResults() {
     setPriceRangeId((current) => (current === rangeId ? '' : rangeId));
     setCustomMinPrice('');
     setCustomMaxPrice('');
+    setAppliedMinPrice('');
+    setAppliedMaxPrice('');
     setPage(1);
     setLoading(true);
   };
 
   const handleApplyCustomPrice = () => {
     setPriceRangeId('');
+    setAppliedMinPrice(customMinPrice);
+    setAppliedMaxPrice(customMaxPrice);
     setPage(1);
     setLoading(true);
   };
@@ -218,7 +233,21 @@ export default function SearchResults() {
   const displayQuery = searchQuery || 'all products';
   const productCount = pagination?.total ?? products.length;
 
-  usePageTitle(searchQuery ? `Search: ${searchQuery} | Zivorah` : 'Search | Zivorah');
+  useSeo({
+    title: searchQuery ? `Search: ${searchQuery}` : 'Search jewelry',
+    description: searchQuery
+      ? `Search results for “${searchQuery}” at Zivorah. Shop rings, necklaces, earrings, and more.`
+      : 'Search Zivorah premium jewelry by name, style, or category.',
+    path: searchQuery ? `/search?q=${encodeURIComponent(searchQuery)}` : '/search',
+    robots: 'noindex, follow',
+    prefetch: ['/collection'],
+  });
+
+  const searchCrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Search', path: '/search' },
+    { name: displayQuery },
+  ];
 
   return (
     <>
@@ -228,12 +257,14 @@ export default function SearchResults() {
           src: url('/fonts/tenaka.otf') format('opentype');
           font-weight: normal;
           font-style: normal;
+          font-display: swap;
         }
         @font-face {
           font-family: 'Teneka';
           src: url('/fonts/tenaka-italic.otf') format('opentype');
           font-weight: normal;
           font-style: italic;
+          font-display: swap;
         }
 
         .sr-page {
@@ -656,7 +687,20 @@ export default function SearchResults() {
         }
 
         .sr-product-grid-mobile {
-          display: none;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
+        }
+
+        .sr-error-banner,
+        .sr-empty-state {
+          padding: 24px 0;
+          color: #444;
+        }
+
+        .sr-error-banner p {
+          color: #b91c1c;
+          margin: 0 0 12px;
         }
 
         .sr-product-card {
@@ -1235,9 +1279,7 @@ export default function SearchResults() {
         <Navbar homeHref={ROUTES.home} />
 
         <main id="main-content" className="sr-main">
-          <p className="sr-breadcrumbs">
-            <a href={ROUTES.home}>Home</a> &gt; <a href={searchPath()}>Products</a> &gt; <span>{displayQuery}</span>
-          </p>
+          <PageBreadcrumbs items={searchCrumbs} className="sr-breadcrumbs" />
 
           <h1 className="sr-page-title">
             Showing product for <em>&apos;{displayQuery}&apos;</em>
@@ -1245,7 +1287,14 @@ export default function SearchResults() {
           </h1>
           <p className="sr-page-title-count-mobile">({productCount} Products)</p>
 
-          {error && <p style={{ color: '#b91c1c', marginBottom: '16px' }}>{error}</p>}
+          {error && (
+            <div className="sr-error-banner" role="alert">
+              <p>{error}</p>
+              <button type="button" className="sr-price-apply" onClick={() => setReloadToken((value) => value + 1)}>
+                Retry
+              </button>
+            </div>
+          )}
 
           <div className="sr-toolbar">
             <span className="sr-filters-label">FILTERS</span>
@@ -1379,23 +1428,28 @@ export default function SearchResults() {
 
             <div className="sr-grid-wrap">
               {loading ? (
-                <p style={{ padding: '24px 0', color: '#767676' }}>Loading products...</p>
+                <div aria-busy="true" aria-live="polite">
+                  <span className="sr-only">Loading products</span>
+                  <ShimmerProductGrid count={8} />
+                </div>
               ) : products.length === 0 ? (
-                <p style={{ padding: '24px 0', color: '#767676' }}>No products found for your search.</p>
+                <div className="sr-empty-state">
+                  <h2>No products found</h2>
+                  <p>Try a different search or browse the full collection.</p>
+                  <Link to={ROUTES.collection} className="sr-price-apply">
+                    Browse Collection
+                  </Link>
+                </div>
               ) : (
-                <>
-                  <div className="sr-product-grid">
-                    {products.map((product) => (
-                      <ProductCard key={product._id} product={product} variant="desktop" />
-                    ))}
-                  </div>
-
-                  <div className="sr-product-grid-mobile">
-                    {products.map((product) => (
-                      <ProductCard key={product._id} product={product} variant="mobile" />
-                    ))}
-                  </div>
-                </>
+                <div className={isMobileCatalog ? 'sr-product-grid-mobile' : 'sr-product-grid'}>
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                    />
+                  ))}
+                </div>
               )}
 
               <nav className="sr-pagination" aria-label="Pagination">

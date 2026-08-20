@@ -17,7 +17,10 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 import { addressApi, orderApi, promoCodeApi } from '../services/api.js';
 import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { getCellQuantity } from '../utils/inventory.js';
+import { loadPublicProductBySlug } from '../services/catalogCache.js';
+import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import './CartPage.css';
 
 function friendlyCartError(message, fallback) {
@@ -89,7 +92,11 @@ function CartSkeleton() {
 }
 
 export default function CartPage() {
-  usePageTitle('Shopping Cart | Zivorah');
+  usePrivatePageSeo({
+    title: 'Shopping Cart',
+    description: 'Review your Zivorah jewelry bag before checkout. This page is not indexed.',
+    path: '/cart',
+  });
 
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -130,11 +137,61 @@ export default function CartPage() {
   const [promoCartSignature, setPromoCartSignature] = useState('');
   const [promoError, setPromoError] = useState('');
   const [promoApplying, setPromoApplying] = useState(false);
+  const [productDetailsBySlug, setProductDetailsBySlug] = useState({});
 
   const items = useMemo(
-    () => (cart?.items || []).map(mapCartItemForUi),
-    [cart]
+    () =>
+      (cart?.items || []).map((item) => {
+        const mapped = mapCartItemForUi(item);
+        const catalogProduct =
+          (mapped.slug && productDetailsBySlug[mapped.slug]) || mapped.product;
+        const inventory = catalogProduct?.inventory;
+        const maxQuantity = Array.isArray(inventory)
+          ? getCellQuantity(inventory, mapped.ringSize || '', mapped.metalColor || '')
+          : undefined;
+
+        return {
+          ...mapped,
+          product: catalogProduct || mapped.product,
+          maxQuantity,
+        };
+      }),
+    [cart, productDetailsBySlug]
   );
+
+  useEffect(() => {
+    const slugs = [...new Set(items.map((item) => item.slug).filter(Boolean))];
+    if (slugs.length === 0) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    Promise.all(
+      slugs.map((slug) =>
+        loadPublicProductBySlug(slug)
+          .then((product) => [slug, product])
+          .catch(() => [slug, null])
+      )
+    ).then((entries) => {
+      if (cancelled) {
+        return;
+      }
+      setProductDetailsBySlug((current) => {
+        const next = { ...current };
+        entries.forEach(([slug, product]) => {
+          if (product) {
+            next[slug] = product;
+          }
+        });
+        return next;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cart]);
 
   const selectedAddress = useMemo(
     () => addresses.find((address) => address.id === selectedAddressId) || null,
@@ -221,6 +278,15 @@ export default function CartPage() {
 
   const handleQuantityChange = async (id, newQty) => {
     if (newQty < 1 || !isAuthenticated || updatingItemId || exitingIds.includes(id)) {
+      return;
+    }
+
+    const line = items.find((item) => item.id === id);
+    if (line && Number.isFinite(line.maxQuantity) && newQty > line.maxQuantity) {
+      return;
+    }
+
+    if (line && newQty === line.quantity) {
       return;
     }
 
@@ -465,13 +531,13 @@ export default function CartPage() {
       <main id="main-content" className="cart-main">
         <div className="cart-container">
           <Reveal className="cart-header" variant="fade-up">
-            <nav className="cart-breadcrumb" aria-label="Breadcrumb">
-              <Link to={ROUTES.home}>Home</Link>
-              <span className="cart-breadcrumb-sep" aria-hidden="true">
-                /
-              </span>
-              <span className="cart-breadcrumb-current">Shopping Cart</span>
-            </nav>
+            <PageBreadcrumbs
+              className="cart-breadcrumb"
+              items={[
+                { name: 'Home', path: '/' },
+                { name: 'Shopping Cart' },
+              ]}
+            />
 
             <div className="cart-header-row">
               <div className="cart-title-row">
@@ -534,102 +600,13 @@ export default function CartPage() {
             </Reveal>
           ) : null}
 
-              {showCartContent && (
-                <div className="checkout-payment-section">
-                  <h3 className="checkout-payment-title">PAYMENT METHOD</h3>
-                  <div className="checkout-payment-options">
-                    <label className={`checkout-payment-option ${paymentMethod === 'cod' ? 'active' : ''}`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="cod"
-                        checked={paymentMethod === 'cod'}
-                        onChange={() => setPaymentMethod('cod')}
-                      />
-                      <div className="payment-option-details">
-                        <span className="payment-option-name">Cash on Delivery (COD)</span>
-                        <span className="payment-option-desc">Pay with cash upon delivery.</span>
-                      </div>
-                    </label>
-
-                    <label className={`checkout-payment-option ${paymentMethod === 'bank_transfer' ? 'active' : ''}`}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="bank_transfer"
-                        checked={paymentMethod === 'bank_transfer'}
-                        onChange={() => setPaymentMethod('bank_transfer')}
-                      />
-                      <div className="payment-option-details">
-                        <span className="payment-option-name">Direct Bank Transfer</span>
-                        <span className="payment-option-desc">Transfer directly to our UBL account.</span>
-                      </div>
-                    </label>
-                  </div>
-
-                  {paymentMethod === 'bank_transfer' && (
-                    <div className="checkout-bank-details-card">
-                      <div className="bank-details-header">
-                        <span className="bank-badge">UBL</span>
-                        <h4>Direct Bank Transfer Details</h4>
-                      </div>
-                      <div className="bank-details-body">
-                        <div className="bank-detail-row">
-                          <span className="label">Bank Name</span>
-                          <span className="value">United Bank Limited (UBL)</span>
-                        </div>
-                        <div className="bank-detail-row">
-                          <span className="label">Account Title</span>
-                          <span className="value">ZIVORAH</span>
-                        </div>
-                        <div className="bank-detail-row">
-                          <span className="label">Account Number</span>
-                          <span className="value flex-row">
-                            <strong>0000385727723</strong>
-                            <button
-                              type="button"
-                              className="copy-btn"
-                              onClick={() => {
-                                navigator.clipboard.writeText('0000385727723');
-                                alert('Account Number copied!');
-                              }}
-                            >
-                              Copy
-                            </button>
-                          </span>
-                        </div>
-                        <div className="bank-detail-row">
-                          <span className="label">IBAN</span>
-                          <span className="value flex-row">
-                            <strong>PK09UNIL0109000385727723</strong>
-                            <button
-                              type="button"
-                              className="copy-btn"
-                              onClick={() => {
-                                navigator.clipboard.writeText('PK09UNIL0109000385727723');
-                                alert('IBAN copied!');
-                              }}
-                            >
-                              Copy
-                            </button>
-                          </span>
-                        </div>
-                      </div>
-                      <div className="bank-details-footer">
-                        <p><strong>Please note:</strong> Transfer the total order amount to this account. After checkout, you will see a button to send the receipt screenshot to our WhatsApp to confirm your order.</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {showCartContent && (
-                <div className="cart-table-header">
-                  <span className="cart-col-product">PRODUCT</span>
-                  <span className="cart-col-count">COUNT</span>
-                  <span className="cart-col-price">PRICE</span>
-                </div>
-              )}
+          {showCartContent ? (
+            <div className="cart-table-header">
+              <span className="cart-col-product">PRODUCT</span>
+              <span className="cart-col-count">COUNT</span>
+              <span className="cart-col-price">PRICE</span>
+            </div>
+          ) : null}
 
           {showCartContent ? (
             <div className="cart-body">

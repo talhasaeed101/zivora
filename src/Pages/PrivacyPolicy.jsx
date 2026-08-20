@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import InfoPageShell from '../components/info/InfoPageShell.jsx';
 import { STORE_CONTACT } from '../constants/storeContact.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ROUTES } from '../utils/navigation';
 import './Legal.css';
 
@@ -16,12 +15,12 @@ const SECTIONS = [
 ];
 
 export default function PrivacyPolicy() {
-  usePageTitle('Privacy Policy | Zivorah');
-
   return (
     <InfoPageShell
       title="Privacy Policy"
       breadcrumbCurrent="Privacy Policy"
+      path="/privacy-policy"
+      description="How Zivorah collects, uses, and protects personal information when you visit our website or purchase jewelry."
       intro="How Zivorah collects, uses, and protects personal information when you visit our website or purchase jewelry."
       cta={
         <Link to={ROUTES.contact} className="info-btn info-btn-primary">

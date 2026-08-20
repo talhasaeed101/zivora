@@ -4,7 +4,7 @@ import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import SafeImage from '../SafeImage.jsx';
 import { productPath, searchPath } from '../../utils/navigation';
-import { publicCatalogApi } from '../../services/api.js';
+import { loadPublicProducts } from '../../services/catalogCache.js';
 import { formatPrice, getProductImage, hasSale } from '../../utils/products.js';
 
 function RecommendedCard({ product }) {
@@ -51,11 +51,10 @@ export default function RecommendedProducts() {
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicProducts({ isFeatured: true, limit: 6 })
+    loadPublicProducts({ isFeatured: true, limit: 8 })
       .then((response) => {
         if (isMounted) {
-          setProducts(response.data?.products || []);
+          setProducts((response.data?.products || []).slice(0, 6));
           setError('');
         }
       })

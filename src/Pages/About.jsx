@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import InfoPageShell from '../components/info/InfoPageShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import SafeImage from '../components/SafeImage.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { aboutFaqJsonLd } from '../utils/structuredData.js';
 import { ROUTES } from '../utils/navigation';
 import './About.css';
 
@@ -10,14 +10,13 @@ const ABOUT_IMAGE = '/images/image 3.png';
 const ABOUT_IMAGE_FALLBACK = '/images/image 1 (3).png';
 
 export default function About() {
-  usePageTitle('About Zivorah | Premium Jewelry');
-
-  
-
   return (
     <InfoPageShell
       title="About Zivorah"
       breadcrumbCurrent="About"
+      path="/about"
+      description="Zivorah is a premium jewelry house dedicated to timeless design, refined craftsmanship, and pieces that feel personal from the first wear."
+      jsonLd={aboutFaqJsonLd()}
       intro="A premium jewelry house dedicated to timeless design, refined craftsmanship, and pieces that feel personal from the first wear."
       variant="wide"
       cta={
@@ -48,6 +47,8 @@ export default function About() {
             fallback={ABOUT_IMAGE_FALLBACK}
             alt="Zivorah jewelry styling"
             className="about-split-image"
+            width={720}
+            height={900}
           />
         </div>
       </Reveal>

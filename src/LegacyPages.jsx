@@ -4,7 +4,6 @@ import SearchResults from './search-results';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';
 import NotFound from './Pages/NotFound.jsx';
-import { usePageTitle } from './hooks/usePageTitle.js';
 
 function resolveLegacyPage(pathname, search) {
   const params = new URLSearchParams(search);
@@ -26,17 +25,6 @@ function resolveLegacyPage(pathname, search) {
 export default function LegacyPages() {
   const location = useLocation();
   const page = resolveLegacyPage(location.pathname, location.search);
-
-  const pageTitle =
-    page === 'home'
-      ? 'Zivorah | Premium Jewelry'
-      : page === 'search'
-        ? 'Search | Zivorah'
-        : page === 'cart'
-          ? 'Shopping Cart | Zivorah'
-          : 'Zivorah';
-
-  usePageTitle(pageTitle);
 
   if (location.pathname !== '/' && location.pathname !== '/product') {
     return <NotFound />;

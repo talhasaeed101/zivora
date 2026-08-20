@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
 import Reveal from '../components/Reveal.jsx';
+import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { ChevronDownIcon, FilterIcon } from '../components/icons';
-import { publicCatalogApi } from '../services/api.js';
+import { loadPublicCategories, loadPublicProducts } from '../services/catalogCache.js';
 import {
   SORT_OPTIONS,
   PRICE_RANGES,
@@ -15,7 +16,8 @@ import {
 } from '../utils/catalogFilters.js';
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import { ROUTES, categoryPath } from '../utils/navigation';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { useSeo } from '../hooks/useSeo.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import './Collection.css';
 
 const PAGE_SIZE = 12;
@@ -37,7 +39,7 @@ function Checkbox({ checked }) {
 }
 
 export default function Collection() {
-  usePageTitle('Zivorah Collection');
+  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const filterButtonRef = useRef(null);
@@ -79,11 +81,10 @@ export default function Collection() {
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicCategories()
-      .then((response) => {
+    loadPublicCategories()
+      .then((items) => {
         if (isMounted) {
-          setCategories(response.data || []);
+          setCategories(items);
         }
       })
       .catch(() => {
@@ -115,8 +116,7 @@ export default function Collection() {
     if (productFlag === 'isTrending') params.isTrending = true;
     if (productFlag === 'isNewArrival') params.isNewArrival = true;
 
-    publicCatalogApi
-      .getPublicProducts(params)
+    loadPublicProducts(params)
       .then((response) => {
         if (isMounted) {
           setProducts(response.data?.products || []);
@@ -319,6 +319,25 @@ export default function Collection() {
   const headerDescription = activeCategory?.description
     || 'Explore refined jewelry designed for everyday elegance and unforgettable celebrations.';
 
+  useSeo({
+    title: activeCategory ? `${activeCategory.name} jewelry` : 'Jewelry Collection',
+    description: headerDescription,
+    path: '/collection',
+    robots: hasActiveFilters ? 'noindex, follow' : 'index, follow',
+    prefetch: ['/about', '/contact'],
+  });
+
+  const collectionCrumbs = activeCategory
+    ? [
+        { name: 'Home', path: '/' },
+        { name: 'Jewelry', path: '/collection' },
+        { name: activeCategory.name, path: categoryPath(activeCategory.slug) },
+      ]
+    : [
+        { name: 'Home', path: '/' },
+        { name: 'Jewelry', path: '/collection' },
+      ];
+
   const filterSidebar = (
     <>
       <div className="catalog-filter-section">
@@ -409,21 +428,7 @@ export default function Collection() {
 
       <main id="main-content" className="catalog-main">
         <Reveal className="catalog-header" variant="fade-up">
-          <p className="catalog-breadcrumbs">
-            <a href={ROUTES.home}>Home</a>
-            <span className="catalog-breadcrumb-sep" aria-hidden="true">
-              /
-            </span>
-            <span>Collection</span>
-            {activeCategory && (
-              <>
-                <span className="catalog-breadcrumb-sep" aria-hidden="true">
-                  /
-                </span>
-                <a href={categoryPath(activeCategory.slug)}>{activeCategory.name}</a>
-              </>
-            )}
-          </p>
+          <PageBreadcrumbs items={collectionCrumbs} className="catalog-breadcrumbs" />
 
           <h1 className="catalog-page-title">
             {activeCategory ? activeCategory.name : 'Our Collection'}
@@ -609,14 +614,14 @@ export default function Collection() {
                       Clear Filters
                     </button>
                   )}
-                  <a href={ROUTES.collection} className="catalog-state-link">
+                  <Link to={ROUTES.collection} className="catalog-state-link">
                     Browse All Jewelry
-                  </a>
+                  </Link>
                 </div>
               </div>
             ) : (
               <div key={`${sort}-${categoryFilter}-${priceRangeId}-${productFlag}-${searchQuery}-${page}`} className="catalog-results-fade">
-                <div className="catalog-product-grid">
+                <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
                   {products.map((product, index) => (
                     <Reveal
                       key={product._id}
@@ -624,19 +629,10 @@ export default function Collection() {
                       delay={Math.min(index, 7) * 40}
                       className="catalog-card-reveal"
                     >
-                      <CatalogProductCard product={product} variant="desktop" />
-                    </Reveal>
-                  ))}
-                </div>
-                <div className="catalog-product-grid-mobile">
-                  {products.map((product, index) => (
-                    <Reveal
-                      key={`${product._id}-m`}
-                      variant="fade-up"
-                      delay={Math.min(index, 7) * 40}
-                      className="catalog-card-reveal"
-                    >
-                      <CatalogProductCard product={product} variant="mobile" />
+                      <CatalogProductCard
+                        product={product}
+                        variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                      />
                     </Reveal>
                   ))}
                 </div>

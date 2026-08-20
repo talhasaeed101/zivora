@@ -4,13 +4,13 @@ import AuthShell from '../components/auth/AuthShell.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { getSafeReturnPath, friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function Login() {
-  usePageTitle('Sign In | Zivorah');
+  usePrivatePageSeo({ title: 'Sign In', path: '/login' });
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, loading: authLoading } = useAuth();

@@ -14,6 +14,21 @@ export const setStoredToken = (token) => {
   }
 };
 
+let onUnauthorized = null;
+
+export const setOnUnauthorized = (handler) => {
+  onUnauthorized = typeof handler === 'function' ? handler : null;
+};
+
+const clearSessionOnUnauthorized = (hadToken) => {
+  if (!hadToken) {
+    return;
+  }
+
+  setStoredToken(null);
+  onUnauthorized?.();
+};
+
 const buildQueryString = (params = {}) => {
   const searchParams = new URLSearchParams();
 
@@ -29,6 +44,7 @@ const buildQueryString = (params = {}) => {
 
 async function request(endpoint, options = {}) {
   const token = getStoredToken();
+  const hadToken = Boolean(token);
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -46,6 +62,10 @@ async function request(endpoint, options = {}) {
       headers,
     });
   } catch (networkError) {
+    if (networkError?.name === 'AbortError') {
+      throw networkError;
+    }
+
     const hint =
       networkError?.message?.includes('Failed to fetch')
         ? 'Unable to reach the server.'
@@ -59,7 +79,7 @@ async function request(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}));
 
   if (response.status === 401) {
-    setStoredToken(null);
+    clearSessionOnUnauthorized(hadToken);
   }
 
   if (!response.ok) {
@@ -102,12 +122,6 @@ export const customerAuthApi = {
       body: JSON.stringify({ token }),
     }),
 
-  facebookLogin: (accessToken) =>
-    request('/auth/facebook', {
-      method: 'POST',
-      body: JSON.stringify({ accessToken }),
-    }),
-
   getProfile: () => request('/auth/profile'),
 
   forgotPassword: (email) =>
@@ -135,11 +149,13 @@ export const customerAuthApi = {
 };
 
 export const publicCatalogApi = {
-  getPublicCategories: () => request('/public/categories'),
+  getPublicCategories: (options = {}) => request('/public/categories', options),
 
-  getPublicProducts: (params = {}) => request(`/public/products${buildQueryString(params)}`),
+  getPublicProducts: (params = {}, options = {}) =>
+    request(`/public/products${buildQueryString(params)}`, options),
 
-  getPublicProductBySlug: (slug) => request(`/public/products/${encodeURIComponent(slug)}`),
+  getPublicProductBySlug: (slug, options = {}) =>
+    request(`/public/products/${encodeURIComponent(slug)}`, options),
 };
 
 export const cartApi = {
@@ -252,6 +268,7 @@ export const wishlistApi = {
 export const uploadApi = {
   uploadCustomizationImage: async (file) => {
     const token = getStoredToken();
+    const hadToken = Boolean(token);
     const formData = new FormData();
     formData.append('image', file);
 
@@ -262,6 +279,10 @@ export const uploadApi = {
     });
 
     const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      clearSessionOnUnauthorized(hadToken);
+    }
 
     if (!response.ok) {
       throw new Error(data.message || 'Unable to upload image');

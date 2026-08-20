@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './FeaturedCategory.css';
 import SafeImage from './SafeImage.jsx';
 import { categoryPath } from '../utils/navigation';
-import { publicCatalogApi } from '../services/api.js';
+import { loadPublicCategories } from '../services/catalogCache.js';
 import { SectionMessage } from './ProductSectionStates.jsx';
 import Reveal from './Reveal.jsx';
 
@@ -25,11 +26,9 @@ export default function FeaturedCategory() {
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicCategories()
-      .then((response) => {
+    loadPublicCategories()
+      .then((items) => {
         if (isMounted) {
-          const items = response.data || [];
           setCategories(items.length > 0 ? items : FALLBACK_CATEGORIES);
           setError('');
         }
@@ -84,7 +83,7 @@ export default function FeaturedCategory() {
                   onMouseEnter={() => setHoveredCategory(category)}
                   onMouseLeave={() => setHoveredCategory(null)}
                 >
-                  <a href={categoryPath(category.slug)} className="featured-category-link">
+                  <Link to={categoryPath(category.slug)} prefetch="intent" className="featured-category-link">
                     <span className="featured-category-name">{category.name}</span>
                     <svg
                       width="20"
@@ -102,7 +101,7 @@ export default function FeaturedCategory() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                  </a>
+                  </Link>
                 </li>
               ))
             )}
@@ -118,8 +117,8 @@ export default function FeaturedCategory() {
               />
             </div>
 
-            <a
-              href={categoryPath(displaySlug)}
+            <Link
+              to={categoryPath(displaySlug)}
               className="featured-circular-badge-container"
               aria-label="Shop the collection"
             >
@@ -153,7 +152,7 @@ export default function FeaturedCategory() {
                   />
                 </svg>
               </div>
-            </a>
+            </Link>
           </Reveal>
         </div>
       </div>

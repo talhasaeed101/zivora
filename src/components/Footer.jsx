@@ -106,7 +106,7 @@ export default function Footer() {
             <ul className="footer-col-list">
               {SHOP_LINKS.map((item) => (
                 <li key={item.to}>
-                  <Link to={item.to} className="footer-col-link">
+                  <Link to={item.to} prefetch="intent" className="footer-col-link">
                     {item.label}
                   </Link>
                 </li>
@@ -132,7 +132,7 @@ export default function Footer() {
             <ul className="footer-col-list">
               {INFO_LINKS.map((item) => (
                 <li key={item.to}>
-                  <Link to={item.to} className="footer-col-link">
+                  <Link to={item.to} prefetch="intent" className="footer-col-link">
                     {item.label}
                   </Link>
                 </li>
@@ -186,10 +186,10 @@ export default function Footer() {
             © {year} Zivorah. All rights reserved.
           </p>
           <div className="footer-legal-links">
-            <Link to={ROUTES.privacyPolicy} className="footer-legal-link">
+            <Link to={ROUTES.privacyPolicy} prefetch="intent" className="footer-legal-link">
               Privacy Policy
             </Link>
-            <Link to={ROUTES.termsOfUse} className="footer-legal-link">
+            <Link to={ROUTES.termsOfUse} prefetch="intent" className="footer-legal-link">
               Terms of Use
             </Link>
           </div>

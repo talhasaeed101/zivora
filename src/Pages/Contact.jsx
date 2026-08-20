@@ -4,14 +4,12 @@ import InfoPageShell from '../components/info/InfoPageShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { STORE_CONTACT } from '../constants/storeContact.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
 import { publicEngagementApi } from '../services/api.js';
+import { contactFaqJsonLd } from '../utils/structuredData.js';
 import { ROUTES } from '../utils/navigation';
 import './Contact.css';
 
 export default function Contact() {
-  usePageTitle('Contact Zivorah | Customer Care');
-
   const { isAuthenticated } = useAuth();
   const formId = useId();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -92,6 +90,9 @@ export default function Contact() {
     <InfoPageShell
       title="Contact Us"
       breadcrumbCurrent="Contact"
+      path="/contact"
+      description="Contact Zivorah customer care by form, email, phone, or WhatsApp for order and product questions."
+      jsonLd={contactFaqJsonLd()}
       intro="Questions about an order, a piece from our collection, or something else? Reach out and we will help."
       variant="wide"
       cta={

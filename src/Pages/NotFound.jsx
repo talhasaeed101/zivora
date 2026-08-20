@@ -1,13 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { useSeo } from '../hooks/useSeo.js';
 import { ROUTES } from '../utils/navigation';
 import './NotFound.css';
 
 export default function NotFound() {
-  usePageTitle('Page Not Found | Zivorah');
+  const location = useLocation();
+  useSeo({
+    title: 'Page Not Found',
+    description: 'This Zivorah page does not exist. Continue shopping from the jewelry collection.',
+    path: location.pathname,
+    robots: 'noindex, follow',
+  });
 
   return (
     <div className="not-found-page">

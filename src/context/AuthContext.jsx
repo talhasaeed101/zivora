@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { customerAuthApi, getStoredToken, setStoredToken } from '../services/api.js';
+import { customerAuthApi, getStoredToken, setOnUnauthorized, setStoredToken } from '../services/api.js';
 
 const CUSTOMER_KEY = 'zivora_customer_data';
 
@@ -55,13 +55,6 @@ export function AuthProvider({ children }) {
     return customerData;
   }, [persistSession]);
 
-  const facebookLogin = useCallback(async (accessToken) => {
-    const response = await customerAuthApi.facebookLogin(accessToken);
-    const { customer: customerData, token: authToken } = response.data;
-    persistSession(customerData, authToken);
-    return customerData;
-  }, [persistSession]);
-
   const register = useCallback(async (payload) => {
     const response = await customerAuthApi.register(payload);
     const { customer: customerData } = response.data;
@@ -96,6 +89,11 @@ export function AuthProvider({ children }) {
     initAuth();
   }, [logout]);
 
+  useEffect(() => {
+    setOnUnauthorized(logout);
+    return () => setOnUnauthorized(null);
+  }, [logout]);
+
   const value = useMemo(
     () => ({
       customer,
@@ -104,11 +102,10 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(token),
       login,
       googleLogin,
-      facebookLogin,
       register,
       logout,
     }),
-    [customer, token, loading, login, googleLogin, facebookLogin, register, logout]
+    [customer, token, loading, login, googleLogin, register, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

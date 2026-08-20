@@ -79,6 +79,10 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
             alt={`${title} — image ${currentIndex + 1} of ${displayImages.length}`}
             className="pd-gallery-main-image"
             eager
+            fetchPriority="high"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            width={720}
+            height={900}
           />
         </button>
 
@@ -125,7 +129,7 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
               onClick={() => goTo(index)}
               aria-label={`Show image ${index + 1}`}
             >
-              <SafeImage src={src} alt="" className="pd-gallery-thumb-image" />
+              <SafeImage src={src} alt="" className="pd-gallery-thumb-image" width={96} height={120} />
             </button>
           ))}
         </div>
@@ -167,6 +171,8 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
               alt={`${title} — image ${currentIndex + 1}`}
               className="pd-gallery-lightbox-image"
               eager
+              width={1200}
+              height={1500}
             />
           </div>
           {hasMultiple && (

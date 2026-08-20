@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { useSocket } from '../context/SocketContext.jsx';
 import { ROUTES } from '../utils/navigation';
 import { ShimmerTableRows } from '../components/Shimmer.jsx';
@@ -23,7 +23,7 @@ function formatNotificationDate(value) {
 }
 
 export default function Notifications() {
-  usePageTitle('My Notifications | Zivorah');
+  usePrivatePageSeo({ title: 'My Notifications', path: '/notifications' });
 
   const { notifications, unreadCount, refreshNotifications, markRead, markAllRead } = useSocket();
   const [loading, setLoading] = useState(true);

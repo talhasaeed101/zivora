@@ -4,7 +4,7 @@ import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import SafeImage from '../components/SafeImage.jsx';
 import StatusBadge from '../components/orders/StatusBadge.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { PLACEHOLDER_IMAGE, formatPrice } from '../utils/products.js';
@@ -124,7 +124,7 @@ function OrderCard({ order, index }) {
 }
 
 export default function Orders() {
-  usePageTitle('My Orders | Zivorah');
+  usePrivatePageSeo({ title: 'My Orders', path: '/orders' });
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);

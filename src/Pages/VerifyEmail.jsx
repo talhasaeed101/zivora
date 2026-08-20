@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import AuthShell from '../components/auth/AuthShell.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { ROUTES } from '../utils/navigation';
 import { customerAuthApi } from '../services/api';
 import { friendlyAuthError } from '../utils/authUi.js';
@@ -12,7 +12,10 @@ export default function VerifyEmail() {
   const location = useLocation();
   const email = location.state?.email || '';
 
-  usePageTitle(token ? 'Verifying Email | Zivorah' : 'Check Your Email | Zivorah');
+  usePrivatePageSeo({
+    title: token ? 'Verifying Email' : 'Check Your Email',
+    path: '/verify-email',
+  });
 
   const [status, setStatus] = useState(token ? 'verifying' : 'pending');
   const [message, setMessage] = useState('');

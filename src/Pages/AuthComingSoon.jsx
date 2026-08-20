@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function AuthComingSoon({ title, message }) {
-  usePageTitle(`${title} | Zivorah`);
+  usePrivatePageSeo({ title, path: '/login' });
 
   return (
     <>

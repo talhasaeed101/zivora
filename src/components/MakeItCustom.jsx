@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './MakeItCustom.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
@@ -47,8 +48,9 @@ export default function MakeItCustom() {
           {CUSTOM_CARDS.map((card, index) => (
             <Reveal
               key={card.label}
-              as="a"
-              href={ROUTES.collection}
+              as={Link}
+              to={ROUTES.collection}
+              prefetch="intent"
               className="custom-overlay-card"
               variant="fade-up"
               delay={index * 90}
@@ -71,11 +73,13 @@ export default function MakeItCustom() {
 
         <Reveal className="custom-image-grid" variant="fade-up" delay={80}>
           <div className="custom-left-image-block">
-            <a href={ROUTES.collection} className="custom-image-link">
+            <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link">
               <SafeImage
                 src="/images/necklace image 1.png"
                 alt="Minimal necklace close-up"
                 className="custom-grid-image"
+                width={720}
+                height={900}
               />
               <div className="custom-overlay">
                 <div className="custom-overlay-label-row">
@@ -85,26 +89,30 @@ export default function MakeItCustom() {
                 <h3 className="custom-overlay-title">Minimal Necklace</h3>
                 <span className="custom-shop-btn">Shop Collection</span>
               </div>
-            </a>
+            </Link>
           </div>
 
           <div className="custom-right-column">
             <div className="custom-right-top-block">
-              <a href={ROUTES.collection} className="custom-image-link">
+              <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link" aria-label="Shop rings collection">
                 <SafeImage
                   src="/images/aaa.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
+                  width={640}
+                  height={480}
                 />
-              </a>
+              </Link>
             </div>
 
             <div className="custom-right-bottom-block">
-              <a href={ROUTES.collection} className="custom-image-link">
+              <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link">
                 <SafeImage
                   src="/images/Rectangle 3298.png"
                   alt="Minimal earrings close-up"
                   className="custom-grid-image"
+                  width={640}
+                  height={480}
                 />
                 <div className="custom-overlay">
                   <div className="custom-overlay-label-row">
@@ -113,7 +121,7 @@ export default function MakeItCustom() {
                   </div>
                   <h3 className="custom-overlay-title">Minimal Earrings</h3>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
         </Reveal>

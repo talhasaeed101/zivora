@@ -2,10 +2,14 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://zivorabackend.vercel.app/api/v1/public/sitemap.xml"
+      "destination": "/sitemap.xml"
     },
     {
-      "source": "/(.*)",
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/((?!sitemap\\.xml$|robots\\.txt$).*)",
       "destination": "/index.html"
     }
   ],

@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { publicCatalogApi } from '../services/api.js';
+import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
+import { useSeo } from '../hooks/useSeo.js';
+import { useMediaQuery } from '../hooks/useMediaQuery.js';
+import { loadPublicCategories, loadPublicProducts } from '../services/catalogCache.js';
 import { ROUTES, categoryPath } from '../utils/navigation';
-import { usePageTitle } from '../hooks/usePageTitle.js';
 import { ShimmerCategoryHero, ShimmerProductGrid } from '../components/Shimmer.jsx';
 import SafeImage from '../components/SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../utils/products.js';
@@ -17,6 +19,7 @@ const PAGE_SIZE = 12;
 
 export default function CategoryPage() {
   const { slug } = useParams();
+  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -36,11 +39,9 @@ export default function CategoryPage() {
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicCategories()
-      .then((response) => {
+    loadPublicCategories()
+      .then((list) => {
         if (isMounted) {
-          const list = response.data || [];
           setCategories(list);
           const match = list.find((item) => item.slug === slug);
           setCategory(match || null);
@@ -74,8 +75,7 @@ export default function CategoryPage() {
     let isMounted = true;
     setLoading(true);
 
-    publicCatalogApi
-      .getPublicProducts({
+    loadPublicProducts({
         category: category._id,
         page,
         limit: PAGE_SIZE,
@@ -110,7 +110,24 @@ export default function CategoryPage() {
   const productCount = pagination?.total ?? products.length;
   const otherCategories = categories.filter((item) => item.slug !== slug);
 
-  usePageTitle(category?.name ? `${category.name} | Zivorah` : 'Category | Zivorah');
+  useSeo({
+    title: category?.name ? `${category.name} jewelry` : 'Category',
+    description:
+      category?.description ||
+      (category?.name
+        ? `Shop ${category.name} from Zivorah — premium jewelry crafted for everyday elegance.`
+        : 'Browse Zivorah jewelry categories.'),
+    path: slug ? `/category/${slug}` : '/collection',
+    robots: category ? 'index, follow' : 'noindex, follow',
+    image: category?.image,
+    prefetch: ['/collection'],
+  });
+
+  const categoryCrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Jewelry', path: '/collection' },
+    { name: category?.name || slug || 'Category' },
+  ];
 
   const handlePageChange = (nextPage) => {
     setPage(nextPage);
@@ -123,17 +140,7 @@ export default function CategoryPage() {
 
       <main id="main-content" className="catalog-main">
         <Reveal className="catalog-header" variant="fade-up">
-          <p className="catalog-breadcrumbs">
-            <a href={ROUTES.home}>Home</a>
-            <span className="catalog-breadcrumb-sep" aria-hidden="true">
-              /
-            </span>
-            <a href="/collection">Collection</a>
-            <span className="catalog-breadcrumb-sep" aria-hidden="true">
-              /
-            </span>
-            <span>{category?.name || slug}</span>
-          </p>
+          <PageBreadcrumbs items={categoryCrumbs} className="catalog-breadcrumbs" />
         </Reveal>
 
         {loading && !category && <ShimmerCategoryHero />}
@@ -141,7 +148,13 @@ export default function CategoryPage() {
         {category && (
           <Reveal className="category-hero" variant="fade-up">
             <div className="category-hero-image-wrap">
-              <SafeImage src={categoryImage} alt={category.name} className="category-hero-image" />
+              <SafeImage
+                src={categoryImage}
+                alt={category.name}
+                className="category-hero-image"
+                width={1200}
+                height={480}
+              />
             </div>
             <div className="category-hero-copy">
               <h1 className="category-hero-title">{category.name}</h1>
@@ -163,9 +176,9 @@ export default function CategoryPage() {
             <p className="catalog-state-copy">
               This category may have moved. Browse the full collection instead.
             </p>
-            <a href={ROUTES.collection} className="catalog-state-link">
+            <Link to={ROUTES.collection} className="catalog-state-link">
               Browse All Jewelry
-            </a>
+            </Link>
           </div>
         )}
 
@@ -175,9 +188,9 @@ export default function CategoryPage() {
             <ul className="category-other-list">
               {otherCategories.map((item) => (
                 <li key={item._id || item.slug}>
-                  <a href={categoryPath(item.slug)} className="category-other-link">
+                  <Link to={categoryPath(item.slug)} prefetch="intent" className="category-other-link">
                     {item.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -212,15 +225,15 @@ export default function CategoryPage() {
               <p className="catalog-state-copy">
                 Explore other collections while we prepare new pieces.
               </p>
-              <a href={ROUTES.collection} className="catalog-state-link">
+              <Link to={ROUTES.collection} className="catalog-state-link">
                 Browse All Jewelry
-              </a>
+              </Link>
             </div>
           ) : null}
 
           {category && !loading && !error && products.length > 0 ? (
             <div key={`${slug}-${page}`} className="catalog-results-fade">
-              <div className="catalog-product-grid">
+              <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
                 {products.map((product, index) => (
                   <Reveal
                     key={product._id}
@@ -228,19 +241,10 @@ export default function CategoryPage() {
                     delay={Math.min(index, 7) * 40}
                     className="catalog-card-reveal"
                   >
-                    <CatalogProductCard product={product} variant="desktop" />
-                  </Reveal>
-                ))}
-              </div>
-              <div className="catalog-product-grid-mobile">
-                {products.map((product, index) => (
-                  <Reveal
-                    key={`${product._id}-m`}
-                    variant="fade-up"
-                    delay={Math.min(index, 7) * 40}
-                    className="catalog-card-reveal"
-                  >
-                    <CatalogProductCard product={product} variant="mobile" />
+                    <CatalogProductCard
+                      product={product}
+                      variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                    />
                   </Reveal>
                 ))}
               </div>

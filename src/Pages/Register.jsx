@@ -4,13 +4,13 @@ import AuthShell from '../components/auth/AuthShell.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 
 export default function Register() {
-  usePageTitle('Create Account | Zivorah');
+  usePrivatePageSeo({ title: 'Create Account', path: '/register' });
   const navigate = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
   const nameId = useId();

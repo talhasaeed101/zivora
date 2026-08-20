@@ -6,7 +6,7 @@ import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
 import StatusBadge from '../components/orders/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { addressApi, orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
@@ -58,7 +58,7 @@ function ProfileSkeleton() {
 }
 
 export default function Profile() {
-  usePageTitle('My Account | Zivorah');
+  usePrivatePageSeo({ title: 'My Account', path: '/profile' });
 
   const { customer, loading: authLoading } = useAuth();
   const { totalItems: wishlistCount } = useWishlist();

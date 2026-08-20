@@ -44,6 +44,10 @@ export default function CartItem({
     item.material && item.material !== item.metalColor ? item.material : null;
   const showSale = Boolean(item.oldPrice && item.oldPrice > item.unitPrice);
   const title = item.title || 'Product';
+  const maxQuantity = Number(item.maxQuantity);
+  const hasMax = Number.isFinite(maxQuantity);
+  const atMax = hasMax && item.quantity >= maxQuantity;
+  const remaining = hasMax ? Math.max(0, maxQuantity - item.quantity) : null;
 
   return (
     <article
@@ -56,6 +60,9 @@ export default function CartItem({
             src={imageSrc}
             alt={title}
             className="cart-item-image"
+            width={160}
+            height={200}
+            sizes="120px"
           />
         </Link>
 
@@ -132,11 +139,18 @@ export default function CartItem({
             className="cart-item-qty-btn"
             onClick={() => onQuantityChange(item.id, item.quantity + 1)}
             aria-label={`Increase quantity of ${title}`}
-            disabled={updating || removing}
+            disabled={updating || removing || atMax}
           >
             +
           </button>
         </div>
+        {atMax ? (
+          <p className="cart-item-stock-hint">Maximum available quantity reached.</p>
+        ) : remaining !== null && remaining <= 5 ? (
+          <p className="cart-item-stock-hint">
+            {remaining === 1 ? 'Only 1 left' : `Only ${remaining} left`}
+          </p>
+        ) : null}
 
         <div className="cart-item-price-col">
           <span className="cart-item-price-label">Line total</span>

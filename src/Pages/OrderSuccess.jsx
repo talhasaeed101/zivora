@@ -6,7 +6,7 @@ import Reveal from '../components/Reveal.jsx';
 import { orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
-import { usePageTitle } from '../hooks/usePageTitle.js';
+import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { ORDER_STATUS_LABELS } from '../constants/orderConstants.js';
 import {
   BANK_TRANSFER_DETAILS,
@@ -38,7 +38,7 @@ function CopyButton({ value, label }) {
 }
 
 export default function OrderSuccess() {
-  usePageTitle('Order Confirmed | Zivorah');
+  usePrivatePageSeo({ title: 'Order Confirmed', path: '/order-success' });
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);

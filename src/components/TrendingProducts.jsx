@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRightIcon } from './icons';
 import WishlistButton from './WishlistButton.jsx';
 import SafeImage from './SafeImage.jsx';
-import { searchPath } from '../utils/navigation';
-import { publicCatalogApi } from '../services/api.js';
+import { searchPath, productPath } from '../utils/navigation';
+import { loadPublicProducts } from '../services/catalogCache.js';
 import { formatPrice, getProductImage, hasSale, getCategoryName } from '../utils/products.js';
+import { isCatalogOutOfStock } from '../utils/inventory.js';
 import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';
 import Reveal from './Reveal.jsx';
 import './TrendingProducts.css';
@@ -17,8 +19,7 @@ export default function TrendingProducts() {
   useEffect(() => {
     let isMounted = true;
 
-    publicCatalogApi
-      .getPublicProducts({ isTrending: true, limit: 8 })
+    loadPublicProducts({ isTrending: true, limit: 8 })
       .then((response) => {
         if (isMounted) {
           setProducts(response.data?.products || []);
@@ -47,9 +48,9 @@ export default function TrendingProducts() {
       <div className="trending-inner">
         <Reveal className="trending-header-row" variant="fade-up">
           <h2 className="trending-heading">Trending</h2>
-          <a href={searchPath()} className="trending-view-all-link">
+          <Link to={searchPath()} prefetch="intent" className="trending-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
-          </a>
+          </Link>
         </Reveal>
 
         {loading ? (
@@ -69,12 +70,13 @@ export default function TrendingProducts() {
               const image = getProductImage(product);
               const showSale = hasSale(product);
               const categoryName = getCategoryName(product.category);
+              const outOfStock = isCatalogOutOfStock(product);
 
               return (
                 <Reveal
                   key={product._id}
-                  as="a"
-                  href={`/product/${product.slug}`}
+                  as={Link}
+                  to={productPath(product.slug)}
                   className="trending-product-card-link"
                   variant="fade-up"
                   delay={Math.min(index, 7) * 70}
@@ -85,9 +87,13 @@ export default function TrendingProducts() {
                         src={image}
                         alt={product.title}
                         className="trending-product-image"
+                        sizes="180px"
+                        width={320}
+                        height={400}
                       />
                     </div>
                     {showSale && <span className="trending-sale-badge">Sale!</span>}
+                    {outOfStock ? <span className="trending-sale-badge">Out of stock</span> : null}
                     <div className="trending-product-info-row">
                       <h3 className="trending-product-name">{product.title}</h3>
                       <WishlistButton

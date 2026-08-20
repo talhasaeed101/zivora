@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useSocket } from '../context/SocketContext.jsx';
-import { publicCatalogApi } from '../services/api.js';
+import { loadPublicCategories } from '../services/catalogCache.js';
 import AnnouncementBar from './AnnouncementBar.jsx';
 import HeaderSearch from './header/HeaderSearch.jsx';
 import AccountMenu from './header/AccountMenu.jsx';
@@ -83,11 +83,10 @@ export default function Navbar({ homeHref = ROUTES.home }) {
 
   useEffect(() => {
     let mounted = true;
-    publicCatalogApi
-      .getPublicCategories()
-      .then((response) => {
+    loadPublicCategories()
+      .then((items) => {
         if (mounted) {
-          setCategories(response.data || []);
+          setCategories(items);
         }
       })
       .catch(() => {
@@ -186,6 +185,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  prefetch="intent"
                   end={Boolean(item.end)}
                   className={({ isActive }) =>
                     `navbar-link${isActive ? ' is-active' : ''}`
@@ -216,6 +216,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                       <Link
                         role="menuitem"
                         to={ROUTES.collection}
+                        prefetch="intent"
                         className="navbar-shop-item"
                         onClick={() => setShopOpen(false)}
                       >
@@ -225,6 +226,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                         <Link
                           key={category._id || category.slug}
                           role="menuitem"
+                          prefetch="intent"
                           to={categoryPath(category.slug)}
                           className="navbar-shop-item"
                           onClick={() => setShopOpen(false)}
