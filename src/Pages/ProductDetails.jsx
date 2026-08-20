@@ -10,16 +10,25 @@ import Reveal from '../components/Reveal.jsx';
 import JsonLd from '../components/seo/JsonLd.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { ArrowRightIcon } from '../components/icons';
+<<<<<<< HEAD
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { loadPublicProductBySlug, loadPublicProducts } from '../services/catalogCache.js';
+=======
+import { ROUTES, categoryPath, searchPath, productPath } from '../utils/navigation';
+import { publicCatalogApi } from '../services/api.js';
+>>>>>>> origin/main
 import {
   LEGACY_STATIC_PRODUCT,
   getCategoryName,
   PLACEHOLDER_IMAGE,
 } from '../utils/products.js';
+<<<<<<< HEAD
 import { useSeo } from '../hooks/useSeo.js';
 import { productJsonLd } from '../utils/structuredData.js';
 import { truncateText } from '../utils/seo.js';
+=======
+import { useSEO } from '../hooks/useSEO.js';
+>>>>>>> origin/main
 import { trackProductView } from '../utils/analytics.js';
 import './Collection.css';
 import './ProductDetails.css';
@@ -182,6 +191,7 @@ export default function ProductDetails() {
   const ratingCount = Number(reviewSummary?.reviewCount ?? activeProduct?.reviewCount) || 0;
   const ratingValue = Number(reviewSummary?.averageRating ?? activeProduct?.averageRating) || 0;
 
+<<<<<<< HEAD
   useSeo({
     title: activeProduct?.title || (loading ? 'Product' : 'Product'),
     description: truncateText(
@@ -207,6 +217,70 @@ export default function ProductDetails() {
       : []),
     ...(activeProduct?.title ? [{ name: activeProduct.title }] : []),
   ];
+=======
+  const productUrl = `https://zivorah.store${productPath(activeProduct?.slug)}`;
+  
+  useSEO({
+    title: `${activeProduct?.title || 'Product'} | Zivorah Pakistan`,
+    description: activeProduct?.description || `Buy ${activeProduct?.title} at Zivorah Pakistan. Premium quality jewelry.`,
+    url: productUrl,
+    image: activeProduct?.images?.[0] || 'https://zivorah.store/favicon.ico',
+    type: 'product',
+    schema: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Product',
+          name: activeProduct?.title,
+          image: activeProduct?.images || [],
+          description: activeProduct?.description,
+          sku: activeProduct?.sku || activeProduct?._id,
+          brand: {
+            '@type': 'Brand',
+            name: 'Zivorah',
+          },
+          offers: {
+            '@type': 'Offer',
+            url: productUrl,
+            priceCurrency: 'PKR',
+            price: activeProduct?.price,
+            availability: (activeProduct?.stock > 0 || activeProduct?.stock === undefined) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition'
+          }
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://zivorah.store/'
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Collection',
+              item: 'https://zivorah.store/collection'
+            },
+            ...(categoryName ? [{
+              '@type': 'ListItem',
+              position: 3,
+              name: categoryName,
+              item: `https://zivorah.store${categorySlug ? categoryPath(categorySlug) : searchPath({ q: categoryName })}`
+            }] : []),
+            {
+              '@type': 'ListItem',
+              position: categoryName ? 4 : 3,
+              name: activeProduct?.title,
+              item: productUrl
+            }
+          ]
+        }
+      ]
+    }
+  });
+>>>>>>> origin/main
 
   const galleryImages = activeProduct?.images?.length
     ? activeProduct.images

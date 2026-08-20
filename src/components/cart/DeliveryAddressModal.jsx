@@ -39,7 +39,6 @@ export default function DeliveryAddressModal({
   onClose,
   onSave,
   saving = false,
-  error = '',
 }) {
   const [form, setForm] = useState(EMPTY_ADDRESS_FORM);
   const firstFieldRef = useRef(null);
@@ -142,12 +141,6 @@ export default function DeliveryAddressModal({
             <CloseIcon />
           </button>
         </div>
-
-        {error ? (
-          <p className="cart-modal-error" role="alert">
-            {error}
-          </p>
-        ) : null}
 
         <form className="cart-address-form" onSubmit={handleSubmit} noValidate={false}>
           <div className="cart-form-group">

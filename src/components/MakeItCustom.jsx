@@ -1,29 +1,36 @@
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
 import './MakeItCustom.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 import Reveal from './Reveal.jsx';
+=======
+import "./MakeItCustom.css";
+import { ROUTES } from "../utils/navigation";
+import SafeImage from "./SafeImage.jsx";
+import Reveal from "./Reveal.jsx";
+>>>>>>> origin/main
 
 const CUSTOM_CARDS = [
   {
-    label: 'NECKLACES',
-    title: 'Minimal Necklace',
-    image: '/images/necklace image 1.png',
-    alt: 'Minimal necklace close-up',
+    label: "NECKLACES",
+    title: "Minimal Necklace",
+    image: "/images/Minimal Necklace.png",
+    alt: "Minimal necklace close-up",
     showButton: true,
   },
   {
-    label: 'RINGS',
-    title: 'Minimal Rings',
-    image: '/images/aaa.png',
-    alt: 'Minimal rings on hand',
+    label: "RINGS",
+    title: "Minimal Rings",
+    image: "/images/mmrings.png",
+    alt: "Minimal rings on hand",
     showButton: false,
   },
   {
-    label: 'EARRINGS',
-    title: 'Minimal Earrings',
-    image: '/images/Rectangle 3298.png',
-    alt: 'Minimal earrings close-up',
+    label: "EARRINGS",
+    title: "Minimal Earrings",
+    image: "/images/mmearning.png",
+    alt: "Minimal earrings close-up",
     showButton: false,
   },
 ];
@@ -40,7 +47,8 @@ export default function MakeItCustom() {
           </div>
           <h2 className="custom-heading">Upgrade the Way You Relax</h2>
           <p className="custom-subtext">
-            Experience premium comfort designed to help you relax, recharge, and feel your best every day.
+            Experience premium comfort designed to help you relax, recharge, and
+            feel your best every day.
           </p>
         </Reveal>
 
@@ -55,7 +63,11 @@ export default function MakeItCustom() {
               variant="fade-up"
               delay={index * 90}
             >
-              <SafeImage src={card.image} alt={card.alt} className="custom-overlay-image" />
+              <SafeImage
+                src={card.image}
+                alt={card.alt}
+                className="custom-overlay-image"
+              />
               <div className="custom-overlay custom-overlay-mobile">
                 <div className="custom-overlay-label-row">
                   <span className="custom-overlay-line" />
@@ -65,7 +77,9 @@ export default function MakeItCustom() {
                   )}
                 </div>
                 <h3 className="custom-overlay-title">{card.title}</h3>
-                {card.showButton && <span className="custom-shop-btn">Shop Collection</span>}
+                {card.showButton && (
+                  <span className="custom-shop-btn">Shop Collection</span>
+                )}
               </div>
             </Reveal>
           ))}
@@ -75,17 +89,19 @@ export default function MakeItCustom() {
           <div className="custom-left-image-block">
             <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link">
               <SafeImage
-                src="/images/necklace image 1.png"
+                src="/images/Minimal Necklace.png"
                 alt="Minimal necklace close-up"
                 className="custom-grid-image"
                 width={720}
                 height={900}
               />
-              <div className="custom-overlay">
+              <div className="custom-overlay custom-overlay--main">
                 <div className="custom-overlay-label-row">
                   <span className="custom-overlay-line" />
                   <span className="custom-overlay-label">NECKLACES</span>
+                  <span className="custom-overlay-line" />
                 </div>
+
                 <h3 className="custom-overlay-title">Minimal Necklace</h3>
                 <span className="custom-shop-btn">Shop Collection</span>
               </div>
@@ -96,19 +112,32 @@ export default function MakeItCustom() {
             <div className="custom-right-top-block">
               <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link" aria-label="Shop rings collection">
                 <SafeImage
-                  src="/images/aaa.png"
+                  src="/images/mmrings.png"
                   alt="Minimal rings on hand"
                   className="custom-grid-image"
                   width={640}
                   height={480}
                 />
+<<<<<<< HEAD
               </Link>
+=======
+                <div className="custom-overlay">
+                  <div className="custom-overlay-label-row">
+                    <span className="custom-overlay-line" />
+                    <span className="custom-overlay-label">RINGS</span>
+                    <span className="custom-overlay-line" />
+                  </div>
+
+                  <h3 className="custom-overlay-title">Minimal Rings</h3>
+                </div>
+              </a>
+>>>>>>> origin/main
             </div>
 
             <div className="custom-right-bottom-block">
               <Link to={ROUTES.collection} prefetch="intent" className="custom-image-link">
                 <SafeImage
-                  src="/images/Rectangle 3298.png"
+                  src="/images/mmearning.png"
                   alt="Minimal earrings close-up"
                   className="custom-grid-image"
                   width={640}
@@ -118,7 +147,9 @@ export default function MakeItCustom() {
                   <div className="custom-overlay-label-row">
                     <span className="custom-overlay-line" />
                     <span className="custom-overlay-label">EARRINGS</span>
+                    <span className="custom-overlay-line" />
                   </div>
+
                   <h3 className="custom-overlay-title">Minimal Earrings</h3>
                 </div>
               </Link>

@@ -1,4 +1,5 @@
 import { resolveApiBaseUrl } from '../utils/apiBaseUrl.js';
+import { toast } from '../context/ToastContext.jsx';
 
 const API_BASE_URL = resolveApiBaseUrl();
 
@@ -97,6 +98,12 @@ async function request(endpoint, options = {}) {
     // Attach additional data to the error object for frontend handling
     error.data = data;
     error.status = response.status;
+    
+    // Automatically show toast for mutation errors
+    if (options.method && options.method !== 'GET') {
+      toast.error(message);
+    }
+    
     throw error;
   }
 

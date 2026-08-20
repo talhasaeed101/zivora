@@ -30,16 +30,18 @@ export default function Testimonials() {
     <section id="testimonials" className="testimonial-section">
       <Reveal className="testimonial-inner" variant="fade-up">
         <div className="testimonial-slider-row">
-          <button type="button" className="testimonial-nav-btn" onClick={prev} aria-label="Previous testimonial">
+          {/* <button type="button" className="testimonial-nav-btn" onClick={prev} aria-label="Previous testimonial">
             <ChevronLeftIcon className="w-6 h-6" />
-          </button>
+          </button> */}
+
+          <img  onClick={prev} src="/images/left.svg" alt="" className="testimonial-quote-icon" />
 
           <div
             key={current}
             className={`testimonial-content-block${switching ? ' is-switching' : ''}`}
           >
             <div className="testimonial-profile-row">
-              <SafeImage src={AVATAR_PLACEHOLDER} alt={t.name} className="testimonial-avatar" />
+              <img src ="/images/avatar.svg" alt={t.name} className="testimonial-profile-image" onError={(e) => { e.target.src = AVATAR_PLACEHOLDER; }} />
               <div className="testimonial-profile-meta">
                 <div className="testimonial-stars-row" aria-label={`${t.rating} out of 5 stars`}>
                   {[...Array(5)].map((_, i) => (
@@ -56,9 +58,10 @@ export default function Testimonials() {
             <blockquote className="testimonial-quote-text">&ldquo;{t.quote}&rdquo;</blockquote>
           </div>
 
-          <button type="button" className="testimonial-nav-btn" onClick={next} aria-label="Next testimonial">
+          {/* <button type="button" className="testimonial-nav-btn" onClick={next} aria-label="Next testimonial">
             <ChevronRightIcon className="w-6 h-6" />
-          </button>
+          </button> */}
+          <img  onClick={next} src="/images/rught.svg" alt="" className="testimonial-quote-icon" />
         </div>
       </Reveal>
     </section>

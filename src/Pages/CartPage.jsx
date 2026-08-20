@@ -8,6 +8,7 @@ import OrderSummary from '../components/cart/OrderSummary';
 import RecommendedProducts from '../components/cart/RecommendedProducts';
 import DeliveryAddressSection from '../components/cart/DeliveryAddressSection';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
+import { toast } from '../context/ToastContext.jsx';
 import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
 import { ROUTES } from '../utils/navigation';
@@ -119,7 +120,6 @@ export default function CartPage() {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [addressSaving, setAddressSaving] = useState(false);
-  const [addressModalError, setAddressModalError] = useState('');
   const [addressSectionError, setAddressSectionError] = useState('');
   const [selectingAddressId, setSelectingAddressId] = useState(null);
   const [itemToRemove, setItemToRemove] = useState(null);
@@ -361,13 +361,11 @@ export default function CartPage() {
 
   const openAddAddress = () => {
     setEditingAddress(null);
-    setAddressModalError('');
     setAddressModalOpen(true);
   };
 
   const openEditAddress = (address) => {
     setEditingAddress(address);
-    setAddressModalError('');
     setAddressModalOpen(true);
   };
 
@@ -376,7 +374,6 @@ export default function CartPage() {
       return;
     }
 
-    setAddressModalError('');
     setAddressSaving(true);
 
     try {
@@ -385,9 +382,11 @@ export default function CartPage() {
       if (editingAddress?.id) {
         await addressApi.updateAddress(editingAddress.id, payload);
         setSelectedAddressId(editingAddress.id);
+        toast.success('Delivery address updated.');
       } else {
         const response = await addressApi.createAddress(payload);
         setSelectedAddressId(response.data._id);
+        toast.success('Delivery address saved.');
       }
 
       await loadAddresses();
@@ -396,9 +395,7 @@ export default function CartPage() {
       setAddressSectionError('');
       setStatusMessage('Delivery address saved.');
     } catch (err) {
-      setAddressModalError(
-        friendlyCartError(err.message, 'Unable to save address. Please try again.')
-      );
+      // Error toast handled automatically by api.js
     } finally {
       setAddressSaving(false);
     }
@@ -720,7 +717,6 @@ export default function CartPage() {
         }}
         onSave={handleSaveAddress}
         saving={addressSaving}
-        error={addressModalError}
       />
 
       {itemToRemove ? (

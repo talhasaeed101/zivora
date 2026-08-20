@@ -11,6 +11,23 @@ import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';
 import Reveal from './Reveal.jsx';
 import './PremiumBundles.css';
 
+const WhitelistIcon = ({ className = "w-4 h-4", filled }) => (
+  <svg
+    viewBox="0 0 20 20"
+    fill={filled ? "currentColor" : "none"}
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      d="M10.5167 17.3416C10.2333 17.4416 9.76666 17.4416 9.48332 17.3416C7.06666 16.5166 1.66666 13.0749 1.66666 7.24159C1.66666 4.66659 3.74166 2.58325 6.29999 2.58325C7.81666 2.58325 9.15832 3.31659 9.99999 4.44992C10.8417 3.31659 12.1917 2.58325 13.7 2.58325C16.2583 2.58325 18.3333 4.66659 18.3333 7.24159C18.3333 13.0749 12.9333 16.5166 10.5167 17.3416Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export default function PremiumBundles() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +98,10 @@ export default function PremiumBundles() {
                   variant="fade-up"
                   delay={Math.min(index, 7) * 70}
                 >
-                  <article className="bundles-product-card" style={{ position: 'relative' }}>
+                  <article
+                    className="bundles-product-card"
+                    style={{ position: "relative" }}
+                  >
                     <div className="bundles-product-image-wrap">
                       <SafeImage
                         src={image}
@@ -94,24 +114,35 @@ export default function PremiumBundles() {
                     </div>
                     {showSale && <span className="bundles-sale-badge">Sale!</span>}
                     {outOfStock ? <span className="bundles-sale-badge">Out of stock</span> : null}
-                    <div className="bundles-product-info-row">
-                      <h3 className="bundles-product-name">{product.title}</h3>
-                      <WishlistButton
-                        productId={product._id}
-                        className="bundles-wishlist-btn"
-                        activeClassName="bundles-wishlist-btn-active"
-                      />
-                    </div>
-                    {categoryName && (
-                      <p className="bundles-product-category">{categoryName}</p>
-                    )}
-                    <div className="bundles-price-row">
-                      <span className="bundles-price-current">{formatPrice(product.price)}</span>
-                      {product.oldPrice && (
-                        <span className="bundles-price-original">
-                          {formatPrice(product.oldPrice)}
+                    <div className="bundles-product-text-wrap">
+                      <div className="bundles-product-info-row">
+                        <h3 className="bundles-product-name">
+                          {product.title?.length > 20
+                            ? `${product.title.slice(0, 20)}...`
+                            : product.title}
+                        </h3>
+                        <WishlistButton
+                          productId={product._id}
+                          className="bundles-wishlist-btn"
+                          activeClassName="bundles-wishlist-btn-active"
+                          icon={WhitelistIcon}
+                        />
+                      </div>
+                      {/* {categoryName && (
+                        <p className="bundles-product-category">
+                          {categoryName}
+                        </p>
+                      )} */}
+                      <div className="bundles-price-row">
+                        <span className="bundles-price-current">
+                          {formatPrice(product.price)}
                         </span>
-                      )}
+                        {product.oldPrice && (
+                          <span className="bundles-price-original">
+                            {formatPrice(product.oldPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </article>
                 </Reveal>

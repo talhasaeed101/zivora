@@ -4,18 +4,14 @@ import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 
-const HERO_ARCH_IMAGE = '/images/image 3.png';
-const HERO_PILL_IMAGE = '/images/image 1 (3).png';
+const HERO_ARCH_IMAGE = '/images/hero00.png';
+const HERO_PILL_IMAGE_SVG = '/images/hero1.svg';
+const HERO_PILL_IMAGE = '/images/hero111.png';
 
 const HERO_TAGLINE =
   'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';
 
-const THUMBNAIL_IMAGES = [
-  '/images/stack1.png',
-  '/images/stack2.png',
-  '/images/stack3.png',
-  '/images/stack4.png',
-];
+
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined'
@@ -59,8 +55,12 @@ function useHeroTaglineTypewriter(text) {
 
 function HeroTagline({ displayed, done }) {
   return (
+<<<<<<< HEAD
     <h1 className="hero-tagline-text">
       <span className="sr-only">{HERO_TAGLINE}</span>
+=======
+    <h1 className="hero-tagline-text" aria-label={HERO_TAGLINE}>
+>>>>>>> origin/main
       <span aria-hidden="true">{displayed}</span>
       {!done && <span className="hero-tagline-caret" aria-hidden="true" />}
     </h1>
@@ -99,20 +99,20 @@ function CollectionRow() {
       <div className="hero-collection-separator-line" />
 
       <div className='djdjdjdjdjdjddj'>
-      <div className="hero-collection-arrow-icon-wrapper">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M5 12H19M19 12L12 5M19 12L12 19"
-            stroke="black"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-      <div className="hero-collection-thumbnails-container">
-        {THUMBNAIL_IMAGES.map((src, index) => (
+        <div className="hero-collection-arrow-icon-wrapper">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12H19M19 12L12 5M19 12L12 19"
+              stroke="black"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <div className="hero-collection-thumbnails-container">
           <SafeImage
+<<<<<<< HEAD
             key={src}
             src={src}
             alt={`Collection preview ${index + 1}`}
@@ -120,9 +120,14 @@ function CollectionRow() {
             loading="lazy"
             width={64}
             height={64}
+=======
+            src="/images/collection.svg"
+            alt="Collection preview"
+            className="hero-collection-thumbnail-single"
+            style={{ width: '180px', height: '60px',objectFit: 'cover' }}
+>>>>>>> origin/main
           />
-        ))}
-      </div>
+        </div>
       </div>
     </div>
   );

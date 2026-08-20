@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { SocketProvider } from './context/SocketContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
+import { ToastProvider } from './context/ToastContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
 import Login from './Pages/Login.jsx';
@@ -62,6 +63,7 @@ function App() {
         <SocketProvider>
           <CartProvider>
             <WishlistProvider>
+              <ToastProvider>
               <AnalyticsTracker />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
@@ -108,6 +110,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+              </ToastProvider>
           </WishlistProvider>
         </CartProvider>
         </SocketProvider>

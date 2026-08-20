@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
+.launch-timer-section {
+  background-color: #000;
+  color: #fff;
+  padding: 80px 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-height: 400px; */
+}
+
+.launch-timer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-title {
+  font-family: 'Teneka'; /* Or use the global serif font */
+  font-size: 46px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+  color:#fff;
+}
+
+.timer-subtitle {
+  font-family: 'Cabin', sans-serif;
+  font-size: 20px;
+  color: #7c7c7c;
+  margin-bottom: 40px;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+.timer-boxes {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.timer-box-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.timer-box {
+  width: 80px;
+  height: 90px;
+  border: 1px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Teneka';
+  font-size: 42px;
+  font-weight: 300;
+  color: #fff;
+}
+
+.timer-label {
+  font-family: 'Teneka';
+  font-size: 15px;
+  color: #7c7c7c;
+}
+
+.timer-ended-text {
+  font-family: 'Cabin', sans-serif;
+  font-size: 24px;
+  color: #fff;
+  max-width: 1000px;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .timer-title {
+    font-size: 36px;
+  }
+  .timer-boxes {
+    gap: 10px;
+  }
+  .timer-box {
+    width: 60px;
+    height: 70px;
+    font-size: 32px;
+  }
+  .timer-label {
+    font-size: 12px;
+  }
+}

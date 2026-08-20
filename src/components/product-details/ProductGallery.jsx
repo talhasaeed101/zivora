@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
+import { ArrowLeftIcon, ArrowRightIcon, View360Icon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import SafeImage from '../SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
@@ -96,14 +96,14 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
         ) : null}
 
         {hasMultiple && (
-          <>
+          <div className="pd-gallery-nav-arrows">
             <button
               type="button"
               className="pd-gallery-arrow pd-gallery-arrow-prev"
               onClick={prev}
               aria-label="Previous image"
             >
-              <ChevronLeftIcon className="w-5 h-5" />
+              <ArrowLeftIcon className="w-5 h-5" />
             </button>
             <button
               type="button"
@@ -111,10 +111,14 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
               onClick={next}
               aria-label="Next image"
             >
-              <ChevronRightIcon className="w-5 h-5" />
+              <ArrowRightIcon className="w-5 h-5" />
             </button>
-          </>
+          </div>
         )}
+
+        {/* <button type="button" className="pd-gallery-360-btn" aria-label="360 view">
+          <View360Icon className="w-8 h-8" />
+        </button> */}
       </div>
 
       {hasMultiple && (

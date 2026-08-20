@@ -11,10 +11,27 @@ import { ProductRowSkeleton, SectionMessage } from './ProductSectionStates.jsx';
 import Reveal from './Reveal.jsx';
 import './TrendingProducts.css';
 
+const WhitelistIcon = ({ className = "w-4 h-4", filled }) => (
+  <svg
+    viewBox="0 0 20 20"
+    fill={filled ? "currentColor" : "none"}
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      d="M10.5167 17.3416C10.2333 17.4416 9.76666 17.4416 9.48332 17.3416C7.06666 16.5166 1.66666 13.0749 1.66666 7.24159C1.66666 4.66659 3.74166 2.58325 6.29999 2.58325C7.81666 2.58325 9.15832 3.31659 9.99999 4.44992C10.8417 3.31659 12.1917 2.58325 13.7 2.58325C16.2583 2.58325 18.3333 4.66659 18.3333 7.24159C18.3333 13.0749 12.9333 16.5166 10.5167 17.3416Z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export default function TrendingProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -23,12 +40,12 @@ export default function TrendingProducts() {
       .then((response) => {
         if (isMounted) {
           setProducts(response.data?.products || []);
-          setError('');
+          setError("");
         }
       })
       .catch((err) => {
         if (isMounted) {
-          setError(err.message || 'Unable to load trending products.');
+          setError(err.message || "Unable to load trending products.");
           setProducts([]);
         }
       })
@@ -61,7 +78,10 @@ export default function TrendingProducts() {
             imageWrapClassName="trending-product-image-wrap"
           />
         ) : error ? (
-          <SectionMessage message={error} className="section-state-message section-state-error" />
+          <SectionMessage
+            message={error}
+            className="section-state-message section-state-error"
+          />
         ) : products.length === 0 ? (
           <SectionMessage message="No trending products available right now." />
         ) : (
@@ -81,7 +101,10 @@ export default function TrendingProducts() {
                   variant="fade-up"
                   delay={Math.min(index, 7) * 70}
                 >
-                  <article className="trending-product-card" style={{ position: 'relative' }}>
+                  <article
+                    className="trending-product-card"
+                    style={{ position: "relative" }}
+                  >
                     <div className="trending-product-image-wrap">
                       <SafeImage
                         src={image}
@@ -94,24 +117,35 @@ export default function TrendingProducts() {
                     </div>
                     {showSale && <span className="trending-sale-badge">Sale!</span>}
                     {outOfStock ? <span className="trending-sale-badge">Out of stock</span> : null}
-                    <div className="trending-product-info-row">
-                      <h3 className="trending-product-name">{product.title}</h3>
-                      <WishlistButton
-                        productId={product._id}
-                        className="trending-wishlist-btn"
-                        activeClassName="trending-wishlist-btn-active"
-                      />
-                    </div>
-                    {categoryName && (
-                      <p className="trending-product-category">{categoryName}</p>
-                    )}
-                    <div className="trending-price-row">
-                      <span className="trending-price-current">{formatPrice(product.price)}</span>
-                      {product.oldPrice && (
-                        <span className="trending-price-original">
-                          {formatPrice(product.oldPrice)}
+                    <div className="trending-product-text-wrap">
+                      <div className="trending-product-info-row">
+                        <h3 className="trending-product-name">
+                          {product.title?.length > 20
+                            ? `${product.title.slice(0, 20)}...`
+                            : product.title}
+                        </h3>
+                        <WishlistButton
+                          productId={product._id}
+                          className="trending-wishlist-btn"
+                          activeClassName="trending-wishlist-btn-active"
+                          icon={WhitelistIcon}
+                        />
+                      </div>
+                      {/* {categoryName && (
+                        <p className="trending-product-category">
+                          {categoryName}
+                        </p>
+                      )} */}
+                      <div className="trending-price-row">
+                        <span className="trending-price-current">
+                          {formatPrice(product.price)}
                         </span>
-                      )}
+                        {product.oldPrice && (
+                          <span className="trending-price-original">
+                            {formatPrice(product.oldPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </article>
                 </Reveal>

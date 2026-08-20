@@ -56,10 +56,28 @@ export function UserIcon({ className = 'w-4 h-4' }) {
   );
 }
 
+export function ArrowLeftIcon({ className = 'w-4 h-4' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M19 12H5M11 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function ArrowRightIcon({ className = 'w-4 h-4' }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export function View360Icon({ className = 'w-6 h-6' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M12 21c-4.97 0-9-1.79-9-4s4.03-4 9-4 9 1.79 9 4-4.03 4-9 4z" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3"/>
+      <path d="M21 17l-2-2m2 2l-2 2" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="12" y="15.5" fontSize="7" fontWeight="bold" textAnchor="middle" fill="currentColor" stroke="none">360</text>
     </svg>
   );
 }

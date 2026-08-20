@@ -3,14 +3,12 @@ import Reveal from '../Reveal.jsx';
 import { ROUTES } from '../../utils/navigation';
 import '../../Pages/Auth.css';
 
-/** Existing storefront jewelry assets in /public/images */
-const AUTH_SIDE_IMAGE = '/images/Rectangle 3298.png';
-const AUTH_SIDE_FALLBACK = '/images/image 1 (3).png';
+const AUTH_SIDE_FALLBACK = '/images/forget.png';
 
 export default function AuthShell({
   children,
   showTrust = true,
-  imageSrc = AUTH_SIDE_IMAGE,
+  imageSrc = AUTH_SIDE_FALLBACK,
 }) {
   return (
     <div className="auth-shell">
