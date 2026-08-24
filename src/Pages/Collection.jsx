@@ -15,14 +15,9 @@ import {
   getSortLabel,
 } from '../utils/catalogFilters.js';
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
-<<<<<<< HEAD
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { useSeo } from '../hooks/useSeo.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
-=======
-import { ROUTES, categoryPath, searchPath } from '../utils/navigation';
-import { useSEO } from '../hooks/useSEO.js';
->>>>>>> origin/main
 import './Collection.css';
 
 const PAGE_SIZE = 12;
@@ -44,11 +39,8 @@ function Checkbox({ checked }) {
 }
 
 export default function Collection() {
-<<<<<<< HEAD
   const isMobileCatalog = useMediaQuery('(max-width: 768px)');
 
-=======
->>>>>>> origin/main
   const [searchParams, setSearchParams] = useSearchParams();
   const filterButtonRef = useRef(null);
   const filterPanelRef = useRef(null);
@@ -201,38 +193,6 @@ export default function Collection() {
     () => categories.find((cat) => cat._id === categoryFilter),
     [categories, categoryFilter]
   );
-
-  const collectionUrl = `https://zivorah.store${activeCategory ? categoryPath(activeCategory.slug) : '/collection'}`;
-
-  useSEO({
-    title: activeCategory ? `${activeCategory.name} | Zivorah Pakistan` : 'Zivorah Collection | Premium Jewelry',
-    description: activeCategory?.description || 'Browse Zivorah Pakistan\'s premium jewelry collection. Shop unique necklaces, rings, and personalized gifts.',
-    url: collectionUrl,
-    schema: {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: 'https://zivorah.store/'
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Collection',
-          item: 'https://zivorah.store/collection'
-        },
-        ...(activeCategory ? [{
-          '@type': 'ListItem',
-          position: 3,
-          name: activeCategory.name,
-          item: collectionUrl
-        }] : [])
-      ]
-    }
-  });
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();

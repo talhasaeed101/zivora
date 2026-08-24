@@ -5,12 +5,8 @@ import GuestRoute from '../components/GuestRoute.jsx';
 import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
-<<<<<<< HEAD
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
-=======
-import { usePageTitle } from '../hooks/usePageTitle.js';
 import { toast } from '../context/ToastContext.jsx';
->>>>>>> origin/main
 import './Auth.css';
 
 const GENERIC_SUCCESS_MESSAGE =

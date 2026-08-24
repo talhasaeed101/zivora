@@ -1,89 +1,113 @@
 import { useEffect } from 'react';
+import { SEO_SITE_NAME } from '../constants/seo.js';
+import {
+  absoluteUrl,
+  canonicalPath,
+  defaultShareImage,
+  formatSeoTitle,
+  truncateText,
+} from '../utils/seo.js';
 
-const DEFAULT_TITLE = 'Zivorah Pakistan | Premium Jewelry';
-const DEFAULT_DESCRIPTION = 'Shop premium jewelry in Pakistan. Discover premium rings, necklaces, bracelets and personalized gifts with fast nationwide delivery.';
-const DEFAULT_IMAGE = 'https://zivorah.store/favicon.ico';
+const ATTR = 'data-zivorah-seo';
 
-export function useSEO({
-  title = DEFAULT_TITLE,
-  description = DEFAULT_DESCRIPTION,
-  url,
-  image = DEFAULT_IMAGE,
+const upsertTag = (selector, create) => {
+  let node = document.head.querySelector(selector);
+  if (!node) {
+    node = create();
+    node.setAttribute(ATTR, 'true');
+    document.head.appendChild(node);
+  }
+  return node;
+};
+
+const setMeta = (key, value, { property = false } = {}) => {
+  if (!value) {
+    return;
+  }
+  const attr = property ? 'property' : 'name';
+  const selector = `meta[${attr}="${key}"]`;
+  const node = upsertTag(selector, () => {
+    const meta = document.createElement('meta');
+    meta.setAttribute(attr, key);
+    return meta;
+  });
+  node.setAttribute('content', value);
+};
+
+const setLink = (rel, href) => {
+  if (!href) {
+    return;
+  }
+  const selector = `link[rel="${rel}"]`;
+  const node = upsertTag(selector, () => {
+    const link = document.createElement('link');
+    link.setAttribute('rel', rel);
+    return link;
+  });
+  node.setAttribute('href', href);
+};
+
+export function useSeo({
+  title,
+  description,
+  path,
+  robots = 'index, follow',
+  image,
   type = 'website',
-  schema,
-  canonicalUrl,
-}) {
+  prefetch = [],
+} = {}) {
+  const prefetchKey = Array.isArray(prefetch) ? prefetch.join('|') : '';
+
   useEffect(() => {
-    // 1. Update Title
-    document.title = title;
+    const fullTitle = formatSeoTitle(title, { siteName: SEO_SITE_NAME });
+    const desc = truncateText(description, 160);
+    const canonical = absoluteUrl(canonicalPath(path || window.location.pathname));
+    const shareImage = image ? absoluteUrl(image) : defaultShareImage();
+    const previousTitle = document.title;
+    const prefetchList = prefetchKey ? prefetchKey.split('|').filter(Boolean) : [];
 
-    // Helper to update or create meta tags
-    const updateMetaTag = (selector, attribute, value) => {
-      let element = document.querySelector(selector);
-      if (!element) {
-        element = document.createElement('meta');
-        
-        // Handle attribute creation (name vs property)
-        if (selector.includes('name=')) {
-          const name = selector.match(/name="([^"]+)"/)[1];
-          element.setAttribute('name', name);
-        } else if (selector.includes('property=')) {
-          const property = selector.match(/property="([^"]+)"/)[1];
-          element.setAttribute('property', property);
-        }
-        
-        document.head.appendChild(element);
-      }
-      element.setAttribute(attribute, value);
-    };
+    document.title = fullTitle;
+    setMeta('description', desc);
+    setMeta('robots', robots);
+    setLink('canonical', canonical);
 
-    // 2. Update Description
-    updateMetaTag('meta[name="description"]', 'content', description);
+    setMeta('og:site_name', SEO_SITE_NAME, { property: true });
+    setMeta('og:type', type, { property: true });
+    setMeta('og:title', fullTitle, { property: true });
+    setMeta('og:description', desc, { property: true });
+    setMeta('og:url', canonical, { property: true });
+    setMeta('og:image', shareImage, { property: true });
+    setMeta('og:image:alt', fullTitle, { property: true });
+    setMeta('og:locale', 'en_PK', { property: true });
 
-    // 3. Update Open Graph
-    updateMetaTag('meta[property="og:title"]', 'content', title);
-    updateMetaTag('meta[property="og:description"]', 'content', description);
-    updateMetaTag('meta[property="og:type"]', 'content', type);
-    updateMetaTag('meta[property="og:image"]', 'content', image);
-    if (url) updateMetaTag('meta[property="og:url"]', 'content', url);
+    setMeta('twitter:card', 'summary_large_image');
+    setMeta('twitter:title', fullTitle);
+    setMeta('twitter:description', desc);
+    setMeta('twitter:image', shareImage);
+    setMeta('twitter:image:alt', fullTitle);
 
-    // 4. Update Twitter
-    updateMetaTag('meta[name="twitter:title"]', 'content', title);
-    updateMetaTag('meta[name="twitter:description"]', 'content', description);
-    updateMetaTag('meta[name="twitter:image"]', 'content', image);
-    if (url) updateMetaTag('meta[name="twitter:url"]', 'content', url);
-    updateMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
-
-    // 5. Update Canonical URL
-    if (canonicalUrl || url) {
-      let canonical = document.querySelector('link[rel="canonical"]');
-      if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.setAttribute('rel', 'canonical');
-        document.head.appendChild(canonical);
-      }
-      canonical.setAttribute('href', canonicalUrl || url);
-    }
-
-    // 6. Update Schema (JSON-LD)
-    let scriptEl = null;
-    if (schema) {
-      scriptEl = document.createElement('script');
-      scriptEl.type = 'application/ld+json';
-      scriptEl.innerHTML = JSON.stringify(schema);
-      scriptEl.id = 'dynamic-schema';
-      // Remove old dynamic schema if exists
-      const oldSchema = document.getElementById('dynamic-schema');
-      if (oldSchema) {
-        oldSchema.remove();
-      }
-      document.head.appendChild(scriptEl);
-    }
+    const prefetchNodes = prefetchList.map((href) => {
+      const link = document.createElement('link');
+      link.setAttribute(ATTR, 'prefetch');
+      link.rel = 'prefetch';
+      link.href = href.startsWith('http') ? href : absoluteUrl(href);
+      document.head.appendChild(link);
+      return link;
+    });
 
     return () => {
-      if (scriptEl) {
-        scriptEl.remove();
-      }
+      document.title = previousTitle;
+      prefetchNodes.forEach((node) => node.remove());
     };
-  }, [title, description, url, image, type, schema, canonicalUrl]);
+  }, [title, description, path, robots, image, type, prefetchKey]);
+}
+
+export function usePrivatePageSeo({ title, description, path } = {}) {
+  useSeo({
+    title,
+    description:
+      description || 'This Zivorah page is private and is not available for search indexing.',
+    path,
+    robots: 'noindex, nofollow',
+  });
 }

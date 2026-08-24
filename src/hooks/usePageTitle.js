@@ -1,5 +1,5 @@
-import { useSEO } from './useSEO.js';
+import { useSeo } from './useSeo.js';
 
 export function usePageTitle(title) {
-  useSEO({ title });
+  useSeo({ title });
 }

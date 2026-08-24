@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import { Link } from 'react-router-dom';
 import './MakeItCustom.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
 import Reveal from './Reveal.jsx';
-=======
-import "./MakeItCustom.css";
-import { ROUTES } from "../utils/navigation";
-import SafeImage from "./SafeImage.jsx";
-import Reveal from "./Reveal.jsx";
->>>>>>> origin/main
 
 const CUSTOM_CARDS = [
   {
@@ -118,9 +111,6 @@ export default function MakeItCustom() {
                   width={640}
                   height={480}
                 />
-<<<<<<< HEAD
-              </Link>
-=======
                 <div className="custom-overlay">
                   <div className="custom-overlay-label-row">
                     <span className="custom-overlay-line" />
@@ -130,8 +120,7 @@ export default function MakeItCustom() {
 
                   <h3 className="custom-overlay-title">Minimal Rings</h3>
                 </div>
-              </a>
->>>>>>> origin/main
+              </Link>
             </div>
 
             <div className="custom-right-bottom-block">

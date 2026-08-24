@@ -68,83 +68,12 @@ export default function Footer() {
   return (
     <footer id="contact" className="footer-section">
       <div className="footer-inner">
-<<<<<<< HEAD
-        <div className="footer-grid">
-          <div className="footer-brand-col">
-            <Link to={ROUTES.home} className="footer-logo-link">
-              ZIVORAH
-            </Link>
-            <p className="footer-brand-copy">
-              Refined jewelry for everyday elegance.
-            </p>
-            <div className="footer-social-row">
-              {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="footer-social-link"
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Icon />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="footer-col">
-            <h2 className="footer-col-title">Shop</h2>
-            <ul className="footer-col-list">
-              {SHOP_LINKS.map((item) => (
-                <li key={item.to}>
-                  <Link to={item.to} prefetch="intent" className="footer-col-link">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-col">
-            <h2 className="footer-col-title">Customer Care</h2>
-            <ul className="footer-col-list">
-              {CARE_LINKS.map((item) => (
-                <li key={item.to}>
-                  <Link to={item.to} className="footer-col-link">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-col">
-            <h2 className="footer-col-title">Information</h2>
-            <ul className="footer-col-list">
-              {INFO_LINKS.map((item) => (
-                <li key={item.to}>
-                  <Link to={item.to} prefetch="intent" className="footer-col-link">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-col footer-newsletter-col">
-            <h2 className="footer-col-title">Newsletter</h2>
-            <p className="footer-newsletter-copy">
-              Occasional notes on new pieces and collection updates.
-            </p>
-=======
         <div className="footer-top">
           <Link to={ROUTES.home} className="footer-logo-link">
             ZIVORA
           </Link>
-          
+
           <div className="footer-newsletter-wrapper">
->>>>>>> origin/main
             <form className="footer-newsletter-form" onSubmit={handleSubmit}>
               <label htmlFor="footer-newsletter-email" className="sr-only">
                 Email address
@@ -195,17 +124,6 @@ export default function Footer() {
         <div className="footer-divider"></div>
 
         <div className="footer-bottom-bar">
-<<<<<<< HEAD
-          <p className="footer-copyright">
-            © {year} Zivorah. All rights reserved.
-          </p>
-          <div className="footer-legal-links">
-            <Link to={ROUTES.privacyPolicy} prefetch="intent" className="footer-legal-link">
-              Privacy Policy
-            </Link>
-            <Link to={ROUTES.termsOfUse} prefetch="intent" className="footer-legal-link">
-              Terms of Use
-=======
           <div className="footer-legal-group">
             <span className="footer-copyright">
               ©2026 ZIVORA. ALL RIGHTS RESERVED
@@ -215,7 +133,6 @@ export default function Footer() {
             </Link>
             <Link to={ROUTES.termsOfUse} className="footer-legal-link">
               TERMS OF USES
->>>>>>> origin/main
             </Link>
           </div>
           
