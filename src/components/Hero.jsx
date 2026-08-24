@@ -55,12 +55,8 @@ function useHeroTaglineTypewriter(text) {
 
 function HeroTagline({ displayed, done }) {
   return (
-<<<<<<< HEAD
-    <h1 className="hero-tagline-text">
-      <span className="sr-only">{HERO_TAGLINE}</span>
-=======
     <h1 className="hero-tagline-text" aria-label={HERO_TAGLINE}>
->>>>>>> origin/main
+      <span className="sr-only">{HERO_TAGLINE}</span>
       <span aria-hidden="true">{displayed}</span>
       {!done && <span className="hero-tagline-caret" aria-hidden="true" />}
     </h1>
@@ -112,20 +108,10 @@ function CollectionRow() {
         </div>
         <div className="hero-collection-thumbnails-container">
           <SafeImage
-<<<<<<< HEAD
-            key={src}
-            src={src}
-            alt={`Collection preview ${index + 1}`}
-            className="hero-collection-thumbnail"
-            loading="lazy"
-            width={64}
-            height={64}
-=======
             src="/images/collection.svg"
             alt="Collection preview"
             className="hero-collection-thumbnail-single"
-            style={{ width: '180px', height: '60px',objectFit: 'cover' }}
->>>>>>> origin/main
+            style={{ width: '180px', height: '60px', objectFit: 'cover' }}
           />
         </div>
       </div>

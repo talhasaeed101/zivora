@@ -15,11 +15,6 @@ import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
 import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';
-<<<<<<< HEAD
-import NotFound from './Pages/NotFound.jsx';
-=======
-import { usePageTitle } from './hooks/usePageTitle.js';
->>>>>>> origin/main
 
 export default function LegacyPages() {
   const [page, setPage] = useState('home');
@@ -44,22 +39,6 @@ export default function LegacyPages() {
     return () => window.removeEventListener('popstate', resolvePage);
   }, []);
 
-<<<<<<< HEAD
-  if (location.pathname !== '/' && location.pathname !== '/product') {
-    return <NotFound />;
-  }
-=======
-  const pageTitle =
-    page === 'home'
-      ? 'Zivorah | Premium Jewelry'
-      : page === 'search'
-        ? 'Search | Zivorah'
-        : page === 'cart'
-          ? 'Shopping Cart | Zivorah'
-          : 'Zivorah';
-
-  usePageTitle(pageTitle);
->>>>>>> origin/main
 
   if (page === 'cart') {
     return <CartPage />;
