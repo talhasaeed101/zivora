@@ -2,7 +2,7 @@
 
 .trending-section {
   width: 100%;
-  padding: 80px 180px 80px 180px;
+  padding: 72px 0 80px 80px;
 }
 
 .trending-inner {}
@@ -13,6 +13,7 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 60px;
+  padding-right: 80px;
 }
 
 .trending-heading {
@@ -186,13 +187,13 @@
 
 @media (max-width: 1400px) {
   .trending-section {
-    padding: 80px 80px;
+    padding: 72px 0 80px 80px;
   }
 }
 
 @media (max-width: 1200px) {
   .trending-products-row {
-    grid-auto-columns: calc((100% - 60px) / 3);
+    grid-auto-columns: 300px;
   }
 }
 
@@ -246,6 +247,7 @@
 
   .trending-product-text-wrap {
     max-width: 315px;
+    margin-left:14px
   }
 }
 

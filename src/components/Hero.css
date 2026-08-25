@@ -10,9 +10,9 @@
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
-  padding: 60px 180px 0 0;
+  padding: 40px 0 0 80px;
   position: relative;
-  min-height: 1109px;
+  min-height: 900px;
   box-sizing: border-box;
   gap: 0;
 }
@@ -74,8 +74,8 @@
   flex-direction: column;
   justify-content: space-between;
   align-self: stretch;
-  min-height: 900px;
-  padding: 20px 24px 320px 48px;
+  min-height: 820px;
+  padding: 40px 24px 252px 48px;
   max-width: 920px;
   box-sizing: border-box;
   z-index: 100;

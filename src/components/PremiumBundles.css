@@ -1,6 +1,6 @@
 .bundles-section {
   width: 100%;
-  padding: 80px 180px 80px 180px;
+  padding: 72px 0 80px 80px;
 }
 
 .bundles-inner {
@@ -14,6 +14,7 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 60px;
+  padding-right: 80px;
 }
 
 .bundles-heading {
@@ -189,13 +190,13 @@
 
 @media (max-width: 1400px) {
   .bundles-section {
-    padding: 80px 80px;
+    padding: 72px 0 80px 80px;
   }
 }
 
 @media (max-width: 1200px) {
   .bundles-products-row {
-    grid-auto-columns: calc((100% - 60px) / 3);
+    grid-auto-columns: 300px;
   }
 }
 
@@ -248,6 +249,7 @@
   }
   .bundles-product-text-wrap {
     max-width: 315px;
+    margin-left:14px
   }
 }
 
