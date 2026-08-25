@@ -49,7 +49,9 @@
   /* Figma: row height 40px, gap 40px between items */
   padding: 28px 0;
   text-decoration: none;
-  transition: opacity 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    color 0.3s ease;
   cursor: pointer;
 }
 
@@ -119,7 +121,9 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   z-index: 10;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   pointer-events: auto;
   text-decoration: none;
   color: inherit;
@@ -148,8 +152,12 @@
 }
 
 @keyframes featured-spin-animation {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .featured-category-description {
@@ -240,7 +248,7 @@
 
 @media (max-width: 768px) {
   .featured-section {
-    padding: 48px 16px 56px;
+    padding: 60px 20px 56px;
     overflow-x: hidden;
   }
 
@@ -282,16 +290,21 @@
     width: 180px;
     height: 280px;
     border-radius: 140px;
+    transform: rotate(0deg);
+    left: 10%;
   }
 
   .featured-circular-badge-container {
     display: flex;
-    right: -16px;
+    right: 24px;
     top: 50%;
     width: 88px;
     height: 88px;
     transform: translateY(-50%);
     pointer-events: auto;
+    background: var(--white-40, #FFFFFF66);
+backdrop-filter: blur(40px)
+
   }
 
   .featured-circular-badge-container:hover {
@@ -308,4 +321,11 @@
     height: 38px;
   }
 }
-
+@media (max-width: 480px) {
+  .featured-heading {
+    font-size: 28px;
+  }
+  .featured-category-name {
+    font-size: 18px;
+  }
+}

@@ -29,13 +29,7 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="testimonial-section">
       <Reveal className="testimonial-inner" variant="fade-up">
-        <div className="testimonial-slider-row">
-          {/* <button type="button" className="testimonial-nav-btn" onClick={prev} aria-label="Previous testimonial">
-            <ChevronLeftIcon className="w-6 h-6" />
-          </button> */}
-
-          <img  onClick={prev} src="/images/left.svg" alt="" className="testimonial-quote-icon" />
-
+        <div className="testimonial-slider-container">
           <div
             key={current}
             className={`testimonial-content-block${switching ? ' is-switching' : ''}`}
@@ -57,11 +51,10 @@ export default function Testimonials() {
             </div>
             <blockquote className="testimonial-quote-text">&ldquo;{t.quote}&rdquo;</blockquote>
           </div>
-
-          {/* <button type="button" className="testimonial-nav-btn" onClick={next} aria-label="Next testimonial">
-            <ChevronRightIcon className="w-6 h-6" />
-          </button> */}
-          <img  onClick={next} src="/images/rught.svg" alt="" className="testimonial-quote-icon" />
+          <div className="testimonial-nav-row">
+            <img onClick={prev} src="/images/left.svg" alt="Previous" className="testimonial-quote-icon" style={{ cursor: 'pointer' }} />
+            <img onClick={next} src="/images/rught.svg" alt="Next" className="testimonial-quote-icon" style={{ cursor: 'pointer' }} />
+          </div>
         </div>
       </Reveal>
     </section>

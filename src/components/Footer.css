@@ -240,15 +240,16 @@
     padding: 64px 24px 0;
   }
   .footer-bottom-bar {
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: center;
     gap: 24px;
     padding-bottom: 32px;
   }
   .footer-legal-group {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
+    justify-content: center;
   }
   .footer-main-links {
     gap: 20px;

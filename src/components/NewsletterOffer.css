@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap");
 
 .offer-section {
   position: relative;
   width: 100%;
-  /* Figma: height 750px, warm golden gradient + bg image, content bottom-left at 180px from left */
-  min-height: 750px;
-  background: linear-gradient(90deg, #efdbc1 0%, #f2e1c3 47%, #f3e3c4 72%, #f2e1c6 93%, #e8d6b8 100%);
+  min-height: 600px;
+  background: url("/images/bg12121.png") center/cover no-repeat;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -112,8 +111,10 @@
   font-weight: 400;
   line-height: 1.4;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  white-space: nowrap;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .offer-submit-btn:hover:not(:disabled) {
@@ -143,9 +144,14 @@
 @media (max-width: 768px) {
   .offer-section {
     padding: 64px 24px;
-    min-height: 520px;
+    justify-content: center;
+    background-position: 100% 100%;
+  }
+  .offer-content {
+    text-align: left;
+  }
+  .offer-label-row {
     justify-content: flex-start;
-    align-items: flex-end;
   }
   .offer-heading {
     font-size: 32px;
@@ -155,16 +161,21 @@
     font-size: 16px;
   }
   .offer-form {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
   }
-  .offer-input {
-    flex: none;
-    width: 100%;
-    max-width: 100%;
-  }
+  .offer-input,
   .offer-submit-btn {
-    width: 100%;
-    text-align: center;
+    width: 98px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+@media (max-width: 480px) {
+  .offer-heading {
+    font-size: 24px;
+  }
+  .offer-text {
+    font-size: 14px;
   }
 }
