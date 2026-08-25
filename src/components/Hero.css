@@ -218,8 +218,8 @@
 
 .hero-collection-thumbnail-single {
   width: var(--hero-thumb-w);
-  height: var(--hero-thumb-h);
-  object-fit: cover;
+  /* height: var(--hero-thumb-h); */
+  object-fit: contain;
   display: block;
 }
 
@@ -469,7 +469,7 @@
 
   .mobile-hero-container .hero-collection-thumbnail-single {
     width: 180px;
-    height: 60px;
+    height: auto;
   }
 
   .mobile-hero-arch {
@@ -530,7 +530,7 @@
 
   .mobile-hero-container .hero-collection-thumbnail-single {
     width: 130px;
-    height: 44px;
+    height: auto;
   }
 
   .mobile-hero-badge .hero-circular-rotating-svg {
