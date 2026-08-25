@@ -107,7 +107,7 @@ export default function FeaturedCategory() {
             )}
           </Reveal>
 
-          <Reveal className="featured-image-zone" variant="scale-in" delay={120}>
+          <Reveal className={`featured-image-zone ${hoveredCategory ? 'is-visible' : 'is-hidden'}`} variant="scale-in" delay={120}>
             <div className="featured-organic-image-wrap">
               <SafeImage
                 key={displayImage}
