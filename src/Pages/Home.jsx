@@ -5,6 +5,7 @@ import FeaturedCategory from '../components/FeaturedCategory';
 import MakeItCustom from '../components/MakeItCustom';
 import PremiumBundles from '../components/PremiumBundles';
 import NewsletterOffer from '../components/NewsletterOffer';
+import Testimonials from '../components/Testimonials';
 import Footer from '../components/Footer';
 import BrandQuote from '../components/BrandQuote';
 import '../components/landing/landing-tokens.css';
@@ -38,6 +39,7 @@ const Home = () => {
         <MakeItCustom />
         <PremiumBundles />
         <NewsletterOffer />
+        <Testimonials />
       </main>
       <Footer />
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />

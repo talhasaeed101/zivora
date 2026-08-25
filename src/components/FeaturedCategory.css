@@ -1,12 +1,13 @@
 .featured-section {
   width: 100%;
   background-color: #000;
-  padding: 80px 80px 96px;
+  /* Figma: bg is 1920px wide, content is 1240px at 340px from left = 340px margin */
+  padding: 120px 340px 120px;
   overflow: hidden;
 }
 
 .featured-inner {
-  max-width: 1440px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
@@ -16,9 +17,9 @@
   font-weight: 400;
   color: #fff;
   text-align: center;
-  margin: 0 0 64px;
+  margin: 0 0 80px;
   line-height: 1.25;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.23px;
 }
 
 .featured-content-grid {
@@ -33,7 +34,8 @@
 }
 
 .featured-category-item {
-  border-bottom: 1px solid #2a2a2a;
+  /* Figma: divider lines between items, 0.5px white/muted */
+  border-bottom: 0.5px solid rgba(255,255,255,0.25);
 }
 
 .featured-category-item:last-child {
@@ -44,9 +46,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 40px 0;
+  /* Figma: row height 40px, gap 40px between items */
+  padding: 28px 0;
   text-decoration: none;
-  transition: opacity 0.3s ease, color 0.3s ease;
+  transition: opacity 0.3s ease;
   cursor: pointer;
 }
 
@@ -60,19 +63,20 @@
   color: #fff;
   font-weight: 400;
   line-height: 1.25;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.16px;
 }
 
 .featured-category-arrow {
   color: #fff;
   flex-shrink: 0;
+  width: 34px;
+  height: 34px;
 }
 
 .featured-image-zone {
   position: absolute;
-  top: 10%;
-  right: 15%;
-  transform: translateY(-50%);
+  top: 15%;
+  right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -168,6 +172,15 @@
   font-size: 12px;
   color: #967259;
   margin: 4px 0 0;
+}
+
+@media (max-width: 1400px) {
+  .featured-section {
+    padding: 80px 80px 80px;
+  }
+  .featured-inner {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 1024px) {

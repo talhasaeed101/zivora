@@ -4,11 +4,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
+  /* Figma: py-80px, px-401px on 1920px = 401px sides */
+  padding: 80px 401px;
 }
 
 .brand-quote-inner {
-  max-width: 1560px;
+  max-width: 1000px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -16,23 +17,30 @@
 }
 
 .brand-quote-text {
+  /* Figma: Cabin Regular 24px, lh 1.25, ls 0.12px, white, center */
   max-width: 1000px;
   font-family: Cabin, sans-serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 1.25;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.12px;
   color: #fff;
   text-align: center;
   margin: 0;
 }
 
+@media (max-width: 1200px) {
+  .brand-quote-section {
+    padding: 80px 80px;
+  }
+}
+
 @media (max-width: 768px) {
   .brand-quote-section {
-    padding: 48px 16px;
+    padding: 48px 24px;
   }
   .brand-quote-text {
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1.4;
   }
 }

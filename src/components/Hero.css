@@ -8,11 +8,11 @@
   display: flex;
   align-items: flex-end;
   width: 100%;
-  max-width: 2560px;
+  max-width: 1920px;
   margin: 0 auto;
-  padding: 40px 80px 0 80px;
+  padding: 60px 180px 0 0;
   position: relative;
-  min-height: 900px;
+  min-height: 1109px;
   box-sizing: border-box;
   gap: 0;
 }
@@ -38,7 +38,7 @@
 .hero-pill-image-wrapper {
   width: 153px;
   height: 305px;
-  border-radius: 70px;
+  border-radius: 270px;
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -74,11 +74,11 @@
   flex-direction: column;
   justify-content: space-between;
   align-self: stretch;
-  min-height: 820px;
-  padding: 40px 24px 252px 48px;
+  min-height: 900px;
+  padding: 20px 24px 320px 48px;
   max-width: 920px;
   box-sizing: border-box;
-  z-index: 100
+  z-index: 100;
 }
 
 .hero-tagline-text {
@@ -87,6 +87,7 @@
   font-weight: 400;
   color: #7c7c7c;
   line-height: 1.4;
+  letter-spacing: 0.1px;
   width: 865px;
   max-width: 100%;
   margin: 0;
@@ -188,10 +189,10 @@
 
 .hero-arch-image-wrapper {
   width: 713px;
-  max-width: min(713px, 38vw);
+  max-width: min(713px, 40vw);
   aspect-ratio: 713 / 971;
   overflow: hidden;
-  border-radius: 356px 356px 0 0;
+  border-radius: 500px 500px 0 0;
   background-color: #fff;
 }
 

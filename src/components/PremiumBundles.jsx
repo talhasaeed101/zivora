@@ -64,7 +64,7 @@ export default function PremiumBundles() {
     <section id="bundles" className="bundles-section">
       <div className="bundles-inner">
         <Reveal className="bundles-header-row" variant="fade-up">
-          <h2 className="bundles-heading">Bundles</h2>
+          <h2 className="bundles-heading">Premium Bundles</h2>
           <Link to={searchPath()} prefetch="intent" className="bundles-view-all-link">
             View All <ArrowRightIcon className="w-3.5 h-3.5" />
           </Link>

@@ -1,10 +1,11 @@
 .trending-section {
   width: 100%;
-  /* background-color: #fff; */
-  padding: 200px 0 80px 80px;
+  padding: 80px 180px 80px 180px;
 }
 
 .trending-inner {
+  max-width: 1920px;
+  margin: 0 auto;
 }
 
 .trending-header-row {
@@ -13,7 +14,6 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 60px;
-  padding-right: 80px;
 }
 
 .trending-heading {
@@ -22,31 +22,28 @@
   font-weight: 400;
   color: #000;
   margin: 0;
-  line-height: 1.1;
-  letter-spacing: 0.005em;
+  line-height: 1.25;
+  letter-spacing: 0.23px;
 }
 
 .trending-view-all-link {
   font-family: Cabin, sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #967259;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.09px;
+  color: #000;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 0;
-  border-bottom: 1px solid transparent;
-  transition: color 0.25s ease, border-color 0.25s ease;
+  gap: 8px;
+  padding: 4px 0;
+  transition: opacity 0.25s ease;
   flex-shrink: 0;
 }
 
 .trending-view-all-link:hover {
-  color: #c8815f;
-  border-bottom-color: #c8815f;
+  opacity: 0.7;
 }
 
 .trending-view-all-link svg {
@@ -64,7 +61,7 @@
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 368px;
-  gap: 20px;
+  gap: 30px;
   overflow-x: auto;
   padding-bottom: 24px;
   scrollbar-width: none;
@@ -79,7 +76,7 @@
   border-radius: 0;
   background-color: transparent;
   width: 368px;
-  height: 520px;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
 }
@@ -89,7 +86,8 @@
   border-top-left-radius: 300px;
   border-top-right-radius: 300px;
   overflow: hidden;
-  flex: 1;
+  height: 470px;
+  flex-shrink: 0;
 }
 
 .trending-product-image {
@@ -102,18 +100,24 @@
 
 .trending-sale-badge {
   position: absolute;
-  top: 20px;
+  top: 40px;
   right: 30px;
   background-color: #000;
   color: #fff;
+  font-family: Cabin, sans-serif;
   font-size: 16px;
   font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
   width: 62px;
   height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 50px;
+  padding: 15px 20px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .trending-product-info-row {
@@ -129,8 +133,9 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 1.4;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.1px;
   margin: 0;
+  color: #000;
 }
 
 .trending-wishlist-btn {
@@ -155,36 +160,48 @@
 }
 
 .trending-price-current {
-  font-size: 14px;
-  font-weight: 600;
+  font-family: Cabin, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+  line-height: 1.4;
+  letter-spacing: 0.08px;
 }
 
 .trending-price-original {
-  font-size: 12px;
+  font-family: Cabin, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   color: #7c7c7c;
   text-decoration: line-through;
-  margin-top: 2px;
+  line-height: 1.4;
+  letter-spacing: 0.08px;
 }
 
 .trending-product-text-wrap {
   background-color: #fff;
   padding: 20px;
   position: relative;
-  margin-top: -40px;
+  margin-top: -50px;
   z-index: 2;
-  max-width: 338px;
-  margin-left: 14px;
+  width: 338px;
+}
+
+@media (max-width: 1400px) {
+  .trending-section {
+    padding: 80px 80px;
+  }
 }
 
 @media (max-width: 1200px) {
   .trending-products-row {
-    grid-auto-columns: calc((100% - 40px) / 3);
+    grid-auto-columns: calc((100% - 60px) / 3);
   }
 }
 
 @media (max-width: 768px) {
   .trending-section {
-    padding: 48px 16px;
+    padding: 48px 16px 48px 16px;
   }
 
   .trending-heading {

@@ -3,17 +3,30 @@
 .offer-section {
   position: relative;
   width: 100%;
-  min-height: 600px;
-  background: url('/images/bg12121.png') center/cover no-repeat;
+  /* Figma: height 750px, warm golden gradient + bg image, content bottom-left at 180px from left */
+  min-height: 750px;
+  background: linear-gradient(90deg, #efdbc1 0%, #f2e1c3 47%, #f3e3c4 72%, #f2e1c6 93%, #e8d6b8 100%);
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
-  padding: 64px 8%;
+  padding: 80px 180px;
+  overflow: hidden;
+}
+
+.offer-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/images/bg12121.png') center / cover no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .offer-content {
   max-width: 810px;
   text-align: left;
+  position: relative;
+  z-index: 1;
 }
 
 .offer-label-row {
@@ -30,27 +43,35 @@
 }
 
 .offer-label-text {
-  font-family: Inter, sans-serif;
-  font-size: 12px;
-  letter-spacing: 2px;
+  font-family: Cabin, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 6px;
   text-transform: uppercase;
   color: #000;
+  line-height: 1.4;
 }
 
 .offer-heading {
+  /* Figma: Tenaka Regular 46px, lh 1.4, w 700px */
   font-family: Teneka, serif;
-  font-size: 48px;
+  font-size: 46px;
   font-weight: 400;
   color: #000;
   margin: 0 0 16px;
-  line-height: 1.15;
+  line-height: 1.4;
+  max-width: 700px;
 }
 
 .offer-text {
+  /* Figma: Cabin Regular 22px, lh 1.45, opacity 60%, w 809px */
   font-family: Cabin, sans-serif;
-  font-size: 16px;
-  color: #000;
-  margin: 0 0 32px;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: rgba(0,0,0,0.6);
+  margin: 0 0 30px;
+  max-width: 809px;
 }
 
 .offer-form {
@@ -60,28 +81,39 @@
 }
 
 .offer-input {
-  flex: 1;
-  padding: 14px 24px;
+  /* Figma: white bg, rounded-[40px], px-30px pr-234px py-18px, w 535px, Cabin 18px #7c7c7c placeholder */
+  flex: 0 0 535px;
+  padding: 18px 30px;
   border: none;
-  border-radius: 30px;
-  font-family: Inter, sans-serif;
-  font-size: 14px;
+  border-radius: 40px;
+  font-family: Cabin, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
   outline: none;
   background-color: #fff;
+  color: #000;
   max-width: 535px;
 }
 
+.offer-input::placeholder {
+  color: #7c7c7c;
+}
+
 .offer-submit-btn {
-  padding: 14px 32px;
+  /* Figma: bg-black, rounded-[40px], px-40px py-18px, Cabin 18px white */
+  padding: 18px 40px;
   background-color: #000;
   color: #fff;
   border: none;
-  border-radius: 30px;
-  font-family: Inter, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: 40px;
+  font-family: Cabin, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .offer-submit-btn:hover:not(:disabled) {
@@ -102,25 +134,37 @@
   color: #b91c1c;
 }
 
+@media (max-width: 1200px) {
+  .offer-section {
+    padding: 80px 80px;
+  }
+}
+
 @media (max-width: 768px) {
   .offer-section {
     padding: 64px 24px;
-    justify-content: center;
-    background-position: left center;
-  }
-  .offer-content {
-    text-align: center;
-  }
-  .offer-label-row {
-    justify-content: center;
+    min-height: 520px;
+    justify-content: flex-start;
+    align-items: flex-end;
   }
   .offer-heading {
-    font-size: 36px;
+    font-size: 32px;
+    line-height: 1.3;
+  }
+  .offer-text {
+    font-size: 16px;
   }
   .offer-form {
     flex-direction: column;
+    gap: 10px;
   }
-  .offer-input, .offer-submit-btn {
+  .offer-input {
+    flex: none;
     width: 100%;
+    max-width: 100%;
+  }
+  .offer-submit-btn {
+    width: 100%;
+    text-align: center;
   }
 }
