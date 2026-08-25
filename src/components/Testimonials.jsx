@@ -29,13 +29,27 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="testimonial-section">
       <Reveal className="testimonial-inner" variant="fade-up">
-        <div className="testimonial-slider-container">
+        <div className="testimonial-slider-row">
+          <img
+            onClick={prev}
+            src="/images/left.svg"
+            alt="Previous testimonial"
+            className="testimonial-quote-icon"
+          />
+
           <div
             key={current}
             className={`testimonial-content-block${switching ? ' is-switching' : ''}`}
           >
             <div className="testimonial-profile-row">
-              <img src ="/images/avatar.svg" alt={t.name} className="testimonial-profile-image" onError={(e) => { e.target.src = AVATAR_PLACEHOLDER; }} />
+              <img
+                src="/images/avatar.svg"
+                alt={t.name}
+                className="testimonial-profile-image"
+                onError={(e) => {
+                  e.target.src = AVATAR_PLACEHOLDER;
+                }}
+              />
               <div className="testimonial-profile-meta">
                 <div className="testimonial-stars-row" aria-label={`${t.rating} out of 5 stars`}>
                   {[...Array(5)].map((_, i) => (
@@ -51,10 +65,13 @@ export default function Testimonials() {
             </div>
             <blockquote className="testimonial-quote-text">&ldquo;{t.quote}&rdquo;</blockquote>
           </div>
-          <div className="testimonial-nav-row">
-            <img onClick={prev} src="/images/left.svg" alt="Previous" className="testimonial-quote-icon" style={{ cursor: 'pointer' }} />
-            <img onClick={next} src="/images/rught.svg" alt="Next" className="testimonial-quote-icon" style={{ cursor: 'pointer' }} />
-          </div>
+
+          <img
+            onClick={next}
+            src="/images/rught.svg"
+            alt="Next testimonial"
+            className="testimonial-quote-icon"
+          />
         </div>
       </Reveal>
     </section>

@@ -64,7 +64,7 @@ function HeroTagline({ displayed, done }) {
 }
 const SHOP_BADGE = (
   <>
-    <svg viewBox="0 0 100 100" width="120" height="120" className="hero-circular-rotating-svg" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="hero-circular-rotating-svg" aria-hidden="true">
       <defs>
         <path id="heroCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
       </defs>
@@ -112,7 +112,6 @@ function CollectionRow() {
           src="/images/collection.svg"
           alt="Collection preview"
           className="hero-collection-thumbnail-single"
-          style={{ width: '180px', height: '60px', objectFit: 'cover' }}
         />
       </div>
     </div>
