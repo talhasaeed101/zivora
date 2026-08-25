@@ -3,7 +3,8 @@
   background-color: #000;
   /* Figma: bg is 1920px wide, content is 1240px at 340px from left = 340px margin */
   padding: 120px 340px 120px;
-  overflow: hidden;
+  /* Keep badge visible when it hangs past the capsule edge */
+  overflow: visible;
 }
 
 .featured-inner {
@@ -78,31 +79,27 @@
 .featured-image-zone {
   position: absolute;
   top: -7%;
-  right: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  right: 80px;
   pointer-events: none;
   z-index: 5;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.featured-image-zone.is-hidden {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-.featured-image-zone.is-visible {
-  opacity: 1 !important;
-  visibility: visible !important;
+.featured-image-stack {
+  position: relative;
+  width: 380px;
+  height: 552px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .featured-organic-image-wrap {
-  width: 380px;
-  height: 552px;
+  width: 100%;
+  height: 100%;
   border-radius: 300px;
   overflow: hidden;
   position: relative;
+  z-index: 1;
   background-color: #000;
   transform: rotate(15deg);
 }
@@ -117,20 +114,21 @@
 
 .featured-circular-badge-container {
   position: absolute;
-  right: -42px;
+  /* Center of badge sits on the capsule's right edge (like hero/Figma) */
+  right: -60px;
   top: 50%;
   transform: translateY(-50%);
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background-color: transparent;
+  background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 12;
   cursor: pointer;
   transition:
     transform 0.3s ease,
@@ -143,10 +141,19 @@
 
 .featured-circular-badge-container:hover {
   transform: translateY(-50%) scale(1.04);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+
+.featured-circular-badge-container:focus-visible {
+  outline: 2px solid #967259;
+  outline-offset: 4px;
 }
 
 .featured-circular-rotating-svg {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   animation: featured-spin-animation 10s linear infinite;
 }
 
@@ -155,11 +162,11 @@
   height: 50px;
   border-radius: 50%;
   background-color: #000;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 @keyframes featured-spin-animation {
@@ -220,20 +227,19 @@
   .featured-image-zone {
     position: absolute;
     top: 20%;
-    right: 20%;
+    right: 12%;
     transform: translateY(-50%);
     z-index: 5;
     pointer-events: none;
   }
 
-  .featured-organic-image-wrap {
+  .featured-image-stack {
     width: 260px;
     height: 380px;
-    border-radius: 180px;
   }
 
-  .featured-organic-image {
-    /* No transform needed */
+  .featured-organic-image-wrap {
+    border-radius: 180px;
   }
 
   .featured-category-name {
@@ -241,12 +247,7 @@
   }
 
   .featured-circular-badge-container {
-    right: -20px;
-    width: 90px;
-    height: 90px;
-  }
-
-  .featured-circular-rotating-svg {
+    right: -45px;
     width: 90px;
     height: 90px;
   }
@@ -260,7 +261,7 @@
 @media (max-width: 768px) {
   .featured-section {
     padding: 60px 20px 56px;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .featured-heading {
@@ -290,41 +291,37 @@
   .featured-image-zone {
     position: absolute;
     top: 40px;
-    right: 20%;
+    right: 8%;
     transform: none;
-    opacity: 1;
-    z-index: 3;
+    z-index: 6;
     pointer-events: none;
   }
 
-  .featured-organic-image-wrap {
+  .featured-image-stack {
     width: 180px;
     height: 280px;
+  }
+
+  .featured-organic-image-wrap {
     border-radius: 140px;
     transform: rotate(0deg);
-    left: 10%;
   }
 
   .featured-circular-badge-container {
     display: flex;
-    right: 24px;
+    right: -44px;
     top: 50%;
     width: 88px;
     height: 88px;
     transform: translateY(-50%);
     pointer-events: auto;
-    background: var(--white-40, #FFFFFF66);
-backdrop-filter: blur(40px)
-
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
   }
 
   .featured-circular-badge-container:hover {
     transform: translateY(-50%) scale(1.04);
-  }
-
-  .featured-circular-rotating-svg {
-    width: 88px;
-    height: 88px;
   }
 
   .featured-circular-inner-button {
