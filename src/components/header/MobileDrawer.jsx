@@ -83,7 +83,9 @@ export default function MobileDrawer({
             }}
             aria-label="Close navigation menu"
           >
-            Close
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         </div>
 

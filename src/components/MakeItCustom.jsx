@@ -17,14 +17,14 @@ const CUSTOM_CARDS = [
     title: "Minimal Rings",
     image: "/images/mmrings.png",
     alt: "Minimal rings on hand",
-    showButton: false,
+    showButton: true,
   },
   {
     label: "EARRINGS",
     title: "Minimal Earrings",
     image: "/images/mmearning.png",
     alt: "Minimal earrings close-up",
-    showButton: false,
+    showButton: true,
   },
 ];
 
@@ -119,6 +119,7 @@ export default function MakeItCustom() {
                   </div>
 
                   <h3 className="custom-overlay-title">Minimal Rings</h3>
+                  <span className="custom-shop-btn">Shop Collection</span>
                 </div>
               </Link>
             </div>
@@ -140,6 +141,7 @@ export default function MakeItCustom() {
                   </div>
 
                   <h3 className="custom-overlay-title">Minimal Earrings</h3>
+                  <span className="custom-shop-btn">Shop Collection</span>
                 </div>
               </Link>
             </div>

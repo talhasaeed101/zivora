@@ -70,7 +70,7 @@ export default function Footer() {
       <div className="footer-inner">
         <div className="footer-top">
           <Link to={ROUTES.home} className="footer-logo-link">
-            ZIVORA
+            ZIVORAH
           </Link>
 
           <div className="footer-newsletter-wrapper">

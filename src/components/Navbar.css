@@ -520,9 +520,9 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: min(88vw, 360px);
+  width: min(88vw, 380px);
   background: #fff;
-  padding: 20px 18px 32px;
+  padding: 30px 24px 40px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -533,27 +533,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 32px;
 }
 
 .mobile-drawer-brand {
   margin: 0;
   font-family: Teneka, serif;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 16px;
+  font-size: 24px;
+  color: #000;
 }
 
 .mobile-drawer-close {
   border: none;
   background: none;
-  font-family: inherit;
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--nav-accent);
+  color: #000;
   cursor: pointer;
-  min-height: 40px;
+  padding: 0;
 }
 
 .mobile-drawer-greeting {
@@ -565,7 +566,7 @@
 .mobile-drawer-nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
 .mobile-drawer-link,
@@ -574,11 +575,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 46px;
-  padding: 10px 4px;
+  min-height: 54px;
+  padding: 0;
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  font-size: 15px;
-  color: var(--nav-black);
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
   text-decoration: none;
   border: none;
   background: none;
@@ -593,9 +595,9 @@
 }
 
 .mobile-drawer-sublink {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--nav-gray);
-  padding-left: 12px;
+  padding-left: 16px;
 }
 
 .mobile-drawer-accordion-panel {
