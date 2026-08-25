@@ -91,3 +91,14 @@
     font-size: 12px;
   }
 }
+@media(max-width:480px)
+{
+  .timer-ended-text
+  {
+    font-size: 20px;
+  }
+  .launch-timer-section
+  {
+    padding:60px 32px
+  }
+}

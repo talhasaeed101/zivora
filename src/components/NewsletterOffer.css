@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap");
 
 .offer-section {
   position: relative;
   width: 100%;
   min-height: 600px;
-  background: url('/images/bg12121.png') center/cover no-repeat;
+  background: url("/images/bg12121.png") center/cover no-repeat;
   display: flex;
   align-items: flex-end;
   justify-content: flex-start;
@@ -81,7 +81,10 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .offer-submit-btn:hover:not(:disabled) {
@@ -106,21 +109,33 @@
   .offer-section {
     padding: 64px 24px;
     justify-content: center;
-    background-position: left center;
+    background-position: 100% 100%;
   }
   .offer-content {
-    text-align: center;
+    text-align: left;
   }
   .offer-label-row {
-    justify-content: center;
+    justify-content: flex-start;
   }
   .offer-heading {
     font-size: 36px;
   }
   .offer-form {
-    flex-direction: column;
+    flex-direction: row;
   }
-  .offer-input, .offer-submit-btn {
-    width: 100%;
+  .offer-input,
+  .offer-submit-btn {
+    width: 98px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+@media (max-width: 480px) {
+  .offer-heading {
+    font-size: 24px;
+  }
+  .offer-text {
+    font-size: 14px;
   }
 }

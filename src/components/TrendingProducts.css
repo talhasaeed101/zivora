@@ -1,11 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap");
+
 .trending-section {
   width: 100%;
   /* background-color: #fff; */
   padding: 200px 0 80px 80px;
 }
 
-.trending-inner {
-}
+.trending-inner {}
 
 .trending-header-row {
   display: flex;
@@ -40,7 +41,9 @@
   gap: 6px;
   padding: 8px 0;
   border-bottom: 1px solid transparent;
-  transition: color 0.25s ease, border-color 0.25s ease;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease;
   flex-shrink: 0;
 }
 
@@ -70,6 +73,7 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .trending-products-row::-webkit-scrollbar {
   display: none;
 }
@@ -114,6 +118,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  font-family: "Cabin", sans-serif;
 }
 
 .trending-product-info-row {
@@ -157,9 +162,11 @@
 .trending-price-current {
   font-size: 14px;
   font-weight: 600;
+  font-family: "Cabin", sans-serif;
 }
 
 .trending-price-original {
+  font-family: "Cabin", sans-serif;
   font-size: 12px;
   color: #7c7c7c;
   text-decoration: line-through;
@@ -184,7 +191,7 @@
 
 @media (max-width: 768px) {
   .trending-section {
-    padding: 48px 16px;
+    padding: 80px 16px;
   }
 
   .trending-heading {
@@ -193,33 +200,50 @@
 
   .trending-view-all-link {
     font-size: 14px;
+    color: #000;
   }
 
   .trending-header-row {
     margin-bottom: 24px;
+    padding-right: 0px;
   }
 
   .trending-products-row {
-    grid-auto-columns: calc(100% - 48px);
-    gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
     padding-bottom: 16px;
   }
 
+  .trending-product-card {
+    width: 100%;
+    height: 480px;
+  }
+
   .trending-product-name {
-    font-family: Teneka, serif;
+    /* font-family: Teneka, serif; */
     font-size: 18px;
-    font-style: italic;
+    /* font-style: italic; */
     font-weight: 400;
   }
 
-  .trending-sale-badge {
+  /* .trending-sale-badge {
     font-family: Teneka, serif;
     font-style: italic;
-  }
+  } */
 
   .trending-product-image-wrap {
-    border-top-left-radius: 180px;
-    border-top-right-radius: 180px;
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+  }
+
+  .trending-product-text-wrap {
+    max-width: 315px;
   }
 }
 
+@media (max-width: 480px) {
+  .trending-heading {
+    font-size: 26px;
+  }
+}
