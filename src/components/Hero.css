@@ -224,9 +224,9 @@
   border: none;
   backdrop-filter: blur(40px);
 }
-.djdjdjdjdjdjddj
-{
-  display:flex
+.hero-collection-text-arrow-wrapper {
+  display: flex;
+  align-items: center;
 }
 .hero-circular-badge-container:focus-visible {
   outline: 2px solid #967259;
@@ -419,6 +419,7 @@
     flex: 1;
     min-width: 0;
     padding-top: 4px;
+    margin-left:25px
   }
 
   .hero-left-zone-container {
@@ -470,8 +471,9 @@
   }
 
   .mobile-hero-badge .hero-circular-inner-button {
-    width: 38px;
-    height: 38px;
+    width: 54px;
+    height:54px;
+    margin-top:47px
   }
 
   .mobile-collection-row {
@@ -480,13 +482,12 @@
 
   .mobile-collection-row .hero-collection-row-container {
     margin: 0;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
-  .djdjdjdjdjdjddj {
+  .hero-collection-text-arrow-wrapper {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -535,6 +536,10 @@
   .mobile-hero-arch .hero-arch-image {
     object-position: center center;
   }
+  .hero-collection-arrow-icon-wrapper
+  {
+    margin-left: 0px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -565,10 +570,26 @@
   .mobile-hero-badge {
     width: 78px;
     height: 78px;
+    /* margin-left:20px */
+  }
+  .hero-collection-arrow-icon-wrapper
+  {
+    height:18px !important;
+    width: 18px !important;
+  }
+  .hero-collection-thumbnail-single
+  {
+    width: 130px !important;
   }
 
   .mobile-hero-badge .hero-circular-rotating-svg {
-    width: 78px;
-    height: 78px;
+    width: 120px;
+    height: 120px;
+    margin-top:46px
+  }
+
+  .hero-collection-title-text
+  {
+    font-size: 14px
   }
 }

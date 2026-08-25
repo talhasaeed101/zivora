@@ -91,12 +91,11 @@ const SHOP_BADGE = (
 function CollectionRow() {
   return (
     <div className="hero-collection-row-container">
-      <p className="hero-collection-title-text">COLLECTION</p>
-      <div className="hero-collection-separator-line" />
-
-      <div className='djdjdjdjdjdjddj'>
+      <div className="hero-collection-text-arrow-wrapper">
+        <p className="hero-collection-title-text">COLLECTION</p>
+        <div className="hero-collection-separator-line" />
         <div className="hero-collection-arrow-icon-wrapper">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M5 12H19M19 12L12 5M19 12L12 19"
               stroke="black"
@@ -106,14 +105,15 @@ function CollectionRow() {
             />
           </svg>
         </div>
-        <div className="hero-collection-thumbnails-container">
-          <SafeImage
-            src="/images/collection.svg"
-            alt="Collection preview"
-            className="hero-collection-thumbnail-single"
-            style={{ width: '180px', height: '60px', objectFit: 'cover' }}
-          />
-        </div>
+      </div>
+
+      <div className="hero-collection-thumbnails-container">
+        <SafeImage
+          src="/images/collection.svg"
+          alt="Collection preview"
+          className="hero-collection-thumbnail-single"
+          style={{ width: '180px', height: '60px', objectFit: 'cover' }}
+        />
       </div>
     </div>
   );
