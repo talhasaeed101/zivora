@@ -24,16 +24,8 @@ const PAGE_SIZE = 12;
 
 function Checkbox({ checked }) {
   return (
-    <span className={`catalog-checkbox ${checked ? 'catalog-checkbox-checked' : ''}`} aria-hidden="true">
-      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-        <path
-          d="M1 4L3.5 6.5L9 1"
-          stroke="white"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+    <span className="catalog-checkbox" aria-hidden="true">
+      <img src={checked ? "/images/check.svg" : "/images/uncheck.svg"} alt="" />
     </span>
   );
 }
@@ -431,15 +423,17 @@ export default function Collection() {
           <PageBreadcrumbs items={collectionCrumbs} className="catalog-breadcrumbs" />
 
           <h1 className="catalog-page-title">
-            {activeCategory ? activeCategory.name : 'Our Collection'}
+            Showing products for{' '}
+            <em className="catalog-page-title-query">
+              &ldquo;{activeCategory ? activeCategory.name : 'All'}&rdquo;
+            </em>
           </h1>
-          <p className="catalog-page-description">{headerDescription}</p>
           <p className="catalog-page-count" aria-live="polite">
-            {loading ? 'Loading products…' : `${productCount} ${productCount === 1 ? 'piece' : 'pieces'}`}
+            {loading ? 'Loading products…' : `(${productCount} ${productCount === 1 ? 'Product' : 'Products'})`}
           </p>
         </Reveal>
 
-        <Reveal className="catalog-search-form-wrap" variant="fade-up" delay={60}>
+        {/* <Reveal className="catalog-search-form-wrap" variant="fade-up" delay={60}>
           <form className="catalog-search-form" onSubmit={handleSearchSubmit}>
             <input
               type="search"
@@ -453,7 +447,7 @@ export default function Collection() {
               Search
             </button>
           </form>
-        </Reveal>
+        </Reveal> */}
 
         <Reveal className="catalog-toolbar" variant="fade-up" delay={90}>
           <div className="catalog-toolbar-left">

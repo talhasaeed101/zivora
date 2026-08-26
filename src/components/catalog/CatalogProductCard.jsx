@@ -128,7 +128,7 @@ export default function CatalogProductCard({
         </div>
 
         {!isMobile ? (
-          <>
+          <div className="catalog-product-text-wrap">
             <div className="catalog-product-info-row">
               <h3 className="catalog-product-name">{product.title}</h3>
               <WishlistButton
@@ -144,7 +144,7 @@ export default function CatalogProductCard({
                 <span className="catalog-price-original">{formatPrice(product.oldPrice)}</span>
               ) : null}
             </div>
-          </>
+          </div>
         ) : null}
       </article>
     </Link>
