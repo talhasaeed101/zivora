@@ -1,104 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ROUTES, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
 import { useSeo } from './hooks/useSeo.js';
 import { useMediaQuery } from './hooks/useMediaQuery.js';
 import { loadPublicCategories, loadPublicProducts } from './services/catalogCache.js';
-import { formatPrice, getProductImage, hasSale } from './utils/products.js';
-import { isCatalogOutOfStock } from './utils/inventory.js';
 import { PRICE_RANGES, SORT_OPTIONS, getSortLabel } from './utils/catalogFilters.js';
-import WishlistButton from './components/WishlistButton.jsx';
-import SafeImage from './components/SafeImage.jsx';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import PageBreadcrumbs from './components/seo/PageBreadcrumbs.jsx';
 import { ShimmerProductGrid } from './components/Shimmer.jsx';
+import CatalogProductCard from './components/catalog/CatalogProductCard.jsx';
+import CatalogPagination from './components/catalog/CatalogPagination.jsx';
+import Reveal from './components/Reveal.jsx';
+import { ChevronDownIcon, FilterIcon } from './components/icons';
+import './Pages/Collection.css';
 
 const PAGE_SIZE = 24;
 
-function FilterIcon() {
+function Checkbox({ checked }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
-      <circle cx="18" cy="6" r="2" fill="currentColor" stroke="none" />
-      <circle cx="6" cy="12" r="2" fill="currentColor" stroke="none" />
-      <circle cx="14" cy="18" r="2" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ProductCard({ product, variant }) {
-  const image = getProductImage(product);
-  const showSale = hasSale(product);
-  const outOfStock = isCatalogOutOfStock(product);
-  const href = `/product/${product.slug}`;
-
-  const cardContent = variant === 'mobile' ? (
-    <>
-        <div className="sr-product-image-wrap sr-product-image-wrap-mobile">
-          <SafeImage src={image} alt={product.title} className="sr-product-image" width={400} height={500} />
-          {showSale && <span className="sr-sale-badge">Sale!</span>}
-          {outOfStock ? <span className="sr-sale-badge">Out of stock</span> : null}
-          <div className="sr-product-overlay">
-            <div className="sr-product-info-row">
-              <h3 className="sr-product-name sr-product-name-mobile">{product.title}</h3>
-              <WishlistButton
-                productId={product._id}
-                className="sr-wishlist-btn"
-                activeClassName="sr-wishlist-btn-active"
-              />
-            </div>
-            <div className="sr-price-row">
-              <span className="sr-price-current">{formatPrice(product.price)}</span>
-              {product.oldPrice && (
-                <span className="sr-price-original">{formatPrice(product.oldPrice)}</span>
-              )}
-            </div>
-          </div>
-        </div>
-    </>
-  ) : (
-    <>
-      <div className="sr-product-image-wrap">
-        <SafeImage src={image} alt={product.title} className="sr-product-image" sizes="(max-width: 768px) 100vw, 25vw" width={400} height={500} />
-        {showSale && <span className="sr-sale-badge">Sale!</span>}
-        {outOfStock ? <span className="sr-sale-badge">Out of stock</span> : null}
-      </div>
-      <div className="sr-product-info-row">
-        <h3 className="sr-product-name">{product.title}</h3>
-        <WishlistButton
-          productId={product._id}
-          className="sr-wishlist-btn"
-          activeClassName="sr-wishlist-btn-active"
-        />
-      </div>
-      <div className="sr-price-row">
-        <span className="sr-price-current">{formatPrice(product.price)}</span>
-        {product.oldPrice && (
-          <span className="sr-price-original">{formatPrice(product.oldPrice)}</span>
-        )}
-      </div>
-    </>
-  );
-
-  return (
-    <Link to={href} className={`sr-product-card-link ${variant === 'mobile' ? 'sr-product-card-link-mobile' : ''}`}>
-      <article className={`sr-product-card ${variant === 'mobile' ? 'sr-product-card-mobile' : ''}`}>
-        {cardContent}
-      </article>
-    </Link>
+    <span className="catalog-checkbox" aria-hidden="true">
+      <img src={checked ? "/images/check.svg" : "/images/uncheck.svg"} alt="" />
+    </span>
   );
 }
 
 export default function SearchResults() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = getSearchQueryFromUrl();
   const initialCategory = getSearchCategoryFromUrl();
   const filtersRef = useRef(null);
@@ -110,14 +38,16 @@ export default function SearchResults() {
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState(initialCategory);
-  const [sort, setSort] = useState('newest');
-  const [priceRangeId, setPriceRangeId] = useState('');
-  const [customMinPrice, setCustomMinPrice] = useState('');
-  const [customMaxPrice, setCustomMaxPrice] = useState('');
-  const [appliedMinPrice, setAppliedMinPrice] = useState('');
-  const [appliedMaxPrice, setAppliedMaxPrice] = useState('');
-  const [page, setPage] = useState(1);
+  
+  const [categoryFilter, setCategoryFilter] = useState(initialCategory || searchParams.get('category') || '');
+  const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
+  const [priceRangeId, setPriceRangeId] = useState(searchParams.get('price') || '');
+  const [customMinPrice, setCustomMinPrice] = useState(searchParams.get('minPrice') || '');
+  const [customMaxPrice, setCustomMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [appliedMinPrice, setAppliedMinPrice] = useState(searchParams.get('minPrice') || '');
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState(searchParams.get('maxPrice') || '');
+  const [page, setPage] = useState(Number(searchParams.get('page') || 1));
+  
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [mobileSortOpen, setMobileSortOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -136,7 +66,6 @@ export default function SearchResults() {
 
   useEffect(() => {
     let isMounted = true;
-
     loadPublicCategories()
       .then((items) => {
         if (isMounted) {
@@ -148,7 +77,6 @@ export default function SearchResults() {
           setCategories([]);
         }
       });
-
     return () => {
       isMounted = false;
     };
@@ -176,9 +104,7 @@ export default function SearchResults() {
         setError('');
       })
       .catch((err) => {
-        if (err?.name === 'AbortError') {
-          return;
-        }
+        if (err?.name === 'AbortError') return;
         setError(err.message || 'Unable to load products.');
         setProducts([]);
       })
@@ -193,10 +119,30 @@ export default function SearchResults() {
     };
   }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page, reloadToken]);
 
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (searchQuery) next.set('q', searchQuery);
+    if (categoryFilter) next.set('category', categoryFilter);
+    if (sort && sort !== 'newest') next.set('sort', sort);
+    if (priceRangeId) next.set('price', priceRangeId);
+    if (!priceRangeId && appliedMinPrice) next.set('minPrice', appliedMinPrice);
+    if (!priceRangeId && appliedMaxPrice) next.set('maxPrice', appliedMaxPrice);
+    if (page > 1) next.set('page', String(page));
+    setSearchParams(next, { replace: true });
+  }, [
+    searchQuery,
+    categoryFilter,
+    sort,
+    priceRangeId,
+    appliedMinPrice,
+    appliedMaxPrice,
+    page,
+    setSearchParams,
+  ]);
+
   const handleCategoryChange = (categoryId) => {
     setCategoryFilter((current) => (current === categoryId ? '' : categoryId));
     setPage(1);
-    setLoading(true);
   };
 
   const handlePriceRangeChange = (rangeId) => {
@@ -206,15 +152,6 @@ export default function SearchResults() {
     setAppliedMinPrice('');
     setAppliedMaxPrice('');
     setPage(1);
-    setLoading(true);
-  };
-
-  const handleApplyCustomPrice = () => {
-    setPriceRangeId('');
-    setAppliedMinPrice(customMinPrice);
-    setAppliedMaxPrice(customMaxPrice);
-    setPage(1);
-    setLoading(true);
   };
 
   const handleSortChange = (value) => {
@@ -222,13 +159,67 @@ export default function SearchResults() {
     setSortMenuOpen(false);
     setMobileSortOpen(false);
     setPage(1);
-    setLoading(true);
   };
 
-  const handleOpenMobileFilters = () => {
-    setMobileFiltersOpen(true);
-    filtersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleClearFilters = () => {
+    setCategoryFilter('');
+    setPriceRangeId('');
+    setCustomMinPrice('');
+    setCustomMaxPrice('');
+    setAppliedMinPrice('');
+    setAppliedMaxPrice('');
+    setPage(1);
   };
+
+  const handlePageChange = (nextPage) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const hasActiveFilters = Boolean(categoryFilter || priceRangeId || appliedMinPrice || appliedMaxPrice);
+
+  const activeChips = useMemo(() => {
+    const chips = [];
+
+    if (categoryFilter) {
+      const cat = categories.find((c) => c._id === categoryFilter);
+      if (cat) {
+        chips.push({
+          id: 'category',
+          label: cat.name,
+          onRemove: () => {
+            setCategoryFilter('');
+            setPage(1);
+          },
+        });
+      }
+    }
+
+    if (selectedPriceRange) {
+      chips.push({
+        id: 'price',
+        label: selectedPriceRange.label,
+        onRemove: () => {
+          setPriceRangeId('');
+          setPage(1);
+        },
+      });
+    } else if (appliedMinPrice || appliedMaxPrice) {
+      chips.push({
+        id: 'custom-price',
+        label: `PKR ${appliedMinPrice || '0'}–${appliedMaxPrice || '∞'}`,
+        onRemove: () => {
+          setAppliedMinPrice('');
+          setAppliedMaxPrice('');
+          setCustomMinPrice('');
+          setCustomMaxPrice('');
+          setPage(1);
+        },
+      });
+    }
+
+    return chips;
+  }, [categoryFilter, categories, selectedPriceRange, appliedMinPrice, appliedMaxPrice]);
 
   const displayQuery = searchQuery || 'all products';
   const productCount = pagination?.total ?? products.length;
@@ -249,1273 +240,285 @@ export default function SearchResults() {
     { name: displayQuery },
   ];
 
-  return (
+  const filterSidebar = (
     <>
-      <style>{`
-        @font-face {
-          font-family: 'Teneka';
-          src: url('/fonts/tenaka.otf') format('opentype');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;
-        }
-        @font-face {
-          font-family: 'Teneka';
-          src: url('/fonts/tenaka-italic.otf') format('opentype');
-          font-weight: normal;
-          font-style: italic;
-          font-display: swap;
-        }
-
-        .sr-page {
-          --sr-accent: #967259;
-          --sr-black: #000000;
-          --sr-white: #ffffff;
-          --sr-gray: #767676;
-          --sr-gray-light: #999999;
-          --sr-border: #e5e5e5;
-          --sr-border-input: #dddddd;
-          font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-          color: var(--sr-black);
-          background: var(--sr-white);
-          min-height: 100vh;
-        }
-
-        .sr-page *,
-        .sr-page *::before,
-        .sr-page *::after {
-          box-sizing: border-box;
-        }
-
-        /* ── Desktop Header ── */
-        .sr-header-desktop {
-          display: block;
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          background: var(--sr-white);
-          border-bottom: 1px solid var(--sr-border);
-        }
-
-        .sr-header-mobile {
-          display: none;
-        }
-
-        .sr-header-inner {
-          max-width: 1440px;
-          margin: 0 auto;
-          height: 90px;
-          padding: 0 80px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .sr-logo {
-          font-family: Teneka, serif;
-          font-size: 28px;
-          letter-spacing: 2px;
-          color: var(--sr-black);
-          text-decoration: none;
-          flex: 1;
-        }
-
-        .sr-nav {
-          display: flex;
-          align-items: center;
-          gap: 40px;
-          flex: 2;
-          justify-content: center;
-        }
-
-        .sr-nav-link {
-          font-size: 12px;
-          font-weight: 500;
-          letter-spacing: 1.5px;
-          color: var(--sr-black);
-          text-decoration: none;
-        }
-
-        .sr-nav-link-active {
-          color: var(--sr-accent);
-          font-weight: 600;
-        }
-
-        .sr-header-actions {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex: 1;
-          justify-content: flex-end;
-        }
-
-        .sr-product-card {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .sr-product-card-link {
-          text-decoration: none;
-          color: inherit;
-          display: block;
-        }
-
-        .sr-search-wrap {
-          display: flex;
-          align-items: center;
-          border-bottom: 1px solid var(--sr-border-input);
-          padding-bottom: 4px;
-          width: 160px;
-          gap: 8px;
-          transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease;
-        }
-
-        .sr-search-wrap:focus-within {
-          width: 240px;
-          border-bottom-color: var(--sr-black);
-        }
-
-        .sr-search-input {
-          flex: 1;
-          font-size: 13px;
-          font-style: italic;
-          border: none;
-          outline: none;
-          background: transparent;
-          color: var(--sr-black);
-          font-family: inherit;
-          transition: opacity 0.3s ease;
-        }
-
-        .sr-icon-btn {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          border: none;
-          padding: 0;
-          text-decoration: none;
-          box-sizing: border-box;
-        }
-
-        .sr-cart-btn {
-          background: var(--sr-black);
-          color: var(--sr-white);
-        }
-
-        .sr-user-btn {
-          background: var(--sr-white);
-          border: 1px solid var(--sr-border-input);
-          color: var(--sr-black);
-        }
-
-        /* ── Main Content ── */
-        .sr-main {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 32px 80px 64px;
-        }
-
-        .sr-breadcrumbs {
-          font-size: 12px;
-          color: var(--sr-gray);
-          margin-bottom: 16px;
-        }
-
-        .sr-breadcrumbs a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .sr-breadcrumbs a:hover {
-          color: var(--sr-black);
-        }
-
-        .sr-breadcrumbs span {
-          color: var(--sr-black);
-        }
-
-        .sr-page-title {
-          font-family: Teneka, serif;
-          font-size: 32px;
-          font-weight: 400;
-          line-height: 1.3;
-          margin: 0 0 24px;
-        }
-
-        .sr-page-title em {
-          font-family: Teneka, serif;
-          font-style: italic;
-        }
-
-        .sr-page-title-count {
-          font-family: Inter, sans-serif;
-          font-weight: 400;
-          font-size: 32px;
-        }
-
-        .sr-page-title-count-mobile {
-          display: none;
-        }
-
-        .sr-toolbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 16px 0;
-          border-top: 1px solid var(--sr-border);
-          border-bottom: 1px solid var(--sr-border);
-          margin-bottom: 32px;
-        }
-
-        .sr-filters-label {
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 1.5px;
-        }
-
-        .sr-sort-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 13px;
-          font-family: inherit;
-          background: var(--sr-white);
-          border: 1px solid var(--sr-border-input);
-          padding: 8px 16px;
-          cursor: pointer;
-          color: var(--sr-black);
-        }
-
-        .sr-sort-wrap {
-          position: relative;
-        }
-
-        .sr-sort-menu {
-          position: absolute;
-          top: calc(100% + 4px);
-          right: 0;
-          z-index: 20;
-          min-width: 200px;
-          background: var(--sr-white);
-          border: 1px solid var(--sr-border-input);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .sr-sort-option {
-          display: block;
-          width: 100%;
-          padding: 10px 16px;
-          border: none;
-          background: none;
-          text-align: left;
-          font-family: inherit;
-          font-size: 13px;
-          cursor: pointer;
-        }
-
-        .sr-sort-option:hover,
-        .sr-sort-option-active {
-          background: #f7f5f2;
-        }
-
-        .sr-price-inputs {
-          display: flex;
-          gap: 8px;
-          margin-top: 12px;
-        }
-
-        .sr-price-input {
-          width: 100%;
-          padding: 8px 10px;
-          border: 1px solid var(--sr-border-input);
-          font-family: inherit;
-          font-size: 13px;
-        }
-
-        .sr-price-apply {
-          margin-top: 10px;
-          width: 100%;
-          padding: 8px 12px;
-          border: 1px solid var(--sr-black);
-          background: var(--sr-black);
-          color: var(--sr-white);
-          font-family: inherit;
-          font-size: 11px;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          cursor: pointer;
-        }
-
-        .sr-filter-btn {
-          background: none;
-          border: none;
-          padding: 0;
-          font-family: inherit;
-          font-size: inherit;
-          color: inherit;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          width: 100%;
-          text-align: left;
-        }
-
-        .sr-mobile-filter-overlay {
-          display: none;
-        }
-
-        .sr-sort-btn strong {
-          font-weight: 600;
-        }
-
-        .sr-mobile-controls {
-          display: none;
-        }
-
-        .sr-content-row {
-          display: flex;
-          gap: 48px;
-        }
-
-        /* ── Sidebar ── */
-        .sr-sidebar {
-          width: 220px;
-          flex-shrink: 0;
-        }
-
-        .sr-filter-section {
-          padding: 20px 0;
-          border-bottom: 1px solid var(--sr-border);
-        }
-
-        .sr-filter-section:first-child {
-          padding-top: 0;
-        }
-
-        .sr-filter-heading {
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 1.2px;
-          margin: 0 0 16px;
-        }
-
-        .sr-filter-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .sr-filter-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 13px;
-          color: var(--sr-black);
-          cursor: pointer;
-        }
-
-        .sr-checkbox {
-          width: 16px;
-          height: 16px;
-          border: 1px solid var(--sr-border-input);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .sr-checkbox-checked {
-          background: var(--sr-accent);
-          border-color: var(--sr-accent);
-        }
-
-        .sr-checkbox-checked svg {
-          display: block;
-        }
-
-        .sr-checkbox svg {
-          display: none;
-        }
-
-        .sr-filter-count {
-          color: var(--sr-gray);
-        }
-
-        .sr-color-swatches {
-          display: flex;
-          gap: 12px;
-        }
-
-        .sr-color-swatch {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 2px solid transparent;
-        }
-
-        .sr-color-swatch-gray {
-          background: #d4d4d4;
-        }
-
-        .sr-color-swatch-gold {
-          background: #c9a84c;
-        }
-
-        .sr-color-swatch-selected {
-          border-color: var(--sr-black);
-        }
-
-        /* ── Product Grid ── */
-        .sr-grid-wrap {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .sr-product-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 32px 24px;
-        }
-
-        .sr-product-grid-mobile {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
-        }
-
-        .sr-error-banner,
-        .sr-empty-state {
-          padding: 24px 0;
-          color: #444;
-        }
-
-        .sr-error-banner p {
-          color: #b91c1c;
-          margin: 0 0 12px;
-        }
-
-        .sr-product-card {
-          position: relative;
-        }
-
-        .sr-product-image-wrap {
-          position: relative;
-          border-top-left-radius: 200px;
-          border-top-right-radius: 200px;
-          overflow: hidden;
-        }
-
-        .sr-product-image {
-          width: 100%;
-          aspect-ratio: 368 / 470;
-          object-fit: cover;
-          display: block;
-          background: #f0ebe4;
-        }
-
-        .sr-sale-badge {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          background: var(--sr-black);
-          color: var(--sr-white);
-          font-family: Teneka, serif;
-          font-size: 10px;
-          font-style: italic;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 50%;
-          z-index: 2;
-        }
-
-        .sr-product-info-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-top: 12px;
-          gap: 8px;
-        }
-
-        .sr-product-name {
-          font-family: Teneka, serif;
-          font-size: 16px;
-          font-weight: 400;
-          margin: 0;
-          line-height: 1.4;
-        }
-
-        .sr-wishlist-btn {
-          background: none;
-          border: none;
-          color: var(--sr-gray-light);
-          cursor: pointer;
-          padding: 0;
-          display: flex;
-          align-items: center;
-        }
-
-        .sr-wishlist-btn:hover,
-        .sr-wishlist-btn-active {
-          color: #c8815f;
-        }
-
-        .sr-price-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 4px;
-        }
-
-        .sr-price-current {
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .sr-price-original {
-          font-size: 12px;
-          color: var(--sr-gray-light);
-          text-decoration: line-through;
-        }
-
-        /* ── Pagination ── */
-        .sr-pagination {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          margin-top: 48px;
-          padding: 24px 0;
-        }
-
-        .sr-page-btn {
-          font-family: inherit;
-          font-size: 13px;
-          padding: 10px 20px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .sr-page-btn-prev {
-          background: var(--sr-white);
-          border: 1px solid var(--sr-border-input);
-          color: var(--sr-gray);
-        }
-
-        .sr-page-btn-next {
-          background: var(--sr-black);
-          border: 1px solid var(--sr-black);
-          color: var(--sr-white);
-          font-weight: 500;
-        }
-
-        .sr-page-numbers {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          margin: 0 16px;
-        }
-
-        .sr-page-num {
-          font-size: 14px;
-          color: var(--sr-gray);
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          position: relative;
-          font-family: inherit;
-        }
-
-        .sr-page-num-active {
-          color: var(--sr-black);
-          font-weight: 600;
-        }
-
-        .sr-page-num-active::after {
-          content: '';
-          position: absolute;
-          bottom: -6px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: var(--sr-black);
-        }
-
-        /* ── Footer ── */
-        .sr-footer {
-          background: var(--sr-black);
-          color: var(--sr-white);
-        }
-
-        .sr-footer-inner {
-          max-width: 1440px;
-          margin: 0 auto;
-          padding: 64px 80px 32px;
-        }
-
-        .sr-footer-logo {
-          font-family: Teneka, serif;
-          font-size: 32px;
-          text-align: center;
-          margin: 0 0 32px;
-        }
-
-        .sr-footer-form {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          max-width: 420px;
-          margin: 0 auto 40px;
-        }
-
-        .sr-footer-email {
-          flex: 1;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          color: var(--sr-white);
-          padding: 12px 20px;
-          font-size: 14px;
-          outline: none;
-          font-family: inherit;
-        }
-
-        .sr-footer-email::placeholder {
-          color: #888;
-        }
-
-        .sr-footer-submit {
-          background: var(--sr-white);
-          color: var(--sr-black);
-          border: none;
-          font-size: 14px;
-          padding: 13px 28px;
-          cursor: pointer;
-          font-family: inherit;
-        }
-
-        .sr-footer-nav {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-          gap: 32px;
-          margin-bottom: 40px;
-        }
-
-        .sr-footer-nav-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 14px;
-          color: var(--sr-white);
-          text-decoration: none;
-        }
-
-        .sr-footer-bottom {
-          border-top: 1px solid #2a2a2a;
-          padding-top: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 16px;
-          font-size: 10px;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: #888;
-        }
-
-        .sr-footer-legal {
-          display: flex;
-          gap: 24px;
-        }
-
-        .sr-footer-legal a {
-          color: #888;
-          text-decoration: none;
-        }
-
-        .sr-footer-social {
-          display: flex;
-          gap: 16px;
-          color: var(--sr-white);
-        }
-
-        .sr-footer-social a {
-          color: var(--sr-white);
-          display: flex;
-        }
-
-        .sr-footer-nav-mobile {
-          display: none;
-        }
-
-        .sr-footer-bottom-mobile {
-          display: none;
-        }
-
-        /* ── Mobile (768px and below) ── */
-        @media (max-width: 768px) {
-          .sr-header-desktop {
-            display: none;
-          }
-
-          .sr-header-mobile {
-            display: block;
-            background: var(--sr-white);
-            border-bottom: 1px solid var(--sr-border);
-            padding: 16px 20px;
-          }
-
-          .sr-mobile-header-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
-
-          .sr-mobile-search {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            border: 1px solid var(--sr-border-input);
-            border-radius: 24px;
-            padding: 10px 16px;
-            gap: 8px;
-          }
-
-          .sr-mobile-search input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            font-family: inherit;
-            color: var(--sr-gray);
-            background: transparent;
-          }
-
-          .sr-mobile-search input::placeholder {
-            color: #aaa;
-          }
-
-          .sr-mobile-menu-btn {
-            width: 44px;
-            height: 44px;
-            border: 1px solid var(--sr-border-input);
-            border-radius: 8px;
-            background: var(--sr-white);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            cursor: pointer;
-            flex-shrink: 0;
-            padding: 0;
-          }
-
-          .sr-mobile-menu-btn span {
-            display: block;
-            width: 18px;
-            height: 2px;
-            background: var(--sr-black);
-          }
-
-          .sr-main {
-            padding: 20px 20px 48px;
-          }
-
-          .sr-breadcrumbs {
-            font-size: 11px;
-            margin-bottom: 12px;
-          }
-
-          .sr-page-title {
-            font-size: 22px;
-            margin-bottom: 8px;
-          }
-
-          .sr-page-title-count {
-            display: none;
-          }
-
-          .sr-page-title-count-mobile {
-            display: block;
-            font-family: Inter, sans-serif;
-            font-size: 12px;
-            color: var(--sr-gray);
-            margin: 0 0 20px;
-          }
-
-          .sr-toolbar {
-            display: none;
-          }
-
-          .sr-mobile-controls {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-          }
-
-          .sr-mobile-filter-btn,
-          .sr-mobile-sort-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 13px;
-            font-family: inherit;
-            background: var(--sr-white);
-            border: 1px solid var(--sr-border-input);
-            border-radius: 4px;
-            padding: 12px 14px;
-            cursor: pointer;
-            color: var(--sr-black);
-          }
-
-          .sr-mobile-sort-btn {
-            flex: 1.4;
-            justify-content: space-between;
-          }
-
-          .sr-mobile-sort-btn strong {
-            font-weight: 600;
-          }
-
-          .sr-content-row {
-            flex-direction: column;
-            gap: 0;
-          }
-
-          .sr-sidebar {
-            display: none;
-          }
-
-          .sr-sidebar-mobile-open {
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: min(320px, 88vw);
-            z-index: 100;
-            background: var(--sr-white);
-            padding: 24px 20px;
-            overflow-y: auto;
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-          }
-
-          .sr-mobile-filter-overlay {
-            display: block;
-            position: fixed;
-            inset: 0;
-            z-index: 99;
-            background: rgba(0, 0, 0, 0.4);
-            border: none;
-            cursor: pointer;
-          }
-
-          .sr-mobile-sort-wrap {
-            position: relative;
-            flex: 1.4;
-          }
-
-          .sr-product-grid {
-            display: none;
-          }
-
-          .sr-product-grid-mobile {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-          }
-
-          .sr-product-image-wrap-mobile {
-            border-top-left-radius: 180px;
-            border-top-right-radius: 180px;
-          }
-
-          .sr-product-image-wrap-mobile .sr-product-image {
-            aspect-ratio: 390 / 480;
-          }
-
-          .sr-product-overlay {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            background: var(--sr-white);
-            padding: 14px 16px 12px;
-            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
-          }
-
-          .sr-product-overlay .sr-product-info-row {
-            margin-top: 0;
-          }
-
-          .sr-product-overlay .sr-price-row {
-            margin-top: 6px;
-          }
-
-          .sr-product-name-mobile {
-            font-family: Inter, sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-          }
-
-          .sr-pagination {
-            margin-top: 32px;
-            gap: 4px;
-            flex-wrap: wrap;
-          }
-
-          .sr-page-btn {
-            font-size: 12px;
-            padding: 8px 14px;
-          }
-
-          .sr-page-numbers {
-            gap: 14px;
-            margin: 0 8px;
-          }
-
-          .sr-page-num {
-            font-size: 13px;
-          }
-
-          .sr-footer-inner {
-            padding: 48px 24px 24px;
-          }
-
-          .sr-footer-nav {
-            display: none;
-          }
-
-          .sr-footer-nav-mobile {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px 28px;
-            max-width: 300px;
-            margin: 0 auto 32px;
-          }
-
-          .sr-footer-nav-mobile .sr-footer-nav-item {
-            font-size: 13px;
-            white-space: nowrap;
-          }
-
-          .sr-footer-bottom {
-            display: none;
-          }
-
-          .sr-footer-bottom-mobile {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            border-top: 1px solid #2a2a2a;
-            padding-top: 24px;
-          }
-
-          .sr-footer-social-mobile {
-            display: flex;
-            gap: 20px;
-          }
-
-          .sr-footer-legal-mobile {
-            display: flex;
-            gap: 24px;
-            font-size: 10px;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #888;
-          }
-
-          .sr-footer-legal-mobile a {
-            color: #888;
-            text-decoration: none;
-          }
-
-          .sr-footer-copyright-mobile {
-            font-size: 10px;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #888;
-            margin: 0;
-          }
-        }
-
-        /* ── Desktop only (1024px+) fine-tuning ── */
-        @media (min-width: 769px) and (max-width: 1023px) {
-          .sr-header-inner,
-          .sr-main,
-          .sr-footer-inner {
-            padding-left: 40px;
-            padding-right: 40px;
-          }
-
-          .sr-product-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-      `}</style>
-
-      <div className="sr-page">
-        <Navbar homeHref={ROUTES.home} />
-
-        <main id="main-content" className="sr-main">
-          <PageBreadcrumbs items={searchCrumbs} className="sr-breadcrumbs" />
-
-          <h1 className="sr-page-title">
-            Showing product for <em>&apos;{displayQuery}&apos;</em>
-            <span className="sr-page-title-count"> ({productCount} Products)</span>
+      <div className="catalog-filter-section">
+        <h2 className="catalog-filter-heading" id="catalog-filter-categories">Categories</h2>
+        <ul className="catalog-filter-list" aria-labelledby="catalog-filter-categories">
+          {categories.map((cat) => (
+            <li key={cat._id || cat.slug}>
+              <button
+                type="button"
+                className={`catalog-filter-item${categoryFilter === cat._id ? ' is-active' : ''}`}
+                onClick={() => handleCategoryChange(cat._id)}
+                aria-pressed={categoryFilter === cat._id}
+              >
+                <Checkbox checked={categoryFilter === cat._id} />
+                {cat.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="catalog-filter-section">
+        <h2 className="catalog-filter-heading" id="catalog-filter-price">Price</h2>
+        <ul className="catalog-filter-list" aria-labelledby="catalog-filter-price">
+          {PRICE_RANGES.map((range) => (
+            <li key={range.id}>
+              <button
+                type="button"
+                className={`catalog-filter-item${priceRangeId === range.id ? ' is-active' : ''}`}
+                onClick={() => handlePriceRangeChange(range.id)}
+                aria-pressed={priceRangeId === range.id}
+              >
+                <Checkbox checked={priceRangeId === range.id} />
+                {range.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {hasActiveFilters && (
+        <button type="button" className="catalog-clear-filters" onClick={handleClearFilters}>
+          Clear all filters
+        </button>
+      )}
+    </>
+  );
+
+  const sortMenu = (
+    <div className="catalog-sort-menu" role="listbox" aria-label="Sort products">
+      {SORT_OPTIONS.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          role="option"
+          aria-selected={sort === option.value}
+          className={`catalog-sort-option ${sort === option.value ? 'catalog-sort-option-active' : ''}`}
+          onClick={() => handleSortChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="catalog-page">
+      <Navbar homeHref={ROUTES.home} />
+
+      <main id="main-content" className="catalog-main">
+        <Reveal className="catalog-header" variant="fade-up">
+          <PageBreadcrumbs items={searchCrumbs} className="catalog-breadcrumbs" />
+
+          <h1 className="catalog-page-title">
+            Showing products for{' '}
+            <em className="catalog-page-title-query">
+              &ldquo;{displayQuery}&rdquo;
+            </em>
           </h1>
-          <p className="sr-page-title-count-mobile">({productCount} Products)</p>
+          <p className="catalog-page-count" aria-live="polite">
+            {loading ? 'Loading products…' : `(${productCount} ${productCount === 1 ? 'Product' : 'Products'})`}
+          </p>
+        </Reveal>
 
-          {error && (
-            <div className="sr-error-banner" role="alert">
-              <p>{error}</p>
-              <button type="button" className="sr-price-apply" onClick={() => setReloadToken((value) => value + 1)}>
-                Retry
+        <Reveal className="catalog-toolbar" variant="fade-up" delay={90}>
+          <div className="catalog-toolbar-left">
+            <span className="catalog-filters-label">Filters</span>
+            {hasActiveFilters && (
+              <button type="button" className="catalog-toolbar-clear" onClick={handleClearFilters}>
+                Clear all
               </button>
-            </div>
-          )}
-
-          <div className="sr-toolbar">
-            <span className="sr-filters-label">FILTERS</span>
-            <div className="sr-sort-wrap">
-              <button type="button" className="sr-sort-btn" onClick={() => setSortMenuOpen((open) => !open)}>
-                Sort by: <strong>{getSortLabel(sort)}</strong>
-                <ChevronDownIcon />
-              </button>
-              {sortMenuOpen && (
-                <div className="sr-sort-menu">
-                  {SORT_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`sr-sort-option ${sort === option.value ? 'sr-sort-option-active' : ''}`}
-                      onClick={() => handleSortChange(option.value)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
-
-          <div className="sr-mobile-controls">
-            <button type="button" className="sr-mobile-filter-btn" onClick={handleOpenMobileFilters}>
-              Filters
-              <FilterIcon />
-            </button>
-            <div className="sr-mobile-sort-wrap">
-              <button type="button" className="sr-mobile-sort-btn" onClick={() => setMobileSortOpen((open) => !open)}>
-                <span>Sort by: <strong>{getSortLabel(sort)}</strong></span>
-                <ChevronDownIcon />
-              </button>
-              {mobileSortOpen && (
-                <div className="sr-sort-menu">
-                  {SORT_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`sr-sort-option ${sort === option.value ? 'sr-sort-option-active' : ''}`}
-                      onClick={() => handleSortChange(option.value)}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {mobileFiltersOpen && (
+          <div className="catalog-sort-wrap">
             <button
               type="button"
-              className="sr-mobile-filter-overlay"
-              aria-label="Close filters"
-              onClick={() => setMobileFiltersOpen(false)}
-            />
-          )}
+              className="catalog-sort-btn"
+              onClick={() => setSortMenuOpen((open) => !open)}
+              aria-expanded={sortMenuOpen}
+              aria-haspopup="listbox"
+            >
+              Sort by: <strong>{getSortLabel(sort)}</strong>
+              <ChevronDownIcon className="w-3.5 h-3.5" />
+            </button>
+            {sortMenuOpen && sortMenu}
+          </div>
+        </Reveal>
 
-          <div className="sr-content-row">
-            <aside ref={filtersRef} className={`sr-sidebar ${mobileFiltersOpen ? 'sr-sidebar-mobile-open' : ''}`}>
-              <div className="sr-filter-section">
-                <h2 className="sr-filter-heading">CATEGORIES</h2>
-                <ul className="sr-filter-list">
-                  {categories.map((cat) => (
-                    <li key={cat._id || cat.slug} className="sr-filter-item">
-                      <button
-                        type="button"
-                        className="sr-filter-btn"
-                        onClick={() => handleCategoryChange(cat._id)}
-                      >
-                        <span className={`sr-checkbox ${categoryFilter === cat._id ? 'sr-checkbox-checked' : ''}`}>
-                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </span>
-                        {cat.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+        <div className="catalog-mobile-controls">
+          <button
+            ref={filtersRef}
+            type="button"
+            className="catalog-mobile-filter-btn"
+            onClick={() => setMobileFiltersOpen(true)}
+            aria-haspopup="dialog"
+            aria-expanded={mobileFiltersOpen}
+          >
+            Filters
+            {activeChips.length > 0 && (
+              <span className="catalog-mobile-filter-count">{activeChips.length}</span>
+            )}
+            <FilterIcon className="w-4 h-4" />
+          </button>
+          <div className="catalog-sort-wrap catalog-mobile-sort-wrap">
+            <button
+              type="button"
+              className="catalog-mobile-sort-btn"
+              onClick={() => setMobileSortOpen((open) => !open)}
+              aria-expanded={mobileSortOpen}
+              aria-haspopup="listbox"
+            >
+              <span>
+                Sort: <strong>{getSortLabel(sort)}</strong>
+              </span>
+              <ChevronDownIcon className="w-3.5 h-3.5" />
+            </button>
+            {mobileSortOpen && sortMenu}
+          </div>
+        </div>
 
-              <div className="sr-filter-section">
-                <h2 className="sr-filter-heading">PRICE</h2>
-                <ul className="sr-filter-list">
-                  {PRICE_RANGES.map((range) => (
-                    <li key={range.id} className="sr-filter-item">
-                      <button
-                        type="button"
-                        className="sr-filter-btn"
-                        onClick={() => handlePriceRangeChange(range.id)}
-                      >
-                        <span className={`sr-checkbox ${priceRangeId === range.id ? 'sr-checkbox-checked' : ''}`}>
-                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </span>
-                        {range.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <div className="sr-price-inputs">
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="Min"
-                    className="sr-price-input"
-                    value={customMinPrice}
-                    onChange={(event) => setCustomMinPrice(event.target.value)}
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="Max"
-                    className="sr-price-input"
-                    value={customMaxPrice}
-                    onChange={(event) => setCustomMaxPrice(event.target.value)}
-                  />
-                </div>
-                <button type="button" className="sr-price-apply" onClick={handleApplyCustomPrice}>
-                  Apply Price
+        {activeChips.length > 0 && (
+          <div className="catalog-active-chips" aria-label="Active filters">
+            {activeChips.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                className="catalog-chip"
+                onClick={chip.onRemove}
+                aria-label={`Remove filter ${chip.label}`}
+              >
+                <span>{chip.label}</span>
+                <span aria-hidden="true">×</span>
+              </button>
+            ))}
+            <button type="button" className="catalog-chip-clear" onClick={handleClearFilters}>
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {mobileFiltersOpen && (
+          <button
+            type="button"
+            className="catalog-mobile-filter-overlay"
+            aria-label="Close filters"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+        )}
+
+        <div className="catalog-content-row">
+          <aside
+            className={`catalog-sidebar${mobileFiltersOpen ? ' catalog-sidebar-mobile-open' : ''}`}
+            {...(mobileFiltersOpen
+              ? {
+                  role: 'dialog',
+                  'aria-modal': true,
+                  'aria-label': 'Product filters',
+                }
+              : {})}
+          >
+            <div className="catalog-sidebar-mobile-header">
+              <h2 className="catalog-sidebar-mobile-title">Filters</h2>
+              <button
+                type="button"
+                className="catalog-sidebar-close"
+                onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Close filters"
+              >
+                ×
+              </button>
+            </div>
+            {filterSidebar}
+            <div className="catalog-sidebar-mobile-actions">
+              <button
+                type="button"
+                className="catalog-sidebar-secondary"
+                onClick={handleClearFilters}
+              >
+                Clear
+              </button>
+              <button
+                type="button"
+                className="catalog-sidebar-primary"
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                Apply
+              </button>
+            </div>
+          </aside>
+
+          <div className="catalog-grid-wrap">
+            {error ? (
+              <div className="catalog-state catalog-state-error-panel" role="alert">
+                <h2 className="catalog-state-title">We couldn’t load these products</h2>
+                <p className="catalog-state-copy">
+                  Please try again in a moment.
+                </p>
+                <button
+                  type="button"
+                  className="catalog-state-btn"
+                  onClick={() => setReloadToken((value) => value + 1)}
+                >
+                  Retry
                 </button>
               </div>
-
-              {/* Color filter hidden — backend does not support metalColor filtering on public products yet */}
-            </aside>
-
-            <div className="sr-grid-wrap">
-              {loading ? (
-                <div aria-busy="true" aria-live="polite">
-                  <span className="sr-only">Loading products</span>
-                  <ShimmerProductGrid count={8} />
-                </div>
-              ) : products.length === 0 ? (
-                <div className="sr-empty-state">
-                  <h2>No products found</h2>
-                  <p>Try a different search or browse the full collection.</p>
-                  <Link to={ROUTES.collection} className="sr-price-apply">
-                    Browse Collection
+            ) : loading ? (
+              <div aria-busy="true" aria-live="polite">
+                <span className="sr-only">Loading products</span>
+                <ShimmerProductGrid count={8} />
+              </div>
+            ) : products.length === 0 ? (
+              <div className="catalog-state">
+                <h2 className="catalog-state-title">No pieces match your search</h2>
+                <p className="catalog-state-copy">
+                  Try adjusting filters or search query to see more jewelry.
+                </p>
+                <div className="catalog-state-actions">
+                  {hasActiveFilters && (
+                    <button type="button" className="catalog-state-btn" onClick={handleClearFilters}>
+                      Clear Filters
+                    </button>
+                  )}
+                  <Link to={ROUTES.collection} className="catalog-state-link">
+                    Browse All Jewelry
                   </Link>
                 </div>
-              ) : (
-                <div className={isMobileCatalog ? 'sr-product-grid-mobile' : 'sr-product-grid'}>
-                  {products.map((product) => (
-                    <ProductCard
+              </div>
+            ) : (
+              <div key={`${sort}-${categoryFilter}-${priceRangeId}-${page}`} className="catalog-results-fade">
+                <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
+                  {products.map((product, index) => (
+                    <Reveal
                       key={product._id}
-                      product={product}
-                      variant={isMobileCatalog ? 'mobile' : 'desktop'}
-                    />
+                      variant="fade-up"
+                      delay={Math.min(index, 7) * 40}
+                      className="catalog-card-reveal"
+                    >
+                      <CatalogProductCard
+                        product={product}
+                        variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                      />
+                    </Reveal>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
 
-              <nav className="sr-pagination" aria-label="Pagination">
-                <button
-                  type="button"
-                  className="sr-page-btn sr-page-btn-prev"
-                  disabled={!pagination?.hasPrevPage}
-                  onClick={() => {
-                    setPage((current) => current - 1);
-                    setLoading(true);
-                  }}
-                >
-                  &lt; Previous
-                </button>
-                {pagination && pagination.totalPages > 1 && (
-                  <div className="sr-page-numbers">
-                    {Array.from({ length: pagination.totalPages }, (_, index) => index + 1)
-                      .filter((num) =>
-                        num === 1 ||
-                        num === pagination.totalPages ||
-                        Math.abs(num - page) <= 1
-                      )
-                      .reduce((acc, num, index, arr) => {
-                        if (index > 0 && num - arr[index - 1] > 1) {
-                          acc.push('…');
-                        }
-                        acc.push(num);
-                        return acc;
-                      }, [])
-                      .map((num, index) =>
-                        num === '…' ? (
-                          <span key={`ellipsis-${index}`} className="sr-page-num">…</span>
-                        ) : (
-                          <button
-                            key={num}
-                            type="button"
-                            className={`sr-page-num ${num === page ? 'sr-page-num-active' : ''}`}
-                            onClick={() => {
-                              setPage(num);
-                              setLoading(true);
-                            }}
-                          >
-                            {num}
-                          </button>
-                        )
-                      )}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  className="sr-page-btn sr-page-btn-next"
-                  disabled={!pagination?.hasNextPage}
-                  onClick={() => {
-                    setPage((current) => current + 1);
-                    setLoading(true);
-                  }}
-                >
-                  Next &gt;
-                </button>
-              </nav>
-            </div>
+            {!loading && !error && (
+              <CatalogPagination
+                pagination={pagination}
+                page={page}
+                onPageChange={handlePageChange}
+              />
+            )}
           </div>
-        </main>
+        </div>
+      </main>
 
-        <Footer />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }
