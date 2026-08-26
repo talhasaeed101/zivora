@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import ProductGallery from '../components/product-details/ProductGallery';
 import ProductInfo from '../components/product-details/ProductInfo';
 import ProductReviewsSection from '../components/product-details/ProductReviewsSection';
-import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
+
 import Reveal from '../components/Reveal.jsx';
 import JsonLd from '../components/seo/JsonLd.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
@@ -316,52 +316,81 @@ export default function ProductDetails() {
           </div>
         </section>
 
-        <Reveal as="section" className="pd-details-section" variant="fade-up">
-          <ProductAccordion title="Description" defaultOpen>
-            <p className="pd-description-text">
-              {activeProduct.description ||
-                'Crafted with meticulous attention to detail, this Zivorah piece is designed for refined everyday wear.'}
-            </p>
-          </ProductAccordion>
-
+        <Reveal as="section" className="pd-description-section" variant="fade-up">
+          <h2 className="pd-section-title" style={{ fontSize: '24px', marginBottom: '16px' }}>Description</h2>
+          <p className="pd-description-text">
+            {activeProduct.description || 'No description available for this product.'}
+          </p>
+          
           {detailItems.length > 0 && (
-            <ProductAccordion title="Details">
-              <ul className="pd-description-list">
-                {detailItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </ProductAccordion>
+            <ul className="pd-description-list" style={{ color: '#767676' }}>
+              {detailItems.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
           )}
 
-          {activeProduct.isCustomizable && (
-            <ProductAccordion title="Customization">
-              <p className="pd-description-text">
-                This piece can be customized. Use Customize Now to choose engraving and personal
-                options before adding it to your bag.
-              </p>
-            </ProductAccordion>
-          )}
+          <div className="pd-features-row">
+            {activeProduct.guarantee && (
+              <div className="pd-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Guarantee for <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.guarantee}</span></span>
+              </div>
+            )}
+            {activeProduct.shippingDate && (
+              <div className="pd-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span>Shipped on <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.shippingDate}</span></span>
+              </div>
+            )}
+            {activeProduct.isMadeToOrder && (
+              <div className="pd-feature-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Made to order jewelry</span>
+              </div>
+            )}
+          </div>
         </Reveal>
 
         {relatedProducts.length > 0 && (
-          <Reveal as="section" className="pd-related-section catalog-page" variant="fade-up">
+          <Reveal as="section" className="pd-related-section" variant="fade-up">
             <div className="pd-related-header">
               <h2 className="pd-section-title">You might also like</h2>
               <Link to={ROUTES.collection} prefetch="intent" className="pd-view-all-link">
                 View All <ArrowRightIcon className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="pd-related-grid">
-              {relatedProducts.slice(0, 4).map((relatedProduct, index) => (
-                <Reveal
+            <div className="pd-related-scroll">
+              {relatedProducts.slice(0, 6).map((relatedProduct) => (
+                <Link
                   key={relatedProduct._id}
-                  variant="fade-up"
-                  delay={Math.min(index, 3) * 50}
-                  className="catalog-card-reveal"
+                  to={`/product/${relatedProduct.slug}`}
+                  className="pd-related-card-link"
                 >
-                  <CatalogProductCard product={relatedProduct} variant="desktop" />
-                </Reveal>
+                  <div className="pd-related-card">
+                    <div className="pd-related-card-image-wrap">
+                      <img
+                        src={relatedProduct.images?.[0] || '/images/placeholder.jpg'}
+                        alt={relatedProduct.title}
+                        className="pd-related-card-image"
+                      />
+                    </div>
+                    <div className="pd-related-card-text">
+                      <div className="pd-related-card-info-row">
+                        <h3 className="pd-related-card-name">{relatedProduct.title}</h3>
+                      </div>
+                      <p className="pd-related-card-price">
+                        {relatedProduct.price?.toLocaleString('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </Reveal>

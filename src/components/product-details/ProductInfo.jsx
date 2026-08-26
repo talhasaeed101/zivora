@@ -471,52 +471,36 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       </div>
 
       <div className="pd-info-actions">
-        {isCustomizable ? (
+        {isCustomizable && (
           <button
             type="button"
             className="pd-btn pd-btn-primary"
+            style={{ flex: 1, padding: '16px 12px' }}
             onClick={handleCustomizeNow}
             disabled={!inStock}
           >
-            Customize Now
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="pd-btn pd-btn-primary"
-            onClick={handleAddToCart}
-            disabled={!inStock || adding}
-          >
-            {adding ? 'Adding…' : 'Add To Cart'}
+            Customize now
           </button>
         )}
 
-        {!isCustomizable && (
-          <button
-            type="button"
-            className="pd-btn pd-btn-secondary"
-            onClick={handleBuyNow}
-            disabled={!inStock}
-          >
-            Buy Now
-          </button>
-        )}
+        <button
+          type="button"
+          className="pd-btn pd-btn-accent"
+          style={{ flex: 1, padding: '16px 12px' }}
+          onClick={handleAddToCart}
+          disabled={!inStock || adding}
+        >
+          {adding ? 'Adding…' : 'Add to cart'}
+        </button>
 
         <WishlistButton
           productId={product?._id}
-          className="pd-btn pd-btn-wishlist"
-          activeClassName="pd-btn-wishlist-active"
-          showLabel
+          className="pd-btn pd-btn-wishlist-icon"
+          activeClassName="pd-btn-wishlist-icon-active"
+          showLabel={false}
           stopPropagation={false}
         />
       </div>
-
-      <ul className="pd-trust-list">
-        <li>Secure checkout</li>
-        <li>Carefully packaged</li>
-        <li>Nationwide delivery</li>
-        <li>Customer support</li>
-      </ul>
 
       <BuyNowCheckoutModal
         isOpen={buyNowOpen}

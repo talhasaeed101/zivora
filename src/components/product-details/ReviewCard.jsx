@@ -71,9 +71,6 @@ export default function ReviewCard({ review, onLike, onDislike, reacting = false
             ))}
           </div>
         </div>
-        <time className="pd-review-date" dateTime={review.createdAt}>
-          {formatReviewDate(review.createdAt)}
-        </time>
       </div>
 
       {review.title && <h4 className="pd-review-title">{review.title}</h4>}
@@ -81,25 +78,30 @@ export default function ReviewCard({ review, onLike, onDislike, reacting = false
 
       {actionError && <p className="pd-review-action-error">{actionError}</p>}
 
-      <div className="pd-review-reactions">
-        <button
-          type="button"
-          className="pd-review-reaction"
-          onClick={() => handleReaction('like')}
-          disabled={reacting}
-        >
-          <ThumbsUpIcon />
-          <span>{review.likes ?? 0}</span>
-        </button>
-        <button
-          type="button"
-          className="pd-review-reaction"
-          onClick={() => handleReaction('dislike')}
-          disabled={reacting}
-        >
-          <ThumbsDownIcon />
-          <span>{review.dislikes ?? 0}</span>
-        </button>
+      <div className="pd-review-footer">
+        <time className="pd-review-date" dateTime={review.createdAt}>
+          {formatReviewDate(review.createdAt)}
+        </time>
+        <div className="pd-review-reactions">
+          <button
+            type="button"
+            className="pd-review-reaction"
+            onClick={() => handleReaction('like')}
+            disabled={reacting}
+          >
+            <ThumbsUpIcon />
+            <span>{review.likes ?? 0}</span>
+          </button>
+          <button
+            type="button"
+            className="pd-review-reaction"
+            onClick={() => handleReaction('dislike')}
+            disabled={reacting}
+          >
+            <ThumbsDownIcon />
+            <span>{review.dislikes ?? 0}</span>
+          </button>
+        </div>
       </div>
     </article>
   );

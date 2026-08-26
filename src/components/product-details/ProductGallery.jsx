@@ -86,14 +86,7 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
           />
         </button>
 
-        {productId ? (
-          <WishlistButton
-            productId={productId}
-            className="pd-gallery-wishlist"
-            activeClassName="pd-gallery-wishlist-active"
-            stopPropagation={false}
-          />
-        ) : null}
+
 
         {hasMultiple && (
           <div className="pd-gallery-nav-arrows">
@@ -120,24 +113,6 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
           <View360Icon className="w-8 h-8" />
         </button> */}
       </div>
-
-      {hasMultiple && (
-        <div className="pd-gallery-thumbs" role="tablist" aria-label="Product images">
-          {displayImages.map((src, index) => (
-            <button
-              key={`${src}-${index}`}
-              type="button"
-              role="tab"
-              aria-selected={index === currentIndex}
-              className={`pd-gallery-thumb${index === currentIndex ? ' is-active' : ''}`}
-              onClick={() => goTo(index)}
-              aria-label={`Show image ${index + 1}`}
-            >
-              <SafeImage src={src} alt="" className="pd-gallery-thumb-image" width={96} height={120} />
-            </button>
-          ))}
-        </div>
-      )}
 
       {lightboxOpen && (
         <div

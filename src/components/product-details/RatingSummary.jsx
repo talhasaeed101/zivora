@@ -17,84 +17,90 @@ export default function RatingSummary({
 
   return (
     <div className="pd-rating-summary">
-      <div className="pd-rating-overview">
+      <div className="pd-rating-overview-box">
         <div className="pd-rating-score-card">
-          <span className="pd-rating-score">{averageRating.toFixed(1)}</span>
-          <div className="pd-rating-score-stars">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <StarIcon
-                key={star}
-                filled={star <= filledStars}
-                className={`w-4 h-4 ${star <= filledStars ? 'pd-star-filled' : 'pd-star-empty'}`}
-              />
-            ))}
+          <span className="pd-rating-score-large">{averageRating.toFixed(1)}</span>
+          <div className="pd-rating-score-details">
+            <div className="pd-rating-score-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <StarIcon
+                  key={star}
+                  filled={star <= filledStars}
+                  className={`w-4 h-4 ${star <= filledStars ? 'pd-star-filled' : 'pd-star-empty'}`}
+                />
+              ))}
+            </div>
+            <p className="pd-rating-count">
+              {reviewCount.toLocaleString()} local ratings
+            </p>
           </div>
-          <p className="pd-rating-count">
-            Based on {reviewCount.toLocaleString()} review{reviewCount === 1 ? '' : 's'}
-          </p>
         </div>
 
-        <div className="pd-rating-breakdown">
-          {breakdown.map((row) => (
-            <div key={row.stars} className="pd-rating-breakdown-row">
-              <span className="pd-rating-breakdown-label">{row.stars}.0</span>
-              <div className="pd-rating-breakdown-bar">
-                <div className="pd-rating-breakdown-fill" style={{ width: `${row.percent}%` }} />
+        <div className="pd-rating-breakdown-boxes">
+          {[5, 4, 3, 2, 1].map((stars) => {
+            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0 };
+            return (
+              <div key={stars} className="pd-rating-breakdown-box">
+                <StarIcon filled className="w-3.5 h-3.5 pd-star-filled" />
+                <span className="pd-rating-breakdown-val">{stars}.0</span>
+                <span className="pd-rating-breakdown-count">({row.count || 0} reviews)</span>
               </div>
-              <span className="pd-rating-breakdown-pct">{row.percent}%</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      <div className="pd-rating-insights">
-        <h3 className="pd-rating-insights-title">Customers Say</h3>
-        <p className="pd-rating-insights-text">
-          {usingFallback
-            ? 'Customer feedback will appear here for catalog products.'
-            : reviewCount > 0
-              ? `Customers rate this product ${averageRating.toFixed(1)} out of 5 across ${reviewCount} reviews.`
-              : 'Be the first to share your experience with this product.'}
-        </p>
+      <div className="pd-rating-insights-grid">
+        <div className="pd-rating-insights-left">
+          <h3 className="pd-rating-insights-title">Customers say</h3>
+          <p className="pd-rating-insights-text">
+            {usingFallback
+              ? 'Reviews will appear here once this product is available in the catalog.'
+              : summary?.customersSay
+                ? summary.customersSay
+                : reviewCount > 0
+                  ? `Customers rate this product ${averageRating.toFixed(1)} out of 5 stars across ${reviewCount.toLocaleString()} review${reviewCount === 1 ? '' : 's'}.`
+                  : 'Be the first to share your experience with this product.'}
+          </p>
+
+          {customerReview ? (
+            <button type="button" className="pd-btn pd-btn-primary pd-review-btn" onClick={onEditReview}>
+              Edit your review
+            </button>
+          ) : (
+            <button type="button" className="pd-btn pd-btn-primary pd-review-btn" onClick={onWriteReview}>
+              Write a product review <span style={{ marginLeft: '8px' }}>&gt;</span>
+            </button>
+          )}
+        </div>
 
         <div className="pd-rating-attributes">
           <div className="pd-rating-attribute">
-            <div className="pd-rating-attribute-header">
-              <span className="pd-rating-attribute-label">Sizing</span>
-              <span className="pd-rating-attribute-value">
-                {summary?.averageSizingRating
-                  ? `${summary.averageSizingRating.toFixed(1)}/5`
-                  : `${sizingPercent}%`}
-              </span>
-            </div>
-            <div className="pd-rating-attribute-bar">
-              <div className="pd-rating-attribute-fill" style={{ width: `${sizingPercent}%` }} />
+            <span className="pd-rating-attribute-label">Sizing</span>
+            <div className="pd-rating-attribute-slider">
+              <div className="pd-rating-slider-track">
+                <div className="pd-rating-slider-thumb" style={{ left: `${sizingPercent}%` }} />
+              </div>
+              <div className="pd-rating-slider-labels">
+                <span>Too Small</span>
+                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>True to Size</span>
+                <span>Too Big</span>
+              </div>
             </div>
           </div>
           <div className="pd-rating-attribute">
-            <div className="pd-rating-attribute-header">
-              <span className="pd-rating-attribute-label">Quality</span>
-              <span className="pd-rating-attribute-value">
-                {summary?.averageQualityRating
-                  ? `${summary.averageQualityRating.toFixed(1)}/5`
-                  : `${qualityPercent}%`}
-              </span>
-            </div>
-            <div className="pd-rating-attribute-bar">
-              <div className="pd-rating-attribute-fill" style={{ width: `${qualityPercent}%` }} />
+            <span className="pd-rating-attribute-label">Quality</span>
+            <div className="pd-rating-attribute-slider">
+              <div className="pd-rating-slider-track">
+                <div className="pd-rating-slider-thumb" style={{ left: `${qualityPercent}%` }} />
+              </div>
+              <div className="pd-rating-slider-labels">
+                <span>Poor</span>
+                <span>Excellent</span>
+              </div>
             </div>
           </div>
         </div>
-
-        {customerReview ? (
-          <button type="button" className="pd-btn pd-btn-outline" onClick={onEditReview}>
-            Edit your review
-          </button>
-        ) : (
-          <button type="button" className="pd-btn pd-btn-outline" onClick={onWriteReview}>
-            Write a product review
-          </button>
-        )}
       </div>
     </div>
   );
