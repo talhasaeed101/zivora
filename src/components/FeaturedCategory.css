@@ -1,9 +1,7 @@
 .featured-section {
   width: 100%;
   background-color: #000;
-  /* Figma: bg is 1920px wide, content is 1240px at 340px from left = 340px margin */
   padding: 120px 340px 120px;
-  /* Keep badge visible when it hangs past the capsule edge */
   overflow: visible;
 }
 
@@ -35,8 +33,7 @@
 }
 
 .featured-category-item {
-  /* Figma: divider lines between items, 0.5px white/muted */
-  border-bottom: 0.5px solid rgba(255,255,255,0.25);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.25);
 }
 
 .featured-category-item:last-child {
@@ -47,7 +44,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Figma: row height 40px, gap 40px between items */
   padding: 28px 0;
   text-decoration: none;
   transition:
@@ -79,9 +75,16 @@
 .featured-image-zone {
   position: absolute;
   top: -7%;
-  right: 80px;
+  right: 130px;
   pointer-events: none;
   z-index: 5;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.featured-image-zone.is-visible {
+  opacity: 1;
+  pointer-events: none;
 }
 
 .featured-image-stack {
@@ -173,6 +176,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -204,6 +208,7 @@
   .featured-section {
     padding: 80px 80px 80px;
   }
+
   .featured-inner {
     max-width: 100%;
   }
@@ -329,10 +334,12 @@
     height: 38px;
   }
 }
+
 @media (max-width: 480px) {
   .featured-heading {
     font-size: 28px;
   }
+
   .featured-category-name {
     font-size: 18px;
   }

@@ -111,11 +111,8 @@
   align-self: stretch;
   min-height: calc(var(--hero-min-h) * 0.85);
   min-width: 0;
-  padding:
-    calc(var(--hero-vw) * 20 / 1920)
-    calc(var(--hero-vw) * 16 / 1920)
-    var(--hero-content-pad-b)
-    var(--hero-content-pad-l);
+  padding: calc(var(--hero-vw) * 20 / 1920) calc(var(--hero-vw) * 16 / 1920)
+    var(--hero-content-pad-b) var(--hero-content-pad-l);
   box-sizing: border-box;
   z-index: 3;
   position: relative;
@@ -271,14 +268,17 @@
   width: var(--hero-badge-size);
   height: var(--hero-badge-size);
   border-radius: 50%;
-  background-color: transparent;
+  background: var(--white-40, #ffffff66);
+
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   z-index: 10;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   text-decoration: none;
   color: inherit;
   border: none;
@@ -487,7 +487,13 @@
     object-position: center center;
   }
 }
-
+@media(max-width:768px)
+{
+  .hero-arch-image-wrapper
+  {
+    background-color: transparent
+  }
+}
 @media (max-width: 480px) {
   .mobile-hero-container .hero-vertical-text {
     font-size: 40px;
@@ -511,7 +517,7 @@
   .mobile-hero-container .hero-tagline-text {
     font-size: 12px;
     min-height: 5.2em;
-    margin: 0 0 72px
+    margin: 0 0 72px;
   }
 
   .mobile-hero-badge {

@@ -79,7 +79,7 @@ export default function FeaturedCategory() {
               categories.map((category) => (
                 <li
                   key={category._id || category.slug || category.name}
-                  className="featured-category-item"
+                  className={`featured-category-item${hoveredCategory?.slug === category.slug ? ' is-hovered' : ''}`}
                   onMouseEnter={() => setHoveredCategory(category)}
                   onMouseLeave={() => setHoveredCategory(null)}
                 >
@@ -107,7 +107,7 @@ export default function FeaturedCategory() {
             )}
           </Reveal>
 
-          <Reveal className="featured-image-zone" variant="scale-in" delay={120}>
+          <div className={`featured-image-zone${hoveredCategory ? ' is-visible' : ''}`}>
             <div className="featured-image-stack">
               <div className="featured-organic-image-wrap">
                 <SafeImage
@@ -154,7 +154,7 @@ export default function FeaturedCategory() {
                 </div>
               </Link>
             </div>
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>

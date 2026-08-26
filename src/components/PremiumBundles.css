@@ -61,10 +61,11 @@
   grid-auto-flow: column;
   grid-auto-columns: 368px;
   gap: 30px;
-  overflow-x: auto;
+  overflow-x: scroll;
   padding-bottom: 24px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  overflow-y:hidden
 }
 .bundles-products-row::-webkit-scrollbar {
   display: none;
