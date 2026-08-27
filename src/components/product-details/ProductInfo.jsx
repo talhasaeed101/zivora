@@ -485,12 +485,22 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
         <button
           type="button"
-          className="pd-btn pd-btn-accent"
+          className="pd-btn pd-btn-primary pd-btn-add-to-cart"
           style={{ flex: 1, padding: '16px 12px' }}
           onClick={handleAddToCart}
           disabled={!inStock || adding}
         >
           {adding ? 'Adding…' : 'Add to cart'}
+        </button>
+
+        <button
+          type="button"
+          className="pd-btn pd-btn-accent pd-btn-buy-now"
+          style={{ flex: 1, padding: '16px 12px' }}
+          onClick={handleBuyNow}
+          disabled={!inStock}
+        >
+          Buy it now
         </button>
 
         <WishlistButton

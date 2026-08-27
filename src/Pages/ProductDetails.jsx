@@ -78,6 +78,34 @@ function ProductAccordion({ title, children, defaultOpen = false }) {
   );
 }
 
+const DESCRIPTION_PREVIEW_LENGTH = 220;
+
+function ProductDescription({ text }) {
+  const [expanded, setExpanded] = useState(false);
+  const fullText = text?.trim() || 'No description available for this product.';
+  const needsToggle = fullText.length > DESCRIPTION_PREVIEW_LENGTH;
+  const displayText =
+    !needsToggle || expanded
+      ? fullText
+      : `${fullText.slice(0, DESCRIPTION_PREVIEW_LENGTH).replace(/\s+\S*$/, '').trimEnd()}…`;
+
+  return (
+    <div className="pd-description-body">
+      <p className="pd-description-text">{displayText}</p>
+      {needsToggle ? (
+        <button
+          type="button"
+          className="pd-description-toggle"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? 'See less' : 'See more'}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export default function ProductDetails() {
   const { slug: routeSlug } = useParams();
   const [product, setProduct] = useState(null);
@@ -318,9 +346,10 @@ export default function ProductDetails() {
 
         <Reveal as="section" className="pd-description-section" variant="fade-up">
           <h2 className="pd-section-title" style={{ fontSize: '24px', marginBottom: '16px' }}>Description</h2>
-          <p className="pd-description-text">
-            {activeProduct.description || 'No description available for this product.'}
-          </p>
+          <ProductDescription
+            key={activeProduct._id || activeProduct.slug}
+            text={activeProduct.description}
+          />
           
           {detailItems.length > 0 && (
             <ul className="pd-description-list" style={{ color: '#767676' }}>

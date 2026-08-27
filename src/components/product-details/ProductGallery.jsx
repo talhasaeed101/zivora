@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeftIcon, ArrowRightIcon, View360Icon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
-import WishlistButton from '../WishlistButton.jsx';
+import { ArrowLeftIcon, ArrowRightIcon, SearchIcon, ChevronLeftIcon, ChevronRightIcon } from '../icons';
 import SafeImage from '../SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
 
@@ -109,10 +108,26 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
           </div>
         )}
 
-        {/* <button type="button" className="pd-gallery-360-btn" aria-label="360 view">
-          <View360Icon className="w-8 h-8" />
-        </button> */}
+        <span className="pd-gallery-zoom-hint" aria-hidden="true">
+          <SearchIcon className="w-4 h-4" />
+        </span>
       </div>
+
+      {hasMultiple && (
+        <div className="pd-gallery-dots" role="tablist" aria-label="Product images">
+          {displayImages.map((_, index) => (
+            <button
+              key={`dot-${index}`}
+              type="button"
+              role="tab"
+              className={`pd-gallery-dot${index === currentIndex ? ' pd-gallery-dot-active' : ''}`}
+              aria-label={`Show image ${index + 1}`}
+              aria-selected={index === currentIndex}
+              onClick={() => goTo(index)}
+            />
+          ))}
+        </div>
+      )}
 
       {lightboxOpen && (
         <div

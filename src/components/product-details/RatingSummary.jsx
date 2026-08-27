@@ -48,6 +48,23 @@ export default function RatingSummary({
             );
           })}
         </div>
+
+        <div className="pd-rating-breakdown-bars" aria-hidden="true">
+          {[5, 4, 3, 2, 1].map((stars) => {
+            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0 };
+            const percent = reviewCount > 0 ? Math.round(((row.count || 0) / reviewCount) * 100) : 0;
+            return (
+              <div key={`bar-${stars}`} className="pd-rating-bar-row">
+                <span className="pd-rating-bar-label">{stars}</span>
+                <StarIcon filled className="w-3 h-3 pd-star-filled" />
+                <div className="pd-rating-bar-track">
+                  <div className="pd-rating-bar-fill" style={{ width: `${percent}%` }} />
+                </div>
+                <span className="pd-rating-bar-count">{row.count || 0}</span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="pd-rating-insights-grid">
@@ -79,20 +96,23 @@ export default function RatingSummary({
             <span className="pd-rating-attribute-label">Sizing</span>
             <div className="pd-rating-attribute-slider">
               <div className="pd-rating-slider-track">
-                <div className="pd-rating-slider-thumb" style={{ left: `${sizingPercent}%` }} />
+                <div className="pd-rating-slider-fill" style={{ width: `${Math.min(100, Math.max(0, sizingPercent))}%` }} />
+                <div className="pd-rating-slider-thumb" style={{ left: `${Math.min(100, Math.max(0, sizingPercent))}%` }} />
               </div>
               <div className="pd-rating-slider-labels">
                 <span>Too Small</span>
-                <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>True to Size</span>
+                <span className="pd-rating-slider-label-center">True to Size</span>
                 <span>Too Big</span>
               </div>
             </div>
           </div>
+
           <div className="pd-rating-attribute">
             <span className="pd-rating-attribute-label">Quality</span>
             <div className="pd-rating-attribute-slider">
               <div className="pd-rating-slider-track">
-                <div className="pd-rating-slider-thumb" style={{ left: `${qualityPercent}%` }} />
+                <div className="pd-rating-slider-fill" style={{ width: `${Math.min(100, Math.max(0, qualityPercent))}%` }} />
+                <div className="pd-rating-slider-thumb" style={{ left: `${Math.min(100, Math.max(0, qualityPercent))}%` }} />
               </div>
               <div className="pd-rating-slider-labels">
                 <span>Poor</span>
