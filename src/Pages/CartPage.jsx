@@ -18,7 +18,7 @@ import { useWishlist } from '../context/WishlistContext.jsx';
 import { addressApi, orderApi, promoCodeApi } from '../services/api.js';
 import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
-import { getCellQuantity } from '../utils/inventory.js';
+import { getCellQuantity, getProductInventory } from '../utils/inventory.js';
 import { loadPublicProductBySlug } from '../services/catalogCache.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
@@ -145,8 +145,8 @@ export default function CartPage() {
         const mapped = mapCartItemForUi(item);
         const catalogProduct =
           (mapped.slug && productDetailsBySlug[mapped.slug]) || mapped.product;
-        const inventory = catalogProduct?.inventory;
-        const maxQuantity = Array.isArray(inventory)
+        const inventory = getProductInventory(catalogProduct);
+        const maxQuantity = inventory.length
           ? getCellQuantity(inventory, mapped.ringSize || '', mapped.metalColor || '')
           : undefined;
 

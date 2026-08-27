@@ -7,7 +7,7 @@ import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { ROUTES, productPath } from '../utils/navigation';
-import { isCatalogOutOfStock, listInStockCombinations } from '../utils/inventory.js';
+import { getProductInventory, isCatalogOutOfStock, listInStockCombinations } from '../utils/inventory.js';
 import { loadPublicProductBySlug } from '../services/catalogCache.js';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
@@ -23,7 +23,7 @@ function resolveQuickAdd(product) {
     return { mode: 'options' };
   }
 
-  if (!Array.isArray(product.inventory)) {
+  if (getProductInventory(product).length === 0 && !(typeof product.stock === 'number' && product.stock > 0)) {
     return { mode: 'view' };
   }
 

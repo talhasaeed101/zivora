@@ -7,7 +7,7 @@ import CustomizationModal from './CustomizationModal.jsx';
 import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { trackAddToCart } from '../../utils/analytics.js';
-import { firstAvailableSelection, getCellQuantity, optionHasAnyStock, syncSelection } from '../../utils/inventory.js';
+import { firstAvailableSelection, getCellQuantity, getProductInventory, optionHasAnyStock, syncSelection } from '../../utils/inventory.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
@@ -37,7 +37,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
 
-  const inventory = product?.inventory || [];
+  const inventory = getProductInventory(product);
   const ringSizes = useMemo(
     () => (Array.isArray(product?.ringSizes) ? product.ringSizes.filter(Boolean) : []),
     [product?.ringSizes]

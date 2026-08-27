@@ -1,11 +1,80 @@
 const EMPTY_OPTION = '';
 
+const RING_SIZE_ATTR_KEYS = ['ring size', 'ringsize', 'size'];
+const METAL_COLOR_ATTR_KEYS = ['metal color', 'metalcolor', 'color', 'metal'];
+
 export const normalizeInventoryOption = (value) => {
   if (value === undefined || value === null) {
     return EMPTY_OPTION;
   }
 
   return String(value).trim().toLowerCase();
+};
+
+const resolveVariantAttribute = (attributes = {}, keys = []) => {
+  const entries = Object.entries(attributes || {});
+
+  for (const [key, value] of entries) {
+    const normalizedKey = normalizeInventoryOption(key);
+    if (keys.includes(normalizedKey) && value !== undefined && value !== null && String(value).trim()) {
+      return String(value).trim();
+    }
+  }
+
+  return EMPTY_OPTION;
+};
+
+/**
+ * Backend stores stock on `stock` + `variants[]`, while the storefront
+ * historically expected an `inventory[]` matrix. Derive a compatible matrix.
+ */
+export const getProductInventory = (product) => {
+  if (!product) {
+    return [];
+  }
+
+  if (Array.isArray(product.inventory) && product.inventory.length > 0) {
+    return product.inventory.map((row) => ({
+      ringSize: row?.ringSize ?? EMPTY_OPTION,
+      metalColor: row?.metalColor ?? EMPTY_OPTION,
+      quantity: Number(row?.quantity) || 0,
+    }));
+  }
+
+  if (Array.isArray(product.variants) && product.variants.length > 0) {
+    return product.variants.map((variant) => ({
+      ringSize: resolveVariantAttribute(variant.attributes, RING_SIZE_ATTR_KEYS),
+      metalColor: resolveVariantAttribute(variant.attributes, METAL_COLOR_ATTR_KEYS),
+      quantity: Number(variant.stock) || 0,
+    }));
+  }
+
+  const stock = Number(product.stock);
+  if (!Number.isFinite(stock)) {
+    return [];
+  }
+
+  const sizes =
+    Array.isArray(product.ringSizes) && product.ringSizes.length > 0
+      ? product.ringSizes
+      : [EMPTY_OPTION];
+  const colors =
+    Array.isArray(product.metalColors) && product.metalColors.length > 0
+      ? product.metalColors
+      : [EMPTY_OPTION];
+
+  const rows = [];
+  sizes.forEach((ringSize) => {
+    colors.forEach((metalColor) => {
+      rows.push({
+        ringSize: ringSize || EMPTY_OPTION,
+        metalColor: metalColor || EMPTY_OPTION,
+        quantity: Math.max(0, stock),
+      });
+    });
+  });
+
+  return rows;
 };
 
 export const inventoryCellKey = (ringSize, metalColor) =>
@@ -102,13 +171,15 @@ export const syncSelection = ({
 };
 
 export const listInStockCombinations = (product) => {
-  const inventory = Array.isArray(product?.inventory) ? product.inventory : [];
-  const sizes = Array.isArray(product?.ringSizes) && product.ringSizes.length > 0
-    ? product.ringSizes
-    : [EMPTY_OPTION];
-  const colors = Array.isArray(product?.metalColors) && product.metalColors.length > 0
-    ? product.metalColors
-    : [EMPTY_OPTION];
+  const inventory = getProductInventory(product);
+  const sizes =
+    Array.isArray(product?.ringSizes) && product.ringSizes.length > 0
+      ? product.ringSizes
+      : [EMPTY_OPTION];
+  const colors =
+    Array.isArray(product?.metalColors) && product.metalColors.length > 0
+      ? product.metalColors
+      : [EMPTY_OPTION];
 
   const combinations = [];
 
@@ -120,22 +191,32 @@ export const listInStockCombinations = (product) => {
     });
   });
 
+  // Variant attribute labels may not perfectly align with ringSizes/metalColors lists;
+  // fall back to any in-stock inventory rows so catalog/wishlist still work.
+  if (combinations.length === 0) {
+    inventory.forEach((row) => {
+      if ((Number(row.quantity) || 0) > 0) {
+        combinations.push({
+          ringSize: row.ringSize || EMPTY_OPTION,
+          metalColor: row.metalColor || EMPTY_OPTION,
+        });
+      }
+    });
+  }
+
   return combinations;
 };
 
 export const isCatalogOutOfStock = (product) => {
-  if (typeof product?.stock === 'number' && product.stock <= 0) {
-    return true;
+  const inventory = getProductInventory(product);
+
+  if (inventory.length > 0) {
+    return inventory.every((row) => (Number(row.quantity) || 0) <= 0);
   }
 
-  if (Array.isArray(product?.inventory)) {
-    if (product.inventory.length === 0) {
-      return true;
-    }
-
-    return product.inventory.every((row) => (Number(row.quantity) || 0) <= 0);
+  if (typeof product?.stock === 'number') {
+    return product.stock <= 0;
   }
 
   return false;
 };
-
