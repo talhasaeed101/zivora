@@ -1,83 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://zivorah.store/</loc>
-    <changefreq>weekly</changefreq>
+    <loc>https://zivorah.store</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
   <url>
     <loc>https://zivorah.store/collection</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zivorah.store/about</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zivorah.store/contact</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zivorah.store/login</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://zivorah.store/register</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zivorah.store/privacy-policy</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://zivorah.store/terms-of-use</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/category/necklaces</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/category/bracelet</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/category/rings</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/category/earrings</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/category/anklets</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/two-hearts-gold-stone-necklace</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/ruby-wave-red-stone-ring</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/petal-drop-crystal-earrings</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/two-hearts-gold-stone-bracelet</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/a-single-bloom-caught-mid-branch-pick-your-colour-and-let-it-carry-a-little-of-you</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/poured-heart-gold-ring</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/sweet-bow-gold-pendant-necklace</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/tiny-crystals-big-sparkle-the-necklace-that-turns-just-getting-ready-into-a-whole-moment</loc>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://zivorah.store/product/one-heart-three-ways-to-fall-in-love-pick-the-shade-that-says-it-best</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

@@ -9,7 +9,7 @@ import PremiumBundles from './components/PremiumBundles';
 import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
-import LaunchTimer from './components/LaunchTimer';
+import LaunchTimer, { isLaunchTimerActive } from './components/LaunchTimer';
 import './components/landing/landing-tokens.css';
 import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
@@ -18,7 +18,7 @@ import CartPage from './Pages/CartPage.jsx';
 
 export default function LegacyPages() {
   const [page, setPage] = useState('home');
-  // const [isTimerEnded, setIsTimerEnded] = useState(false);
+  const [timerActive, setTimerActive] = useState(isLaunchTimerActive);
 
   useEffect(() => {
     const resolvePage = () => {
@@ -52,16 +52,24 @@ export default function LegacyPages() {
     return <SearchResults />;
   }
 
+  if (timerActive) {
+    return (
+      <div className="landing-page landing-page--timer-only">
+        <Navbar homeHref="/?home=true" />
+        <main>
+          <Hero />
+          <LaunchTimer onTimerEnd={() => setTimerActive(false)} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="landing-page">
       <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
-        <section className="launch-timer-section">
-          <div className="launch-timer-inner">
-            <p className="timer-ended-text">“Don't just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.”</p>
-          </div>
-        </section>
+        <LaunchTimer />
         <TrendingProducts />
         <FeaturedCategory />
         <MakeItCustom />
