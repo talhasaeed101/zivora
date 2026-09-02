@@ -7,7 +7,7 @@ import CustomizationModal from './CustomizationModal.jsx';
 import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { trackAddToCart } from '../../utils/analytics.js';
-import { firstAvailableSelection, getCellQuantity, optionHasAnyStock, syncSelection } from '../../utils/inventory.js';
+import { firstAvailableSelection, getCellQuantity, getProductInventory, optionHasAnyStock, syncSelection } from '../../utils/inventory.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 
@@ -37,7 +37,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
 
-  const inventory = product?.inventory || [];
+  const inventory = getProductInventory(product);
   const ringSizes = useMemo(
     () => (Array.isArray(product?.ringSizes) ? product.ringSizes.filter(Boolean) : []),
     [product?.ringSizes]
@@ -485,12 +485,22 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
         <button
           type="button"
-          className="pd-btn pd-btn-accent"
+          className="pd-btn pd-btn-primary pd-btn-add-to-cart"
           style={{ flex: 1, padding: '16px 12px' }}
           onClick={handleAddToCart}
           disabled={!inStock || adding}
         >
           {adding ? 'Adding…' : 'Add to cart'}
+        </button>
+
+        <button
+          type="button"
+          className="pd-btn pd-btn-accent pd-btn-buy-now"
+          style={{ flex: 1, padding: '16px 12px' }}
+          onClick={handleBuyNow}
+          disabled={!inStock}
+        >
+          Buy it now
         </button>
 
         <WishlistButton
