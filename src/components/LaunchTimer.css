@@ -8,7 +8,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* min-height: 400px; */
+}
+
+.landing-page--timer-only {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-page--timer-only main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-page--timer-only .launch-timer-section {
+  flex: 1;
+  min-height: 60vh;
 }
 
 .launch-timer-inner {

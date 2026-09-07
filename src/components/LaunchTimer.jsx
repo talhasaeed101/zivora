@@ -1,36 +1,55 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './LaunchTimer.css';
 
+const LAUNCH_DATE = new Date(2026, 8, 10, 0, 0, 0);
+
+function getTimeLeft() {
+  const diff = LAUNCH_DATE.getTime() - Date.now();
+  if (diff <= 0) return null;
+
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+    minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+    seconds: Math.floor((diff % (1000 * 60)) / 1000),
+  };
+}
+
+export function isLaunchTimerActive() {
+  return Date.now() < LAUNCH_DATE.getTime();
+}
+
 export default function LaunchTimer({ onTimerEnd }) {
-  const [timeLeft, setTimeLeft] = useState(60); // 1 minute for testing
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft);
+  const hasEndedRef = useRef(false);
 
   useEffect(() => {
-    if (timeLeft <= 0) {
-      if (onTimerEnd) onTimerEnd();
-      return;
-    }
+    const tick = () => {
+      const remaining = getTimeLeft();
+      setTimeLeft(remaining);
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
+      if (!remaining && !hasEndedRef.current) {
+        hasEndedRef.current = true;
+        if (onTimerEnd) onTimerEnd();
+      }
+    };
 
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft, onTimerEnd]);
+  }, [onTimerEnd]);
 
-  if (timeLeft <= 0) {
+  if (!timeLeft) {
     return (
       <section className="launch-timer-section">
         <div className="launch-timer-inner">
-          <p className="timer-ended-text">“Don't just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.”</p>
+          <p className="timer-ended-text">
+            &ldquo;Don&apos;t just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.&rdquo;
+          </p>
         </div>
       </section>
     );
   }
-
-  const days = 0;
-  const hours = 0;
-  const minutes = Math.floor(timeLeft / 60);
-  const seconds = timeLeft % 60;
 
   const formatNumber = (num) => num.toString().padStart(2, '0');
 
@@ -42,19 +61,19 @@ export default function LaunchTimer({ onTimerEnd }) {
 
         <div className="timer-boxes">
           <div className="timer-box-wrapper">
-            <div className="timer-box">{formatNumber(days)}</div>
+            <div className="timer-box">{formatNumber(timeLeft.days)}</div>
             <span className="timer-label">Days</span>
           </div>
           <div className="timer-box-wrapper">
-            <div className="timer-box">{formatNumber(hours)}</div>
+            <div className="timer-box">{formatNumber(timeLeft.hours)}</div>
             <span className="timer-label">Hours</span>
           </div>
           <div className="timer-box-wrapper">
-            <div className="timer-box">{formatNumber(minutes)}</div>
+            <div className="timer-box">{formatNumber(timeLeft.minutes)}</div>
             <span className="timer-label">Minutes</span>
           </div>
           <div className="timer-box-wrapper">
-            <div className="timer-box">{formatNumber(seconds)}</div>
+            <div className="timer-box">{formatNumber(timeLeft.seconds)}</div>
             <span className="timer-label">Seconds</span>
           </div>
         </div>
