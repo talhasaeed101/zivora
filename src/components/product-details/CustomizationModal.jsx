@@ -21,6 +21,7 @@ export default function CustomizationModal({
   onClose,
   product,
   ringSize,
+  metalColor,
   onAddToCart,
 }) {
   const titleId = useId();
@@ -203,7 +204,7 @@ export default function CustomizationModal({
         productId: product._id,
         quantity: customization.quantity,
         ringSize,
-        metalColor: customization.jewelryColor,
+        metalColor: metalColor || '',
         customization: {
           ...customization,
           quantity: customization.quantity,
@@ -212,7 +213,7 @@ export default function CustomizationModal({
 
       const variantId = findUniqueVariantId(product, {
         ringSize: ringSize || '',
-        metalColor: customization.jewelryColor || '',
+        metalColor: metalColor || '',
       });
       if (variantId) {
         payload.variantId = variantId;

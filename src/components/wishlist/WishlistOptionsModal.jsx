@@ -30,10 +30,19 @@ export default function WishlistOptionsModal({
     () => (Array.isArray(product?.ringSizes) ? product.ringSizes.filter(Boolean) : []),
     [product?.ringSizes]
   );
-  const metalColors = useMemo(
-    () => (Array.isArray(product?.metalColors) ? product.metalColors.filter(Boolean) : []),
-    [product?.metalColors]
-  );
+  const metalColors = useMemo(() => {
+    const allowed = new Set(['gold', 'silver']);
+    const seen = new Set();
+    const result = [];
+    for (const color of Array.isArray(product?.metalColors) ? product.metalColors : []) {
+      const raw = String(color || '').trim();
+      const key = raw.toLowerCase();
+      if (!allowed.has(key) || seen.has(key)) continue;
+      seen.add(key);
+      result.push(key === 'gold' ? 'Gold' : 'Silver');
+    }
+    return result;
+  }, [product?.metalColors]);
   const showRingSize = ringSizes.length > 0;
   const showMetalColors = metalColors.length > 0;
   const inventory = useMemo(() => getProductInventory(product), [product]);

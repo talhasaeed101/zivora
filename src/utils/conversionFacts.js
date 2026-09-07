@@ -6,13 +6,13 @@
 const METAL_LABELS = {
   silver: 'Silver',
   gold: 'Gold',
-  'rose-gold': 'Rose Gold',
 };
 
 const labelMetal = (value) => {
   const raw = String(value || '').trim();
   if (!raw) return null;
-  return METAL_LABELS[raw.toLowerCase()] || raw;
+  const mapped = METAL_LABELS[raw.toLowerCase()];
+  return mapped || null;
 };
 
 export const buildWhyYoullLoveIt = (product) => {

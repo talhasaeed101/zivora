@@ -89,7 +89,7 @@ export const LEGACY_STATIC_PRODUCT = {
   sku: 'ZIV-LEGACY-001',
   stock: 10,
   ringSizes: ['4', '5', '6', '7', '8'],
-  metalColors: ['silver', 'gold', 'rose-gold'],
+  metalColors: ['silver', 'gold'],
   material: 'Premium craftsmanship',
   tags: ['rings', 'minimal', 'stacked'],
   category: { name: 'Rings', slug: 'rings' },

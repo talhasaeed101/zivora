@@ -33,22 +33,28 @@ import {
 const METAL_COLOR_MAP = {
   silver: { id: 'silver', label: 'Silver', color: '#c8c8c8' },
   gold: { id: 'gold', label: 'Gold', color: '#c8815f' },
-  'rose-gold': { id: 'rose-gold', label: 'Rose Gold', color: '#e8b4a8' },
 };
 
 const resolveMetalColors = (metalColors = []) =>
-  (metalColors || []).map((color) => {
-    const value = String(color).trim();
-    const normalized = value.toLowerCase();
-    const mapped = METAL_COLOR_MAP[normalized];
+  (metalColors || [])
+    .map((color) => {
+      const value = String(color).trim();
+      const normalized = value.toLowerCase();
+      const mapped = METAL_COLOR_MAP[normalized];
+      if (!mapped) {
+        return null;
+      }
 
-    return {
-      id: mapped?.id || normalized,
-      value,
-      label: mapped?.label || value,
-      color: mapped?.color || '#c8815f',
-    };
-  });
+      return {
+        id: mapped.id,
+        // Canonical labels so cart/inventory keys stay Gold/Silver
+        value: mapped.label,
+        label: mapped.label,
+        color: mapped.color,
+      };
+    })
+    .filter(Boolean)
+    .filter((metal, index, arr) => arr.findIndex((item) => item.value === metal.value) === index);
 
 export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const navigate = useNavigate();
@@ -782,6 +788,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         onClose={() => setCustomizeOpen(false)}
         product={product}
         ringSize={showRingSize ? size : undefined}
+        metalColor={showMetalColors ? color : undefined}
         onAddToCart={handleCustomizedAddToCart}
       />
 
