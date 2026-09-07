@@ -1,0 +1,42 @@
+.sp-home-sections {
+  padding: 48px 0 16px;
+}
+
+.sp-home-inner {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.sp-home-block {
+  margin-bottom: 40px;
+}
+
+.sp-home-block-header {
+  margin-bottom: 18px;
+}
+
+.sp-home-block-title {
+  margin: 0;
+  font-family: Teneka, Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.sp-home-grid {
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .sp-home-sections {
+    padding: 32px 0 8px;
+  }
+
+  .sp-home-block-title {
+    font-size: 24px;
+  }
+
+  .sp-home-block {
+    margin-bottom: 28px;
+  }
+}

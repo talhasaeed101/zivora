@@ -82,3 +82,51 @@ export const loadPublicProductBySlug = (slug) => {
     return response.data || null;
   });
 };
+
+export const loadRelatedProducts = (productId, params = {}) => {
+  if (!productId) {
+    return Promise.resolve([]);
+  }
+
+  const key = `related:${productId}:${JSON.stringify(params)}`;
+  return loadWithStore(productsStore, key, async () => {
+    const response = await publicCatalogApi.getRelatedProducts(productId, params);
+    return response.data?.products || [];
+  });
+};
+
+export const loadProductsByIds = (ids = []) => {
+  const unique = [...new Set((ids || []).map((id) => String(id)).filter(Boolean))];
+  if (!unique.length) {
+    return Promise.resolve([]);
+  }
+
+  const key = `by-ids:${unique.join(',')}`;
+  return loadWithStore(productsStore, key, async () => {
+    const response = await publicCatalogApi.getProductsByIds(unique);
+    return response.data?.products || [];
+  });
+};
+
+export const loadGiftIdeas = (params = {}) =>
+  loadWithStore(productsStore, `gift-ideas:${JSON.stringify(params)}`, async () => {
+    const response = await publicCatalogApi.getGiftIdeas(params);
+    return response.data?.sections || [];
+  });
+
+export const loadProductSuggestions = (params = {}, options = {}) => {
+  const key = `suggest:${JSON.stringify(params)}`;
+  const cached = readFresh(productsStore, key);
+  if (cached) {
+    return Promise.resolve(cached);
+  }
+
+  if (options.signal) {
+    return publicCatalogApi.suggestProducts(params, options).then((response) => {
+      write(productsStore, key, response);
+      return response;
+    });
+  }
+
+  return loadWithStore(productsStore, key, () => publicCatalogApi.suggestProducts(params));
+};

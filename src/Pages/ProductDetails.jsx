@@ -5,13 +5,18 @@ import Footer from '../components/Footer';
 import ProductGallery from '../components/product-details/ProductGallery';
 import ProductInfo from '../components/product-details/ProductInfo';
 import ProductReviewsSection from '../components/product-details/ProductReviewsSection';
+import ProductDiscoveryRail from '../components/catalog/ProductDiscoveryRail.jsx';
+import ProductConversionBlock from '../components/product-details/ProductConversionBlock.jsx';
 
 import Reveal from '../components/Reveal.jsx';
 import JsonLd from '../components/seo/JsonLd.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
-import { ArrowRightIcon } from '../components/icons';
 import { ROUTES, categoryPath } from '../utils/navigation';
-import { loadPublicProductBySlug, loadPublicProducts } from '../services/catalogCache.js';
+import {
+  loadPublicProductBySlug,
+  loadRelatedProducts,
+  loadProductsByIds,
+} from '../services/catalogCache.js';
 import {
   LEGACY_STATIC_PRODUCT,
   getCategoryName,
@@ -20,7 +25,15 @@ import {
 import { useSeo } from '../hooks/useSeo.js';
 import { productJsonLd } from '../utils/structuredData.js';
 import { truncateText } from '../utils/seo.js';
-import { trackProductView } from '../utils/analytics.js';
+import {
+  trackProductView,
+  trackRelatedProductClick,
+  trackRecentlyViewedClick,
+} from '../utils/analytics.js';
+import {
+  recordRecentlyViewed,
+  getRecentlyViewedIds,
+} from '../utils/recentlyViewed.js';
 import './Collection.css';
 import './ProductDetails.css';
 
@@ -110,6 +123,7 @@ export default function ProductDetails() {
   const { slug: routeSlug } = useParams();
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [recentlyViewedProducts, setRecentlyViewedProducts] = useState([]);
   const [loading, setLoading] = useState(Boolean(routeSlug));
   const [error, setError] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
@@ -143,6 +157,9 @@ export default function ProductDetails() {
         setProduct(data);
         setError('');
         trackProductView(data);
+        if (data._id) {
+          recordRecentlyViewed(data._id);
+        }
       })
       .catch((err) => {
         if (!isMounted) {
@@ -164,42 +181,56 @@ export default function ProductDetails() {
   }, [routeSlug, reloadToken]);
 
   useEffect(() => {
-    if (!product?.category) {
-      setRelatedProducts([]);
-      return undefined;
-    }
-
-    const categoryId =
-      typeof product.category === 'object' ? product.category._id : product.category;
-
-    if (!categoryId) {
+    if (!product?._id) {
       setRelatedProducts([]);
       return undefined;
     }
 
     let isMounted = true;
 
-    loadPublicProducts({ category: categoryId, limit: 8 })
-      .then((response) => {
-        if (!isMounted) {
-          return;
-        }
-
-        const items = (response.data?.products || []).filter(
-          (item) => item.slug !== product.slug
-        );
-        setRelatedProducts(items);
+    loadRelatedProducts(product._id, { limit: 8 })
+      .then((items) => {
+        if (!isMounted) return;
+        setRelatedProducts(Array.isArray(items) ? items : []);
       })
       .catch(() => {
-        if (isMounted) {
-          setRelatedProducts([]);
-        }
+        if (isMounted) setRelatedProducts([]);
       });
 
     return () => {
       isMounted = false;
     };
-  }, [product]);
+  }, [product?._id]);
+
+  useEffect(() => {
+    if (!product?._id) {
+      setRecentlyViewedProducts([]);
+      return undefined;
+    }
+
+    const ids = getRecentlyViewedIds({ excludeId: product._id });
+    if (!ids.length) {
+      setRecentlyViewedProducts([]);
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    loadProductsByIds(ids)
+      .then((items) => {
+        if (!isMounted) return;
+        // Preserve newest-first order from localStorage; drop inactive/missing
+        const byId = new Map((items || []).map((item) => [String(item._id), item]));
+        setRecentlyViewedProducts(ids.map((id) => byId.get(String(id))).filter(Boolean));
+      })
+      .catch(() => {
+        if (isMounted) setRecentlyViewedProducts([]);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [product?._id]);
 
   const activeProduct = product;
   const categoryName = getCategoryName(activeProduct?.category);
@@ -387,43 +418,9 @@ export default function ProductDetails() {
           </div>
         </Reveal>
 
-        {relatedProducts.length > 0 && (
-          <Reveal as="section" className="pd-related-section" variant="fade-up">
-            <div className="pd-related-header">
-              <h2 className="pd-section-title">You might also like</h2>
-              <Link to={ROUTES.collection} prefetch="intent" className="pd-view-all-link">
-                View All <ArrowRightIcon className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-            <div className="pd-related-scroll">
-              {relatedProducts.slice(0, 6).map((relatedProduct) => (
-                <Link
-                  key={relatedProduct._id}
-                  to={`/product/${relatedProduct.slug}`}
-                  className="pd-related-card-link"
-                >
-                  <div className="pd-related-card">
-                    <div className="pd-related-card-image-wrap">
-                      <img
-                        src={relatedProduct.images?.[0] || '/images/placeholder.jpg'}
-                        alt={relatedProduct.title}
-                        className="pd-related-card-image"
-                      />
-                    </div>
-                    <div className="pd-related-card-text">
-                      <div className="pd-related-card-info-row">
-                        <h3 className="pd-related-card-name">{relatedProduct.title}</h3>
-                      </div>
-                      <p className="pd-related-card-price">
-                        {relatedProduct.price?.toLocaleString('en-PK', { style: 'currency', currency: 'PKR', maximumFractionDigits: 0 })}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </Reveal>
-        )}
+        <Reveal as="div" variant="fade-up">
+          <ProductConversionBlock product={activeProduct} />
+        </Reveal>
 
         <Reveal variant="fade-up">
           <ProductReviewsSection
@@ -431,6 +428,34 @@ export default function ProductDetails() {
             onSummaryChange={setReviewSummary}
           />
         </Reveal>
+
+        {relatedProducts.length > 0 && (
+          <Reveal as="div" variant="fade-up">
+            <ProductDiscoveryRail
+              title="You May Also Like"
+              products={relatedProducts.slice(0, 8)}
+              viewAllHref={ROUTES.collection}
+              onProductClick={(relatedProduct) =>
+                trackRelatedProductClick({
+                  productId: relatedProduct._id,
+                  sourceProductId: activeProduct._id,
+                })
+              }
+            />
+          </Reveal>
+        )}
+
+        {recentlyViewedProducts.length > 0 && (
+          <Reveal as="div" variant="fade-up">
+            <ProductDiscoveryRail
+              title="Recently Viewed"
+              products={recentlyViewedProducts}
+              onProductClick={(viewedProduct) =>
+                trackRecentlyViewedClick({ productId: viewedProduct._id })
+              }
+            />
+          </Reveal>
+        )}
       </main>
 
       <Footer />

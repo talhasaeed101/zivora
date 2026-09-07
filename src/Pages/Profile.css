@@ -63,6 +63,57 @@
   text-decoration: underline;
 }
 
+.profile-loyalty-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 20px;
+  border: 1px solid #e8e4df;
+  background: #fff;
+}
+
+.profile-loyalty-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+.profile-loyalty-tier {
+  margin: 0 0 4px;
+  font-family: Teneka, serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.profile-loyalty-points {
+  margin: 0;
+  font-size: 13px;
+  color: #767676;
+}
+
+.profile-loyalty-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #967259;
+  color: #967259;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.profile-loyalty-link:hover {
+  background: #967259;
+  color: #fff;
+}
+
 .profile-section {
   padding-top: 4px;
 }

@@ -1,5 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { StarIcon } from '../icons';
+import { uploadApi } from '../../services/api.js';
+
+const MAX_REVIEW_IMAGES = 5;
 
 function RatingSelector({ label, value, onChange, disabled = false, labelledBy }) {
   const [hoverValue, setHoverValue] = useState(0);
@@ -44,6 +47,7 @@ const defaultForm = {
   comment: '',
   sizingRating: 5,
   qualityRating: 5,
+  images: [],
 };
 
 function formFromReview(review) {
@@ -57,6 +61,7 @@ function formFromReview(review) {
     comment: review.comment || '',
     sizingRating: review.sizingRating || 5,
     qualityRating: review.qualityRating || 5,
+    images: Array.isArray(review.images) ? review.images.filter(Boolean) : [],
   };
 }
 
@@ -81,14 +86,18 @@ function ReviewModalContent({
   error = '',
 }) {
   const [form, setForm] = useState(() => formFromReview(review));
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState('');
   const isEditing = Boolean(review?._id);
   const dialogRef = useRef(null);
   const previouslyFocused = useRef(null);
+  const fileInputRef = useRef(null);
   const titleFieldId = useId();
   const commentFieldId = useId();
   const overallId = useId();
   const sizingId = useId();
   const qualityId = useId();
+  const photosId = useId();
 
   useEffect(() => {
     previouslyFocused.current = document.activeElement;
@@ -143,7 +152,7 @@ function ReviewModalContent({
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (saving) {
+    if (saving || uploadingImage) {
       return;
     }
 
@@ -158,7 +167,53 @@ function ReviewModalContent({
       comment: form.comment.trim(),
       sizingRating: form.sizingRating,
       qualityRating: form.qualityRating,
+      images: form.images,
     });
+  };
+
+  const handleImageSelect = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (form.images.length >= MAX_REVIEW_IMAGES) {
+      setImageError(`You can upload up to ${MAX_REVIEW_IMAGES} photos.`);
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setImageError('Please choose a JPG, PNG, or WebP image.');
+      return;
+    }
+
+    setImageError('');
+    setUploadingImage(true);
+
+    try {
+      const response = await uploadApi.uploadReviewImage(file);
+      const url = response.data?.url;
+      if (!url) {
+        throw new Error('Upload did not return an image URL.');
+      }
+      setForm((prev) => ({
+        ...prev,
+        images: [...prev.images, url].slice(0, MAX_REVIEW_IMAGES),
+      }));
+    } catch (err) {
+      setImageError(err.message || 'Unable to upload photo.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = (url) => {
+    setForm((prev) => ({
+      ...prev,
+      images: prev.images.filter((image) => image !== url),
+    }));
   };
 
   return (
@@ -252,14 +307,69 @@ function ReviewModalContent({
             labelledBy={qualityId}
             value={form.qualityRating}
             onChange={(qualityRating) => setForm((prev) => ({ ...prev, qualityRating }))}
-            disabled={saving}
+            disabled={saving || uploadingImage}
           />
 
+          <div className="pd-review-field">
+            <span className="pd-review-field-label" id={photosId}>
+              Photos (optional)
+            </span>
+            <p className="pd-review-photo-hint">Add up to {MAX_REVIEW_IMAGES} photos of your purchase.</p>
+            <div className="pd-review-photo-row" role="group" aria-labelledby={photosId}>
+              {form.images.map((url) => (
+                <div key={url} className="pd-review-photo-thumb-wrap">
+                  <img src={url} alt="" className="pd-review-photo-thumb" />
+                  <button
+                    type="button"
+                    className="pd-review-photo-remove"
+                    onClick={() => removeImage(url)}
+                    disabled={saving || uploadingImage}
+                    aria-label="Remove photo"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {form.images.length < MAX_REVIEW_IMAGES ? (
+                <button
+                  type="button"
+                  className="pd-review-photo-add"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={saving || uploadingImage}
+                >
+                  {uploadingImage ? 'Uploading…' : '+ Add'}
+                </button>
+              ) : null}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/jpg"
+              className="sr-only"
+              onChange={handleImageSelect}
+              disabled={saving || uploadingImage}
+            />
+            {imageError ? (
+              <p className="pd-review-modal-error" role="alert">
+                {imageError}
+              </p>
+            ) : null}
+          </div>
+
           <div className="pd-review-modal-actions">
-            <button type="button" className="pd-btn pd-btn-secondary" onClick={onClose} disabled={saving}>
+            <button
+              type="button"
+              className="pd-btn pd-btn-secondary"
+              onClick={onClose}
+              disabled={saving || uploadingImage}
+            >
               Cancel
             </button>
-            <button type="submit" className="pd-btn pd-btn-primary" disabled={saving}>
+            <button
+              type="submit"
+              className="pd-btn pd-btn-primary"
+              disabled={saving || uploadingImage}
+            >
               {saving ? 'Saving…' : isEditing ? 'Update Review' : 'Submit Review'}
             </button>
           </div>

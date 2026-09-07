@@ -1,0 +1,152 @@
+/* Campaign landing — reuses catalog tokens; compact sale header only */
+
+.campaign-landing-page .campaign-landing-hero {
+  position: relative;
+  margin: 0 0 36px;
+  background:
+    linear-gradient(135deg, #1a1410 0%, #000 48%, #2a1f18 100%);
+  color: #fff;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.campaign-landing-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 36px 28px;
+  box-sizing: border-box;
+}
+
+.campaign-landing-hero--skeleton {
+  min-height: 180px;
+  margin-bottom: 28px;
+  background: var(--catalog-soft, #f7f5f2);
+}
+
+.campaign-landing-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 720px;
+}
+
+.campaign-landing-kicker {
+  margin: 0 0 10px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #c8815f;
+}
+
+.campaign-landing-title {
+  margin: 0 0 10px;
+  font-family: Teneka, serif;
+  font-size: clamp(28px, 4.5vw, 44px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.campaign-landing-subtitle {
+  margin: 0 0 12px;
+  font-family: Cabin, sans-serif;
+  font-size: clamp(15px, 2vw, 20px);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.campaign-landing-discount {
+  margin: 0 0 10px;
+  font-family: Teneka, serif;
+  font-size: clamp(22px, 3vw, 32px);
+  color: #c8815f;
+  letter-spacing: 0.02em;
+}
+
+.campaign-landing-message {
+  margin: 0 0 12px;
+  font-family: Cabin, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 520px;
+}
+
+.campaign-landing-note,
+.campaign-landing-countdown {
+  margin: 0 0 12px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.campaign-landing-countdown strong {
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}
+
+.campaign-landing-variant-note {
+  margin: 0 0 12px;
+  font-family: Cabin, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 480px;
+}
+
+.campaign-landing-stamp-wrap {
+  flex: 0 0 auto;
+}
+
+.campaign-landing-stamp {
+  width: 112px;
+  height: 112px;
+  font-size: 18px;
+}
+
+.campaign-landing-products-heading {
+  margin: 0 0 20px;
+  font-family: Teneka, serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.campaign-landing-page .catalog-page-count {
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .campaign-landing-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 20px;
+    gap: 20px;
+  }
+
+  .campaign-landing-stamp {
+    width: 96px;
+    height: 96px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .campaign-landing-page .catalog-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .campaign-landing-title {
+    font-size: 28px;
+  }
+}

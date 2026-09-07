@@ -5,6 +5,7 @@ import DeliveryAddressModal from '../cart/DeliveryAddressModal.jsx';
 import { addressApi, orderApi } from '../../services/api.js';
 import { mapAddressForApi, mapAddressForUi } from '../../utils/addresses.js';
 import { formatPrice, getProductImage } from '../../utils/products.js';
+import { trackCheckoutStart } from '../../utils/analytics.js';
 import '../../Pages/CartPage.css';
 import './BuyNowCheckoutModal.css';
 
@@ -23,6 +24,7 @@ export default function BuyNowCheckoutModal({
   quantity,
   ringSize,
   metalColor,
+  variantId,
 }) {
   const navigate = useNavigate();
   const [addresses, setAddresses] = useState([]);
@@ -112,6 +114,7 @@ export default function BuyNowCheckoutModal({
     }
 
     setCheckingOut(true);
+    trackCheckoutStart();
 
     try {
       const response = await orderApi.checkout({
@@ -122,6 +125,7 @@ export default function BuyNowCheckoutModal({
           quantity,
           ringSize: ringSize || undefined,
           metalColor: metalColor || undefined,
+          ...(variantId ? { variantId } : {}),
         },
       });
 

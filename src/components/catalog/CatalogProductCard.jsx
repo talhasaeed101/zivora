@@ -4,6 +4,9 @@ import SafeImage from '../SafeImage.jsx';
 import { formatPrice, getProductImage, getCategoryName, hasSale } from '../../utils/products.js';
 import { productPath } from '../../utils/navigation';
 import { isCatalogOutOfStock } from '../../utils/inventory.js';
+import { getWishlistStockStatus } from '../../utils/wishlistShopping.js';
+import { useCampaigns } from '../../context/CampaignContext.jsx';
+import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
 
 export default function CatalogProductCard({
   product,
@@ -11,12 +14,15 @@ export default function CatalogProductCard({
   footer = null,
   className = '',
   removing = false,
+  showLowStock = false,
 }) {
+  const { active } = useCampaigns();
   const image = getProductImage(product);
   const secondaryImage =
     Array.isArray(product?.images) && product.images.length > 1 ? product.images[1] : null;
   const showSale = hasSale(product);
   const outOfStock = isCatalogOutOfStock(product);
+  const lowStock = showLowStock && !outOfStock && getWishlistStockStatus(product) === 'low_stock';
   const categoryName = getCategoryName(product?.category);
   const href = productPath(product.slug);
   const isMobile = variant === 'mobile';
@@ -25,9 +31,19 @@ export default function CatalogProductCard({
     outOfStock ? ' is-out-of-stock' : ''
   }${removing ? ' is-removing' : ''}${className ? ` ${className}` : ''}`;
 
+  const campaign = pickEligibleCampaign(active, product, { forCard: true });
+  const campaignBadge =
+    campaign?.merchandising?.showBadge && campaign?.merchandising?.badgeText
+      ? campaign.merchandising.badgeText
+      : null;
+
   const badges = (
     <>
+      {campaignBadge ? (
+        <span className="catalog-campaign-badge">{campaignBadge}</span>
+      ) : null}
       {showSale ? <span className="catalog-sale-badge">Sale</span> : null}
+      {lowStock ? <span className="catalog-low-stock-badge">Low stock</span> : null}
       {outOfStock ? <span className="catalog-oos-badge">Out of stock</span> : null}
     </>
   );

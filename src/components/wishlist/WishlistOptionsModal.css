@@ -1,0 +1,166 @@
+.wl-options-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 420;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(20, 16, 12, 0.4);
+}
+
+.wl-options-panel {
+  width: min(100%, 440px);
+  max-height: min(90vh, 640px);
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e8e4df;
+  padding: 20px 20px 24px;
+  color: #000;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.wl-options-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wl-options-title {
+  margin: 0;
+  font-family: Teneka, serif;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.wl-options-close {
+  border: none;
+  background: transparent;
+  width: 36px;
+  height: 36px;
+  font-size: 24px;
+  line-height: 1;
+  color: #767676;
+  cursor: pointer;
+}
+
+.wl-options-product {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.wl-options-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  background: #f0ebe4;
+  flex-shrink: 0;
+}
+
+.wl-options-product-name {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.wl-options-product-price {
+  margin: 0;
+  font-size: 13px;
+  color: #767676;
+}
+
+.wl-options-product-old {
+  margin-left: 8px;
+  text-decoration: line-through;
+  color: #9a9a9a;
+}
+
+.wl-options-fieldset {
+  border: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.wl-options-legend {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+}
+
+.wl-options-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wl-options-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e8e4df;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wl-options-chip.is-selected {
+  border-color: #967259;
+  color: #967259;
+}
+
+.wl-options-chip.is-disabled,
+.wl-options-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wl-options-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #b42318;
+}
+
+.wl-options-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.wl-options-btn {
+  flex: 1;
+  min-height: 42px;
+  padding: 0 16px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.wl-options-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wl-options-btn-secondary {
+  border: 1px solid #e8e4df;
+  background: #fff;
+  color: #000;
+}
+
+.wl-options-btn-primary {
+  border: 1px solid #967259;
+  background: #967259;
+  color: #fff;
+}
+
+@media (min-width: 640px) {
+  .wl-options-overlay {
+    align-items: center;
+  }
+}

@@ -15,6 +15,7 @@ export const ROUTES = {
   verifyEmail: '/verify-email',
   profile: '/profile',
   wishlist: '/wishlist',
+  loyalty: '/account/loyalty',
   privacyPolicy: '/privacy-policy',
   termsOfUse: '/terms-of-use',
   supportTickets: '/support/tickets',
@@ -27,6 +28,15 @@ export function categoryPath(slug) {
   }
 
   return `/category/${slug}`;
+}
+
+/** Public campaign landing page — /campaign/:slug */
+export function campaignPath(slug) {
+  if (!slug) {
+    return ROUTES.collection;
+  }
+
+  return `/campaign/${encodeURIComponent(String(slug).trim().toLowerCase())}`;
 }
 
 export function orderPath(id) {

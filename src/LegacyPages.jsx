@@ -10,6 +10,9 @@ import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
 import LaunchTimer from './components/LaunchTimer';
+import CampaignHomeSection from './components/CampaignHomeSection';
+import GiftIdeasSection from './components/GiftIdeasSection';
+import SocialProofHomeSections from './components/SocialProofHomeSections.jsx';
 import './components/landing/landing-tokens.css';
 import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
@@ -57,12 +60,15 @@ export default function LegacyPages() {
       <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
+        <CampaignHomeSection />
         <section className="launch-timer-section">
           <div className="launch-timer-inner">
             <p className="timer-ended-text">“Don't just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.”</p>
           </div>
         </section>
         <TrendingProducts />
+        <SocialProofHomeSections />
+        <GiftIdeasSection />
         <FeaturedCategory />
         <MakeItCustom />
         <PremiumBundles />

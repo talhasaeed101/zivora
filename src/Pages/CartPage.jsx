@@ -15,11 +15,16 @@ import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { addressApi, orderApi, promoCodeApi } from '../services/api.js';
+import { addressApi, cartApi, orderApi, loyaltyApi } from '../services/api.js';
 import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
+import { trackCheckoutStart } from '../utils/analytics.js';
 import { getCellQuantity, getProductInventory } from '../utils/inventory.js';
 import { loadPublicProductBySlug } from '../services/catalogCache.js';
+import {
+  getLoyaltyRedeemValidationError,
+  parseLoyaltyRedeemInput,
+} from '../utils/loyaltyDisplay.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import './CartPage.css';
@@ -35,6 +40,9 @@ function friendlyCartError(message, fallback) {
     return 'Not enough stock available for that quantity.';
   }
   if (lower.includes('promo') || lower.includes('coupon') || lower.includes('expired')) {
+    return text;
+  }
+  if (lower.includes('loyalty') || lower.includes('points')) {
     return text;
   }
   if (
@@ -133,11 +141,16 @@ export default function CartPage() {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [paymentSectionError, setPaymentSectionError] = useState('');
   const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState(null);
-  const [promoCartSignature, setPromoCartSignature] = useState('');
+  const [appliedPromoCode, setAppliedPromoCode] = useState('');
+  const [quote, setQuote] = useState(null);
   const [promoError, setPromoError] = useState('');
   const [promoApplying, setPromoApplying] = useState(false);
   const [productDetailsBySlug, setProductDetailsBySlug] = useState({});
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [loyaltyPointsInput, setLoyaltyPointsInput] = useState('');
+  const [appliedLoyaltyPoints, setAppliedLoyaltyPoints] = useState(null);
+  const [loyaltyError, setLoyaltyError] = useState('');
+  const [loyaltyApplying, setLoyaltyApplying] = useState(false);
 
   const items = useMemo(
     () =>
@@ -226,22 +239,164 @@ export default function CartPage() {
     loadAddresses();
   }, [loadAddresses]);
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoyaltyBalance(0);
+      setAppliedLoyaltyPoints(null);
+      setLoyaltyPointsInput('');
+      setLoyaltyError('');
+      return undefined;
+    }
+
+    let cancelled = false;
+    loyaltyApi
+      .getAccount({ suppressErrorToast: true })
+      .then((response) => {
+        if (!cancelled) {
+          setLoyaltyBalance(Number(response.data?.balance) || 0);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoyaltyBalance(0);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
   const cartSignature = useMemo(
     () => (cart?.items || []).map((item) => `${item._id}:${item.quantity}`).join('|'),
     [cart]
   );
 
-  const activePromo = promoCartSignature === cartSignature ? appliedPromo : null;
+  useEffect(() => {
+    if (!isAuthenticated || !cart?.items?.length) {
+      setQuote(null);
+      return undefined;
+    }
 
-  const taxFee = 0;
-  const discount = activePromo?.discountAmount ?? 0;
-  const orderTotal = Math.max(0, subtotal - discount + taxFee);
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const response = await cartApi.quoteCart({
+          promoCode: appliedPromoCode || undefined,
+          loyaltyPoints: appliedLoyaltyPoints || undefined,
+        });
+        if (!cancelled) {
+          setQuote(response.data || null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          if (appliedLoyaltyPoints) {
+            setLoyaltyError(
+              friendlyCartError(err.message, 'Unable to apply loyalty points.')
+            );
+            setAppliedLoyaltyPoints(null);
+          } else {
+            setQuote(null);
+          }
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isAuthenticated,
+    cartSignature,
+    appliedPromoCode,
+    appliedLoyaltyPoints,
+    cart?.items?.length,
+  ]);
+
+  const appliedPromotion = quote?.promotions?.[0] || null;
+  const activePromo =
+    appliedPromotion?.source === 'promo_code'
+      ? {
+          code: appliedPromotion.code,
+          discountAmount: appliedPromotion.amount,
+          name: appliedPromotion.name,
+        }
+      : null;
+
+  const campaignPromotion =
+    appliedPromotion?.source === 'campaign' ? appliedPromotion : null;
+
+  const taxFee = quote?.taxFee ?? 0;
+  const discount = quote?.discountAmount ?? 0;
+  const loyaltyDiscount = quote?.loyaltyDiscount || null;
+  const orderTotal =
+    quote?.total != null
+      ? quote.total
+      : Math.max(0, subtotal - discount - (Number(loyaltyDiscount?.amount) || 0) + taxFee);
 
   const resetPromo = () => {
-    setAppliedPromo(null);
-    setPromoCartSignature('');
+    setAppliedPromoCode('');
     setPromoError('');
     setPromoInput('');
+  };
+
+  const resetLoyalty = () => {
+    setAppliedLoyaltyPoints(null);
+    setLoyaltyPointsInput('');
+    setLoyaltyError('');
+  };
+
+  const handleApplyLoyalty = async (rawPoints) => {
+    setLoyaltyError('');
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: ROUTES.cart } });
+      return;
+    }
+
+    const parsed = parseLoyaltyRedeemInput(rawPoints);
+    if (!parsed.ok) {
+      setLoyaltyError(parsed.error);
+      return;
+    }
+
+    const validationError = getLoyaltyRedeemValidationError(parsed.points, loyaltyBalance);
+    if (validationError) {
+      setLoyaltyError(validationError);
+      return;
+    }
+
+    const remainingAfterPromo = Math.max(0, Math.round((quote?.subtotal ?? subtotal) - discount));
+    if (parsed.points > remainingAfterPromo) {
+      setLoyaltyError('Loyalty discount cannot exceed the remaining order subtotal.');
+      return;
+    }
+
+    setLoyaltyApplying(true);
+    try {
+      const response = await cartApi.quoteCart({
+        promoCode: appliedPromoCode || undefined,
+        loyaltyPoints: parsed.points,
+      });
+      const data = response.data || {};
+      setQuote(data);
+      if (data.loyaltyDiscount?.points) {
+        setAppliedLoyaltyPoints(data.loyaltyDiscount.points);
+        setLoyaltyPointsInput(String(data.loyaltyDiscount.points));
+        setStatusMessage(
+          `${data.loyaltyDiscount.points.toLocaleString('en-US')} loyalty points applied.`
+        );
+      } else {
+        setAppliedLoyaltyPoints(null);
+        setLoyaltyError('Unable to apply loyalty points to this order.');
+      }
+    } catch (err) {
+      setAppliedLoyaltyPoints(null);
+      setLoyaltyError(friendlyCartError(err.message, 'Unable to apply loyalty points.'));
+    } finally {
+      setLoyaltyApplying(false);
+    }
   };
 
   const handleApplyPromo = async (code) => {
@@ -260,16 +415,23 @@ export default function CartPage() {
     setPromoApplying(true);
 
     try {
-      const response = await promoCodeApi.validatePromoCode({
-        code,
-        cartTotal: subtotal,
-      });
-      setAppliedPromo(response.data);
-      setPromoCartSignature(cartSignature);
-      setPromoInput(response.data.code);
-      setStatusMessage(`Promo code ${response.data.code} applied.`);
+      const response = await cartApi.quoteCart({ promoCode: code });
+      const data = response.data || {};
+      setQuote(data);
+      setAppliedPromoCode(code.trim().toUpperCase());
+      setPromoInput(code.trim().toUpperCase());
+
+      const promoWon = (data.promotions || []).some((entry) => entry.source === 'promo_code');
+      if (promoWon) {
+        setStatusMessage(`Promo code ${code.trim().toUpperCase()} applied.`);
+      } else if ((data.promotions || []).some((entry) => entry.source === 'campaign')) {
+        setStatusMessage('A campaign discount is already giving you a better savings.');
+      } else {
+        setPromoError('This promo code is invalid or expired.');
+        setAppliedPromoCode('');
+      }
     } catch (err) {
-      setAppliedPromo(null);
+      setAppliedPromoCode('');
       setPromoError(friendlyCartError(err.message, 'This promo code is invalid or expired.'));
     } finally {
       setPromoApplying(false);
@@ -480,15 +642,18 @@ export default function CartPage() {
     }
 
     setCheckingOut(true);
+    trackCheckoutStart();
 
     try {
       const response = await orderApi.checkout({
         addressId: selectedAddress.id,
         paymentMethod,
-        promoCode: activePromo?.code,
+        promoCode: appliedPromoCode || activePromo?.code || undefined,
+        loyaltyPoints: appliedLoyaltyPoints || undefined,
       });
 
       resetPromo();
+      resetLoyalty();
       await refreshCart();
       navigate(`/order-success/${response.data._id}`, { replace: true });
     } catch (err) {
@@ -673,8 +838,21 @@ export default function CartPage() {
               <Reveal variant="fade-up" delay={100}>
                 <OrderSummary
                   itemCount={totalItems}
-                  subtotal={subtotal}
+                  subtotal={quote?.subtotal ?? subtotal}
                   discount={discount}
+                  discountLabel={
+                    campaignPromotion?.name ||
+                    (activePromo ? `Promo ${activePromo.code}` : null)
+                  }
+                  loyaltyDiscount={loyaltyDiscount}
+                  loyaltyBalance={loyaltyBalance}
+                  loyaltyPointsInput={loyaltyPointsInput}
+                  onLoyaltyPointsChange={setLoyaltyPointsInput}
+                  onApplyLoyalty={handleApplyLoyalty}
+                  onRemoveLoyalty={resetLoyalty}
+                  loyaltyApplying={loyaltyApplying}
+                  loyaltyError={loyaltyError}
+                  showLoyalty={isAuthenticated}
                   taxFee={taxFee}
                   total={orderTotal}
                   onCheckout={handleCheckout}
@@ -701,7 +879,7 @@ export default function CartPage() {
           ) : null}
         </div>
 
-        <RecommendedProducts />
+        <RecommendedProducts cartItems={items} />
       </main>
 
       <Footer />

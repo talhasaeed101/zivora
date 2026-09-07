@@ -1,0 +1,94 @@
+.gift-ideas-section {
+  padding: 48px 20px 24px;
+  background: linear-gradient(180deg, #faf8f6 0%, #ffffff 100%);
+}
+
+.gift-ideas-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gift-ideas-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.gift-ideas-title {
+  margin: 0 0 8px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: #1a1a1a;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gift-ideas-subtitle {
+  margin: 0 auto;
+  max-width: 420px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #767676;
+}
+
+.gift-ideas-block {
+  margin-bottom: 36px;
+}
+
+.gift-ideas-block:last-child {
+  margin-bottom: 0;
+}
+
+.gift-ideas-block-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gift-ideas-block-title {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.gift-ideas-link {
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  color: #967259;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gift-ideas-link:hover {
+  text-decoration: underline;
+}
+
+.gift-ideas-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .gift-ideas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gift-ideas-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gift-ideas-section {
+    padding: 36px 16px 16px;
+  }
+
+  .gift-ideas-block-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,167 @@
+.campaign-home-section {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.campaign-home-banner {
+  position: relative;
+  width: 100%;
+  background:
+    linear-gradient(135deg, #1a1410 0%, #000 48%, #2a1f18 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.campaign-home-banner-accent {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 85% 50%, rgba(200, 129, 95, 0.28), transparent 55%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(240, 235, 228, 0.08), transparent 50%);
+  pointer-events: none;
+}
+
+.campaign-home-banner-inner {
+  position: relative;
+  z-index: 1;
+  max-width: var(--landing-max-width, 1440px);
+  margin: 0 auto;
+  padding: 48px var(--landing-section-padding-x, 80px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  box-sizing: border-box;
+}
+
+.campaign-home-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 720px;
+}
+
+.campaign-home-kicker {
+  margin: 0 0 12px;
+  font-family: var(--landing-font-ui, Inter, sans-serif);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--landing-color-accent, #c8815f);
+}
+
+.campaign-home-title {
+  margin: 0 0 12px;
+  font-family: var(--landing-font-display, Teneka, serif);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.campaign-home-subtitle {
+  margin: 0 0 16px;
+  font-family: var(--landing-font-body, Cabin, sans-serif);
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.campaign-home-note,
+.campaign-home-countdown {
+  margin: 0 0 24px;
+  font-family: var(--landing-font-ui, Inter, sans-serif);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.campaign-home-countdown strong {
+  color: var(--landing-color-accent, #c8815f);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.campaign-home-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 36px;
+  background: #fff;
+  color: #000;
+  font-family: var(--landing-font-ui, Inter, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.campaign-home-cta:hover {
+  background: var(--landing-color-accent, #c8815f);
+  color: #fff;
+}
+
+.campaign-home-stamp-wrap {
+  flex: 0 0 auto;
+}
+
+.campaign-sale-stamp,
+.campaign-home-stamp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(120px, 16vw, 168px);
+  height: clamp(120px, 16vw, 168px);
+  border-radius: 50%;
+  border: 2px solid var(--landing-color-accent, #c8815f);
+  background: rgba(200, 129, 95, 0.12);
+  color: #fff;
+  font-family: var(--landing-font-display, Teneka, serif);
+  font-size: clamp(18px, 2.4vw, 28px);
+  font-style: italic;
+  line-height: 1.15;
+  text-align: center;
+  padding: 16px;
+  box-sizing: border-box;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transform: rotate(-8deg);
+}
+
+@media (max-width: 768px) {
+  .campaign-home-banner-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 36px 16px;
+    gap: 28px;
+  }
+
+  .campaign-home-title {
+    font-size: 30px;
+  }
+
+  .campaign-home-subtitle {
+    font-size: 16px;
+  }
+
+  .campaign-home-stamp-wrap {
+    align-self: center;
+  }
+
+  .campaign-home-cta {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campaign-home-cta {
+    transition: none;
+  }
+}
