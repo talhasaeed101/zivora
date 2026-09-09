@@ -1,41 +1,67 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
 import CustomizationModal from './CustomizationModal.jsx';
+import NotifyMeModal from './NotifyMeModal.jsx';
 import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
-import { trackAddToCart } from '../../utils/analytics.js';
-import { firstAvailableSelection, getCellQuantity, getProductInventory, optionHasAnyStock, syncSelection } from '../../utils/inventory.js';
+import { trackAddToCart, trackPersonalizationStart } from '../../utils/analytics.js';
+import {
+  findInventoryCell,
+  firstAvailableSelection,
+  findUniqueVariantId,
+  getCellQuantity,
+  getProductInventory,
+  inventoryCellKey,
+  optionHasAnyStock,
+  syncSelection,
+} from '../../utils/inventory.js';
+import { backInStockApi, socialProofApi } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
+import { useCampaigns } from '../../context/CampaignContext.jsx';
+import { toast } from '../../context/ToastContext.jsx';
+import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
+import { PDP_TRUST_ITEMS } from '../../constants/storefrontCopy.js';
+import {
+  CampaignSaleBadge,
+  useCampaignCountdown,
+} from '../campaign/campaignUi.jsx';
 
 const METAL_COLOR_MAP = {
   silver: { id: 'silver', label: 'Silver', color: '#c8c8c8' },
   gold: { id: 'gold', label: 'Gold', color: '#c8815f' },
-  'rose-gold': { id: 'rose-gold', label: 'Rose Gold', color: '#e8b4a8' },
 };
 
 const resolveMetalColors = (metalColors = []) =>
-  (metalColors || []).map((color) => {
-    const value = String(color).trim();
-    const normalized = value.toLowerCase();
-    const mapped = METAL_COLOR_MAP[normalized];
+  (metalColors || [])
+    .map((color) => {
+      const value = String(color).trim();
+      const normalized = value.toLowerCase();
+      const mapped = METAL_COLOR_MAP[normalized];
+      if (!mapped) {
+        return null;
+      }
 
-    return {
-      id: mapped?.id || normalized,
-      value,
-      label: mapped?.label || value,
-      color: mapped?.color || '#c8815f',
-    };
-  });
+      return {
+        id: mapped.id,
+        // Canonical labels so cart/inventory keys stay Gold/Silver
+        value: mapped.label,
+        label: mapped.label,
+        color: mapped.color,
+      };
+    })
+    .filter(Boolean)
+    .filter((metal, index, arr) => arr.findIndex((item) => item.value === metal.value) === index);
 
 export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, customer } = useAuth();
   const { addToCart } = useCart();
+  const { active: activeCampaigns, refresh: refreshCampaigns } = useCampaigns();
 
   const inventory = getProductInventory(product);
   const ringSizes = useMemo(
@@ -61,6 +87,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const [sizeError, setSizeError] = useState('');
   const [colorError, setColorError] = useState('');
+  const [subscribedCells, setSubscribedCells] = useState(() => new Set());
+  const [notifying, setNotifying] = useState(false);
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [purchaseActivity, setPurchaseActivity] = useState(null);
+  const [wishlistActivity, setWishlistActivity] = useState(null);
 
   const isCustomizable = Boolean(product?.isCustomizable);
   const categoryName = getCategoryName(product?.category);
@@ -70,9 +101,45 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
   const selectedRingSize = showRingSize ? size : '';
   const selectedMetalColor = showMetalColors ? color : '';
+  const selectedCell = findInventoryCell(inventory, selectedRingSize, selectedMetalColor);
   const cellQuantity = getCellQuantity(inventory, selectedRingSize, selectedMetalColor);
   const inStock = cellQuantity > 0;
   const maxQuantity = inStock ? cellQuantity : 1;
+  const selectionComplete = (!showRingSize || Boolean(size)) && (!showMetalColors || Boolean(color));
+  const selectionKey = inventoryCellKey(selectedRingSize, selectedMetalColor);
+  const isNotifySubscribed = subscribedCells.has(selectionKey);
+  const showNotifyMe =
+    Boolean(product?._id) &&
+    selectionComplete &&
+    selectedCell != null &&
+    Number(selectedCell.quantity) === 0;
+
+  const selectedVariantId = findUniqueVariantId(product, {
+    ringSize: selectedRingSize,
+    metalColor: selectedMetalColor,
+  });
+
+  const campaignForSelection = pickEligibleCampaign(activeCampaigns, product, {
+    variantId: selectedVariantId,
+  });
+  const campaignPdpText =
+    campaignForSelection?.merchandising?.showPdpMessage &&
+    campaignForSelection?.merchandising?.pdpText
+      ? campaignForSelection.merchandising.pdpText
+      : null;
+  const campaignBadge =
+    campaignForSelection?.merchandising?.showBadge &&
+    campaignForSelection?.merchandising?.badgeText
+      ? campaignForSelection.merchandising.badgeText
+      : null;
+  const onCampaignExpire = useCallback(() => {
+    refreshCampaigns?.();
+  }, [refreshCampaigns]);
+  const campaignCountdown = useCampaignCountdown(
+    campaignForSelection?.endAt,
+    Boolean(campaignForSelection?.merchandising?.showCountdown && campaignForSelection?.endAt),
+    onCampaignExpire
+  );
 
   const hasRealReviews =
     reviewSummary &&
@@ -109,6 +176,9 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     setCartMessage(null);
     setSizeError('');
     setColorError('');
+    setSubscribedCells(new Set());
+    setNotifyModalOpen(false);
+    setNotifying(false);
   }, [product?._id]);
 
   useEffect(() => {
@@ -119,6 +189,51 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
 
     setQuantity((current) => Math.min(Math.max(1, current), cellQuantity));
   }, [cellQuantity, inStock, selectedRingSize, selectedMetalColor]);
+
+  useEffect(() => {
+    const slug = String(product?.slug || '').trim();
+    if (!slug) {
+      setPurchaseActivity(null);
+      setWishlistActivity(null);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setPurchaseActivity(null);
+    setWishlistActivity(null);
+
+    socialProofApi
+      .getProduct(slug)
+      .then((response) => {
+        if (cancelled) {
+          return;
+        }
+        const data = response?.data || {};
+        const activity = data.purchaseActivity;
+        if (activity && Number(activity.count) > 0 && activity.message) {
+          setPurchaseActivity(activity);
+        } else {
+          setPurchaseActivity(null);
+        }
+
+        const wishlist = data.wishlistActivity;
+        if (wishlist && Number(wishlist.count) > 0 && wishlist.message) {
+          setWishlistActivity(wishlist);
+        } else {
+          setWishlistActivity(null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPurchaseActivity(null);
+          setWishlistActivity(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.slug]);
 
   const handleColorSelect = (colorValue) => {
     if (
@@ -197,11 +312,17 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     setAdding(true);
 
     try {
+      const variantId = findUniqueVariantId(product, {
+        ringSize: showRingSize ? size : '',
+        metalColor: showMetalColors ? color : '',
+      });
+
       await addToCart({
         productId: product._id,
         quantity,
         ringSize: showRingSize ? size : undefined,
         metalColor: showMetalColors ? color : undefined,
+        ...(variantId ? { variantId } : {}),
       });
       setCartMessage({ type: 'success', text: 'Added to cart successfully.' });
       trackAddToCart(product._id);
@@ -230,6 +351,10 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     }
 
     setCustomizeOpen(true);
+    trackPersonalizationStart({
+      productId: product._id,
+      productSlug: product.slug,
+    });
   };
 
   const handleCustomizedAddToCart = async (payload) => {
@@ -258,6 +383,78 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     setBuyNowOpen(true);
   };
 
+  const markCellSubscribed = useCallback((ringSize, metalColor) => {
+    const key = inventoryCellKey(ringSize, metalColor);
+    setSubscribedCells((prev) => {
+      if (prev.has(key)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+  }, []);
+
+  const submitBackInStock = useCallback(
+    async (email) => {
+      if (!product?._id || notifying) {
+        return;
+      }
+
+      const ringSize = showRingSize ? size : '';
+      const metalColor = showMetalColors ? color : '';
+
+      setNotifying(true);
+
+      try {
+        await backInStockApi.subscribe({
+          productId: product._id,
+          ringSize,
+          metalColor,
+          email,
+        });
+
+        markCellSubscribed(ringSize, metalColor);
+        setNotifyModalOpen(false);
+        toast.success("You'll be notified when this item is back in stock.");
+      } catch (error) {
+        if (error?.status === 409) {
+          markCellSubscribed(ringSize, metalColor);
+          setNotifyModalOpen(false);
+          toast.info('You already requested a notification.');
+          return;
+        }
+
+        toast.error(error?.message || 'Unable to save your notification request. Please try again.');
+      } finally {
+        setNotifying(false);
+      }
+    },
+    [product?._id, notifying, showRingSize, size, showMetalColors, color, markCellSubscribed]
+  );
+
+  const handleNotifyMeClick = () => {
+    if (!showNotifyMe || isNotifySubscribed || notifying) {
+      return;
+    }
+
+    if (isAuthenticated) {
+      const email = String(customer?.email || '')
+        .trim()
+        .toLowerCase();
+
+      if (!email) {
+        toast.error('Unable to find your account email. Please update your profile and try again.');
+        return;
+      }
+
+      submitBackInStock(email);
+      return;
+    }
+
+    setNotifyModalOpen(true);
+  };
+
   const stockLabel = !inStock
     ? 'Out of stock'
     : cellQuantity <= 5
@@ -280,7 +477,14 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       )}
 
       {hasRealReviews && (
-        <div className="pd-info-rating" aria-label={`${averageRating.toFixed(1)} out of 5 from ${reviewCount} reviews`}>
+        <button
+          type="button"
+          className="pd-info-rating pd-info-rating-link"
+          aria-label={`${averageRating.toFixed(1)} out of 5 from ${reviewCount} reviews. Jump to reviews.`}
+          onClick={() => {
+            document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        >
           <div className="pd-info-stars" aria-hidden="true">
             {[1, 2, 3, 4, 5].map((star) => (
               <StarIcon
@@ -294,7 +498,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           <span className="pd-info-review-count">
             ({reviewCount.toLocaleString()} review{reviewCount === 1 ? '' : 's'})
           </span>
-        </div>
+        </button>
       )}
 
       <div className="pd-info-price-row">
@@ -304,10 +508,36 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
             <span className="pd-info-price-old">{formatPrice(product.oldPrice)}</span>
           ) : null}
         </p>
-        {showSale ? <span className="pd-info-sale-badge">Sale</span> : null}
+        {campaignBadge ? <CampaignSaleBadge text={campaignBadge} className="pd-info-campaign-badge" /> : null}
+        {!campaignBadge && showSale ? <span className="pd-info-sale-badge">Sale</span> : null}
       </div>
 
+      {(campaignPdpText || campaignCountdown) && (
+        <div className="pd-info-campaign-panel" role="status">
+          {campaignPdpText ? <p className="pd-info-campaign-msg">{campaignPdpText}</p> : null}
+          {campaignCountdown ? (
+            <p className="pd-info-campaign-ends">
+              Offer ends in <strong>{campaignCountdown}</strong>
+            </p>
+          ) : null}
+        </div>
+      )}
+
       <p className={`pd-info-stock${inStock ? '' : ' is-oos'}`}>{stockLabel}</p>
+
+      {purchaseActivity?.message ? (
+        <p className="pd-info-purchase-activity" role="status">
+          <span aria-hidden="true">🔥 </span>
+          {purchaseActivity.message}
+        </p>
+      ) : null}
+
+      {wishlistActivity?.message ? (
+        <p className="pd-info-wishlist-activity" role="status">
+          <span aria-hidden="true">❤️ </span>
+          {wishlistActivity.message}
+        </p>
+      ) : null}
 
       <hr className="pd-info-divider" />
 
@@ -510,7 +740,33 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           showLabel={false}
           stopPropagation={false}
         />
+
+        {showNotifyMe ? (
+          <button
+            type="button"
+            className={`pd-btn pd-btn-secondary pd-btn-notify-me${
+              isNotifySubscribed ? ' is-subscribed' : ''
+            }`}
+            onClick={handleNotifyMeClick}
+            disabled={isNotifySubscribed || notifying}
+            aria-live="polite"
+          >
+            {notifying ? 'Submitting…' : isNotifySubscribed ? 'Subscribed' : 'Notify Me When Available'}
+          </button>
+        ) : null}
       </div>
+
+      <ul className="pd-trust-list" aria-label="Purchase reassurance">
+        {isCustomizable ? <li>Personalized options available</li> : null}
+        {showMetalColors ? (
+          <li>
+            Available finishes: {metalColors.map((metal) => metal.label).join(', ')}
+          </li>
+        ) : null}
+        {PDP_TRUST_ITEMS.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
 
       <BuyNowCheckoutModal
         isOpen={buyNowOpen}
@@ -519,6 +775,12 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         quantity={quantity}
         ringSize={showRingSize ? size : undefined}
         metalColor={showMetalColors ? color : undefined}
+        variantId={
+          findUniqueVariantId(product, {
+            ringSize: showRingSize ? size : '',
+            metalColor: showMetalColors ? color : '',
+          }) || undefined
+        }
       />
 
       <CustomizationModal
@@ -526,7 +788,21 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         onClose={() => setCustomizeOpen(false)}
         product={product}
         ringSize={showRingSize ? size : undefined}
+        metalColor={showMetalColors ? color : undefined}
         onAddToCart={handleCustomizedAddToCart}
+      />
+
+      <NotifyMeModal
+        isOpen={notifyModalOpen}
+        onClose={() => {
+          if (!notifying) {
+            setNotifyModalOpen(false);
+          }
+        }}
+        onSubmit={submitBackInStock}
+        submitting={notifying}
+        ringSize={showRingSize ? size : undefined}
+        metalColor={showMetalColors ? color : undefined}
       />
     </div>
   );

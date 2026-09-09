@@ -10,6 +10,9 @@ import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
 import LaunchTimer, { isLaunchTimerActive } from './components/LaunchTimer';
+import CampaignHomeSection from './components/CampaignHomeSection';
+import GiftIdeasSection from './components/GiftIdeasSection';
+import SocialProofHomeSections from './components/SocialProofHomeSections.jsx';
 import './components/landing/landing-tokens.css';
 import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
@@ -69,8 +72,11 @@ export default function LegacyPages() {
       <Navbar homeHref="/?home=true" />
       <main>
         <Hero />
+        <CampaignHomeSection />
         <LaunchTimer />
         <TrendingProducts />
+        <SocialProofHomeSections />
+        <GiftIdeasSection />
         <FeaturedCategory />
         <MakeItCustom />
         <PremiumBundles />

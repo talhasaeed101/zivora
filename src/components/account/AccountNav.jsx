@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { id: 'overview', label: 'Account Overview', to: ROUTES.profile, end: true },
   { id: 'orders', label: 'My Orders', to: ROUTES.orders },
   { id: 'wishlist', label: 'Wishlist', to: ROUTES.wishlist },
+  { id: 'loyalty', label: 'Loyalty & Rewards', to: ROUTES.loyalty },
   { id: 'notifications', label: 'Notifications', to: ROUTES.notifications },
   { id: 'support', label: 'Support Tickets', to: ROUTES.supportTickets },
 ];

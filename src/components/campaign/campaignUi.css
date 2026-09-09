@@ -1,0 +1,21 @@
+.campaign-sale-stamp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid #c8815f;
+  background: rgba(200, 129, 95, 0.12);
+  color: #fff;
+  font-family: Teneka, serif;
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.15;
+  text-align: center;
+  padding: 14px;
+  box-sizing: border-box;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transform: rotate(-8deg);
+}

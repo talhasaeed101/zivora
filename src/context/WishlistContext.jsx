@@ -1,16 +1,24 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { wishlistApi } from '../services/api.js';
 import { useAuth } from './AuthContext.jsx';
+import { trackWishlistAdd, trackWishlistRemove } from '../utils/analytics.js';
 
 const WishlistContext = createContext(null);
 
 const extractProductIds = (wishlist) => {
+  const fromIds = Array.isArray(wishlist?.productIds) ? wishlist.productIds : null;
+  if (fromIds) {
+    return new Set(fromIds.map((id) => String(id)).filter(Boolean));
+  }
+
   const products = wishlist?.products || [];
   return new Set(
-    products.map((product) => {
-      const id = typeof product === 'object' ? product._id : product;
-      return id?.toString();
-    }).filter(Boolean)
+    products
+      .map((product) => {
+        const id = typeof product === 'object' ? product._id : product;
+        return id?.toString();
+      })
+      .filter(Boolean)
   );
 };
 
@@ -26,6 +34,7 @@ export function WishlistProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [togglingIds, setTogglingIds] = useState(() => new Set());
+  const mutationIdsRef = useRef(new Set());
 
   const refreshWishlist = useCallback(async () => {
     if (!isAuthenticated) {
@@ -65,38 +74,94 @@ export function WishlistProvider({ children }) {
     return wishlist;
   }, []);
 
-  const addToWishlist = useCallback(async (productId) => {
-    const response = await wishlistApi.addToWishlist(productId);
-    applyWishlist(response.data);
-    return response.data;
-  }, [applyWishlist]);
-
-  const removeFromWishlist = useCallback(async (productId) => {
-    const response = await wishlistApi.removeFromWishlist(productId);
-    applyWishlist(response.data);
-    return response.data;
-  }, [applyWishlist]);
-
-  const toggleWishlist = useCallback(async (productId) => {
-    const id = productId?.toString();
-    if (!id) {
-      return null;
+  const beginMutation = (id) => {
+    if (!id || mutationIdsRef.current.has(id)) {
+      return false;
     }
-
+    mutationIdsRef.current.add(id);
     setTogglingIds((current) => new Set(current).add(id));
+    return true;
+  };
 
-    try {
-      const response = await wishlistApi.toggleWishlist(productId);
-      applyWishlist(response.data?.wishlist || response.data);
-      return response.data;
-    } finally {
-      setTogglingIds((current) => {
-        const next = new Set(current);
-        next.delete(id);
-        return next;
-      });
-    }
-  }, [applyWishlist]);
+  const endMutation = (id) => {
+    mutationIdsRef.current.delete(id);
+    setTogglingIds((current) => {
+      const next = new Set(current);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const addToWishlist = useCallback(
+    async (productId, meta = {}) => {
+      const id = productId?.toString();
+      if (!beginMutation(id)) {
+        return null;
+      }
+
+      try {
+        const response = await wishlistApi.addToWishlist(productId);
+        applyWishlist(response.data);
+        trackWishlistAdd({
+          productId: id,
+          productSlug: meta.productSlug,
+        });
+        return response.data;
+      } finally {
+        endMutation(id);
+      }
+    },
+    [applyWishlist]
+  );
+
+  const removeFromWishlist = useCallback(
+    async (productId, meta = {}) => {
+      const id = productId?.toString();
+      if (!beginMutation(id)) {
+        return null;
+      }
+
+      try {
+        const response = await wishlistApi.removeFromWishlist(productId);
+        applyWishlist(response.data);
+        trackWishlistRemove({
+          productId: id,
+          productSlug: meta.productSlug,
+        });
+        return response.data;
+      } finally {
+        endMutation(id);
+      }
+    },
+    [applyWishlist]
+  );
+
+  const toggleWishlist = useCallback(
+    async (productId, meta = {}) => {
+      const id = productId?.toString();
+      if (!beginMutation(id)) {
+        return null;
+      }
+
+      const wasSaved = productIds.has(id);
+
+      try {
+        const response = await wishlistApi.toggleWishlist(productId);
+        const payload = response.data?.wishlist || response.data;
+        applyWishlist(payload);
+        const added = response.data?.added ?? !wasSaved;
+        if (added) {
+          trackWishlistAdd({ productId: id, productSlug: meta.productSlug });
+        } else {
+          trackWishlistRemove({ productId: id, productSlug: meta.productSlug });
+        }
+        return response.data;
+      } finally {
+        endMutation(id);
+      }
+    },
+    [applyWishlist, productIds]
+  );
 
   const isInWishlist = useCallback(
     (productId) => {

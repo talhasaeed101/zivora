@@ -403,6 +403,89 @@
   line-height: 1.55;
 }
 
+.header-search-section {
+  margin-bottom: 18px;
+}
+
+.header-search-section:last-child {
+  margin-bottom: 0;
+}
+
+.header-search-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.header-search-section-title {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nav-muted);
+}
+
+.header-search-section-head .header-search-section-title {
+  margin: 0;
+}
+
+.header-search-section-action {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  color: var(--nav-accent);
+  cursor: pointer;
+}
+
+.header-search-recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-search-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-search-recent-term {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 4px;
+  font-size: 14px;
+  color: var(--nav-black);
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-search-recent-term:hover {
+  color: var(--nav-accent);
+}
+
+.header-search-recent-remove {
+  border: none;
+  background: transparent;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--nav-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .header-search-shortcuts,
 .header-search-state-actions {
   display: flex;
@@ -414,13 +497,37 @@
   display: inline-flex;
   padding: 8px 12px;
   border: 1px solid var(--nav-border);
+  background: #fff;
   color: var(--nav-black);
   text-decoration: none;
   font-size: 13px;
+  cursor: pointer;
 }
 
 .header-search-chip:hover {
   border-color: var(--nav-accent);
+}
+
+.header-search-suggest-meta {
+  margin-bottom: 12px;
+}
+
+.header-search-correction {
+  display: block;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: var(--nav-gray);
+  cursor: pointer;
+}
+
+.header-search-correction strong {
+  color: var(--nav-accent);
+  font-weight: 600;
 }
 
 .header-search-skeleton {

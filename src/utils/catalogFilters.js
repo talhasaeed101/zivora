@@ -1,4 +1,5 @@
 export const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevance' },
   { value: 'newest', label: 'Newest' },
   { value: 'oldest', label: 'Oldest' },
   { value: 'price_asc', label: 'Price: Low to High' },

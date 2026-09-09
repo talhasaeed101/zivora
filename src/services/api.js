@@ -44,11 +44,12 @@ const buildQueryString = (params = {}) => {
 };
 
 async function request(endpoint, options = {}) {
+  const { suppressErrorToast = false, headers: optionHeaders, ...fetchOptions } = options;
   const token = getStoredToken();
   const hadToken = Boolean(token);
   const headers = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...optionHeaders,
   };
 
   if (token) {
@@ -59,7 +60,7 @@ async function request(endpoint, options = {}) {
 
   try {
     response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
+      ...fetchOptions,
       headers,
     });
   } catch (networkError) {
@@ -72,7 +73,7 @@ async function request(endpoint, options = {}) {
         ? 'Unable to reach the server.'
         : networkError.message || 'Network request failed';
 
-    throw new Error(`${hint} [${options.method || 'GET'} ${API_BASE_URL}${endpoint}]`, {
+    throw new Error(`${hint} [${fetchOptions.method || 'GET'} ${API_BASE_URL}${endpoint}]`, {
       cause: networkError,
     });
   }
@@ -98,12 +99,12 @@ async function request(endpoint, options = {}) {
     // Attach additional data to the error object for frontend handling
     error.data = data;
     error.status = response.status;
-    
-    // Automatically show toast for mutation errors
-    if (options.method && options.method !== 'GET') {
+
+    // Automatically show toast for mutation errors unless suppressed by the caller
+    if (fetchOptions.method && fetchOptions.method !== 'GET' && !suppressErrorToast) {
       toast.error(message);
     }
-    
+
     throw error;
   }
 
@@ -163,10 +164,31 @@ export const publicCatalogApi = {
 
   getPublicProductBySlug: (slug, options = {}) =>
     request(`/public/products/${encodeURIComponent(slug)}`, options),
+
+  getRelatedProducts: (productId, params = {}, options = {}) =>
+    request(
+      `/public/products/${encodeURIComponent(productId)}/related${buildQueryString(params)}`,
+      options
+    ),
+
+  getProductsByIds: (ids = [], options = {}) =>
+    request(`/public/products/by-ids${buildQueryString({ ids: ids.join(',') })}`, options),
+
+  getGiftIdeas: (params = {}, options = {}) =>
+    request(`/public/products/gift-ideas${buildQueryString(params)}`, options),
+
+  suggestProducts: (params = {}, options = {}) =>
+    request(`/public/products/suggest${buildQueryString(params)}`, options),
 };
 
 export const cartApi = {
   getCart: () => request('/cart'),
+
+  quoteCart: (payload = {}) =>
+    request('/cart/quote', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 
   addToCart: (payload) =>
     request('/cart/items', {
@@ -189,6 +211,13 @@ export const cartApi = {
     request('/cart/clear', {
       method: 'DELETE',
     }),
+};
+
+export const publicCampaignApi = {
+  getActive: (options = {}) => request('/public/campaigns/active', options),
+
+  getBySlug: (slug, params = {}, options = {}) =>
+    request(`/public/campaigns/${encodeURIComponent(slug)}${buildQueryString(params)}`, options),
 };
 
 export const addressApi = {
@@ -253,6 +282,16 @@ export const publicEngagementApi = {
     }),
 };
 
+export const backInStockApi = {
+  subscribe: (payload, options = {}) =>
+    request('/back-in-stock', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      suppressErrorToast: true,
+      ...options,
+    }),
+};
+
 export const wishlistApi = {
   getWishlist: () => request('/wishlist'),
 
@@ -269,6 +308,37 @@ export const wishlistApi = {
   toggleWishlist: (productId) =>
     request(`/wishlist/${productId}/toggle`, {
       method: 'POST',
+    }),
+};
+
+export const loyaltyApi = {
+  getAccount: (options = {}) => request('/loyalty', options),
+
+  getHistory: (params = {}, options = {}) =>
+    request(`/loyalty/history${buildQueryString(params)}`, options),
+
+  getSummary: (options = {}) => request('/loyalty/summary', options),
+
+  redeem: (payload, options = {}) =>
+    request('/loyalty/redeem', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      suppressErrorToast: true,
+      ...options,
+    }),
+};
+
+export const socialProofApi = {
+  getProduct: (slug, options = {}) =>
+    request(`/social-proof/product/${encodeURIComponent(slug)}`, {
+      suppressErrorToast: true,
+      ...options,
+    }),
+
+  getHome: (options = {}) =>
+    request('/social-proof/home', {
+      suppressErrorToast: true,
+      ...options,
     }),
 };
 
@@ -293,6 +363,31 @@ export const uploadApi = {
 
     if (!response.ok) {
       throw new Error(data.message || 'Unable to upload image');
+    }
+
+    return data;
+  },
+
+  uploadReviewImage: async (file) => {
+    const token = getStoredToken();
+    const hadToken = Boolean(token);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_BASE_URL}/uploads/review-image`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      clearSessionOnUnauthorized(hadToken);
+    }
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Unable to upload review image');
     }
 
     return data;
@@ -322,6 +417,9 @@ export const reviewApi = {
   getProductReviewSummary: (productId) =>
     request(`/public/products/${productId}/reviews/summary`),
 
+  getProductReviewHighlights: (productId) =>
+    request(`/public/products/${productId}/reviews/highlights`),
+
   getMyReviewForProduct: (productId) => request(`/reviews/product/${productId}`),
 
   createReview: (payload) =>
@@ -349,5 +447,16 @@ export const reviewApi = {
   dislikeReview: (id) =>
     request(`/reviews/${id}/dislike`, {
       method: 'POST',
+    }),
+
+  voteReview: (id, voteType) =>
+    request(`/reviews/${id}/vote`, {
+      method: 'POST',
+      body: JSON.stringify({ voteType }),
+    }),
+
+  removeVote: (id) =>
+    request(`/reviews/${id}/vote`, {
+      method: 'DELETE',
     }),
 };

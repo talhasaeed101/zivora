@@ -8,6 +8,7 @@ import {
   getPreviewText,
   validateCustomizationForm,
 } from '../../utils/customizationValidation.js';
+import { findUniqueVariantId } from '../../utils/inventory.js';
 import { formatPrice, getProductImage } from '../../utils/products.js';
 import './CustomizationModal.css';
 
@@ -20,6 +21,7 @@ export default function CustomizationModal({
   onClose,
   product,
   ringSize,
+  metalColor,
   onAddToCart,
 }) {
   const titleId = useId();
@@ -198,16 +200,26 @@ export default function CustomizationModal({
     setSubmitting(true);
 
     try {
-      await onAddToCart({
+      const payload = {
         productId: product._id,
         quantity: customization.quantity,
         ringSize,
-        metalColor: customization.jewelryColor,
+        metalColor: metalColor || '',
         customization: {
           ...customization,
           quantity: customization.quantity,
         },
+      };
+
+      const variantId = findUniqueVariantId(product, {
+        ringSize: ringSize || '',
+        metalColor: metalColor || '',
       });
+      if (variantId) {
+        payload.variantId = variantId;
+      }
+
+      await onAddToCart(payload);
       onClose();
     } catch (error) {
       setSubmitError(error.message || 'Unable to add customized item to cart.');

@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal.jsx';
+import ProductDiscoveryRail from '../components/catalog/ProductDiscoveryRail.jsx';
+import GiftIdeasSection from '../components/GiftIdeasSection.jsx';
 import { orderApi } from '../services/api.js';
-import { ROUTES, orderPath } from '../utils/navigation';
+import { loadRelatedProducts } from '../services/catalogCache.js';
+import { ROUTES, orderPath, productPath } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import { ORDER_STATUS_LABELS } from '../constants/orderConstants.js';
@@ -12,6 +15,9 @@ import {
   BANK_TRANSFER_DETAILS,
   formatPaymentMethodLabel,
 } from '../constants/bankTransfer.js';
+import { trackPurchase } from '../utils/analytics.js';
+import { PDP_TRUST_ITEMS } from '../constants/storefrontCopy.js';
+import './Collection.css';
 import './OrderSuccess.css';
 
 function CopyButton({ value, label }) {
@@ -43,6 +49,8 @@ export default function OrderSuccess() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [completeLook, setCompleteLook] = useState([]);
+  const purchaseTracked = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -77,12 +85,57 @@ export default function OrderSuccess() {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (!order?._id || purchaseTracked.current) return;
+    purchaseTracked.current = true;
+    const firstProduct = order.items?.[0]?.product;
+    const productId =
+      typeof firstProduct === 'object' ? firstProduct?._id : firstProduct;
+    trackPurchase({
+      productId: productId || undefined,
+    });
+  }, [order]);
+
+  useEffect(() => {
+    const seedProductId = order?.items?.[0]?.product;
+    const productId =
+      typeof seedProductId === 'object' ? seedProductId?._id : seedProductId;
+
+    if (!productId) {
+      setCompleteLook([]);
+      return undefined;
+    }
+
+    let mounted = true;
+    loadRelatedProducts(productId, { limit: 4 })
+      .then((products) => {
+        if (mounted) setCompleteLook((products || []).slice(0, 4));
+      })
+      .catch(() => {
+        if (mounted) setCompleteLook([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [order]);
+
   const address = order?.deliveryAddress;
   const addressLine = address
     ? [address.address || address.street, address.city, address.province, address.postalCode]
         .filter(Boolean)
         .join(', ')
     : '';
+
+  const reviewProduct = order?.items?.[0];
+  const reviewProductId =
+    typeof reviewProduct?.product === 'object'
+      ? reviewProduct.product?._id
+      : reviewProduct?.product;
+  const reviewSlug =
+    typeof reviewProduct?.product === 'object'
+      ? reviewProduct.product?.slug
+      : reviewProduct?.slug;
 
   return (
     <div className="order-success-page">
@@ -114,6 +167,17 @@ export default function OrderSuccess() {
           <Reveal className="order-success-card" variant="fade-up">
             <p className="order-success-kicker">Order confirmed</p>
             <h1 className="order-success-title">Thank you for your order</h1>
+
+            <p className="order-success-reassure">
+              We&apos;ve received your order and will take care of the rest. You can track progress
+              from your orders anytime.
+            </p>
+
+            <ul className="order-success-trust" aria-label="What happens next">
+              {PDP_TRUST_ITEMS.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
 
             {order.paymentMethod === 'bank_transfer' ? (
               <p className="order-success-text">
@@ -211,6 +275,22 @@ export default function OrderSuccess() {
               Your tracking information will appear once your order has been dispatched.
             </p>
 
+            {(reviewSlug || reviewProductId) && (
+              <div className="order-success-review-cta">
+                <p>When your piece arrives, we&apos;d love to hear how you like it.</p>
+                <Link
+                  to={
+                    reviewSlug
+                      ? `${productPath(reviewSlug)}#reviews`
+                      : ROUTES.orders
+                  }
+                  className="order-success-btn order-success-btn-secondary"
+                >
+                  Leave a review
+                </Link>
+              </div>
+            )}
+
             <div className="order-success-actions">
               <Link to={orderPath(order._id)} className="order-success-btn order-success-btn-primary">
                 View Order
@@ -221,6 +301,19 @@ export default function OrderSuccess() {
             </div>
           </Reveal>
         ) : null}
+
+        {!loading && order && completeLook.length > 0 ? (
+          <Reveal className="order-success-recs" variant="fade-up">
+            <ProductDiscoveryRail
+              title="Complete Your Look"
+              products={completeLook}
+              viewAllHref={ROUTES.collection}
+              viewAllLabel="Browse collection"
+            />
+          </Reveal>
+        ) : null}
+
+        {!loading && order ? <GiftIdeasSection /> : null}
       </main>
 
       <Footer />

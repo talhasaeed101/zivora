@@ -20,11 +20,21 @@ function ThumbsDownIcon() {
   );
 }
 
-export default function ReviewCard({ review, onLike, onDislike, reacting = false }) {
+export default function ReviewCard({
+  review,
+  onLike,
+  onDislike,
+  onRemoveVote,
+  reacting = false,
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const [actionError, setActionError] = useState('');
+  const [lightboxUrl, setLightboxUrl] = useState('');
+
+  const viewerVote = review.viewerVote || null;
+  const images = Array.isArray(review.images) ? review.images.filter(Boolean) : [];
 
   const handleReaction = async (type) => {
     setActionError('');
@@ -36,7 +46,13 @@ export default function ReviewCard({ review, onLike, onDislike, reacting = false
 
     try {
       if (type === 'like') {
-        await onLike?.(review._id);
+        if (viewerVote === 'helpful') {
+          await onRemoveVote?.(review._id);
+        } else {
+          await onLike?.(review._id);
+        }
+      } else if (viewerVote === 'not_helpful') {
+        await onRemoveVote?.(review._id);
       } else {
         await onDislike?.(review._id);
       }
@@ -70,11 +86,29 @@ export default function ReviewCard({ review, onLike, onDislike, reacting = false
               />
             ))}
           </div>
+          {review.verifiedPurchase ? (
+            <span className="pd-review-verified">✓ Verified Purchase</span>
+          ) : null}
         </div>
       </div>
 
       {review.title && <h4 className="pd-review-title">{review.title}</h4>}
       <p className="pd-review-text">{review.comment || review.text}</p>
+
+      {images.length > 0 ? (
+        <div className="pd-review-photos">
+          {images.map((url) => (
+            <button
+              key={url}
+              type="button"
+              className="pd-review-photo-btn"
+              onClick={() => setLightboxUrl(url)}
+            >
+              <img src={url} alt="" loading="lazy" />
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {actionError && <p className="pd-review-action-error">{actionError}</p>}
 
@@ -85,24 +119,46 @@ export default function ReviewCard({ review, onLike, onDislike, reacting = false
         <div className="pd-review-reactions">
           <button
             type="button"
-            className="pd-review-reaction"
+            className={`pd-review-reaction${viewerVote === 'helpful' ? ' is-active' : ''}`}
             onClick={() => handleReaction('like')}
             disabled={reacting}
+            aria-pressed={viewerVote === 'helpful'}
+            aria-label="Mark review helpful"
           >
             <ThumbsUpIcon />
             <span>{review.likes ?? 0}</span>
           </button>
           <button
             type="button"
-            className="pd-review-reaction"
+            className={`pd-review-reaction${viewerVote === 'not_helpful' ? ' is-active' : ''}`}
             onClick={() => handleReaction('dislike')}
             disabled={reacting}
+            aria-pressed={viewerVote === 'not_helpful'}
+            aria-label="Mark review not helpful"
           >
             <ThumbsDownIcon />
             <span>{review.dislikes ?? 0}</span>
           </button>
         </div>
       </div>
+
+      {lightboxUrl ? (
+        <div
+          className="pd-review-lightbox"
+          role="presentation"
+          onClick={() => setLightboxUrl('')}
+        >
+          <img src={lightboxUrl} alt="Review photo" onClick={(event) => event.stopPropagation()} />
+          <button
+            type="button"
+            className="pd-review-lightbox-close"
+            onClick={() => setLightboxUrl('')}
+            aria-label="Close photo"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
     </article>
   );
 }

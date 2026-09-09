@@ -3,10 +3,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import RatingSummary from './RatingSummary.jsx';
 import ReviewCard from './ReviewCard.jsx';
 import ReviewModal from './ReviewModal.jsx';
+import ReviewSocialProof from './ReviewSocialProof.jsx';
 import { reviewApi } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { StarIcon } from '../icons';
+import { formatReviewDate, getReviewerName } from '../../utils/reviews.js';
 
 const REVIEWS_PER_PAGE = 4;
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'highest', label: 'Highest Rated' },
+  { value: 'lowest', label: 'Lowest Rated' },
+  { value: 'helpful', label: 'Most Helpful' },
+];
 
 const normalizeProductId = (productId) => {
   if (!productId) {
@@ -22,6 +32,44 @@ const normalizeProductId = (productId) => {
   return null;
 };
 
+function HighlightStrip({ title, reviews }) {
+  if (!Array.isArray(reviews) || reviews.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="pd-review-highlight-group">
+      <h3 className="pd-review-highlight-title">{title}</h3>
+      <div className="pd-review-highlight-list">
+        {reviews.map((review) => (
+          <article key={review._id} className="pd-review-highlight-card">
+            <div className="pd-review-highlight-meta">
+              <span>{getReviewerName(review)}</span>
+              <span className="pd-review-highlight-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <StarIcon
+                    key={star}
+                    filled={star <= review.rating}
+                    className={`w-3 h-3 ${star <= review.rating ? 'pd-star-filled' : 'pd-star-empty'}`}
+                  />
+                ))}
+              </span>
+            </div>
+            {review.verifiedPurchase ? (
+              <span className="pd-review-verified">✓ Verified Purchase</span>
+            ) : null}
+            <p className="pd-review-highlight-text">
+              {(review.comment || review.title || '').slice(0, 140)}
+              {(review.comment || review.title || '').length > 140 ? '…' : ''}
+            </p>
+            <time dateTime={review.createdAt}>{formatReviewDate(review.createdAt)}</time>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,6 +79,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const useApi = Boolean(resolvedProductId);
   const [summary, setSummary] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [highlights, setHighlights] = useState(null);
   const [customerReview, setCustomerReview] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(useApi);
   const [loadingReviews, setLoadingReviews] = useState(useApi);
@@ -38,6 +87,8 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const [ratingFilter, setRatingFilter] = useState('');
+  const [sort, setSort] = useState('newest');
   const [modalOpen, setModalOpen] = useState(false);
   const [savingReview, setSavingReview] = useState(false);
   const [modalError, setModalError] = useState('');
@@ -67,6 +118,20 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     }
   }, [resolvedProductId, onSummaryChange]);
 
+  const loadHighlights = useCallback(async () => {
+    if (!resolvedProductId) {
+      setHighlights(null);
+      return;
+    }
+
+    try {
+      const response = await reviewApi.getProductReviewHighlights(resolvedProductId);
+      setHighlights(response.data || null);
+    } catch {
+      setHighlights(null);
+    }
+  }, [resolvedProductId]);
+
   const loadReviews = useCallback(async () => {
     if (!resolvedProductId) {
       setReviews([]);
@@ -81,10 +146,12 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
       const response = await reviewApi.getProductReviews(resolvedProductId, {
         page: currentPage,
         limit: REVIEWS_PER_PAGE,
-        sort: 'newest',
+        sort,
+        rating: ratingFilter || undefined,
       });
       setReviews(response.data?.reviews || []);
       setPagination(response.data?.pagination || null);
+      setError('');
     } catch (err) {
       setReviews([]);
       setPagination(null);
@@ -92,7 +159,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     } finally {
       setLoadingReviews(false);
     }
-  }, [resolvedProductId, currentPage]);
+  }, [resolvedProductId, currentPage, sort, ratingFilter]);
 
   const loadCustomerReview = useCallback(async () => {
     if (!resolvedProductId || !isAuthenticated) {
@@ -110,7 +177,8 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
   useEffect(() => {
     loadSummary();
-  }, [loadSummary]);
+    loadHighlights();
+  }, [loadSummary, loadHighlights]);
 
   useEffect(() => {
     loadReviews();
@@ -121,7 +189,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   }, [loadCustomerReview]);
 
   const refreshAll = async () => {
-    await Promise.all([loadSummary(), loadReviews(), loadCustomerReview()]);
+    await Promise.all([loadSummary(), loadReviews(), loadCustomerReview(), loadHighlights()]);
   };
 
   const handleWriteReview = () => {
@@ -167,14 +235,18 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     }
   };
 
+  const patchReview = (reviewId, nextReview) => {
+    setReviews((current) =>
+      current.map((review) => (review._id === reviewId ? nextReview : review))
+    );
+  };
+
   const handleLike = async (reviewId) => {
     setReactingReviewId(reviewId);
 
     try {
       const response = await reviewApi.likeReview(reviewId);
-      setReviews((current) =>
-        current.map((review) => (review._id === reviewId ? response.data : review))
-      );
+      patchReview(reviewId, response.data);
     } finally {
       setReactingReviewId(null);
     }
@@ -185,12 +257,31 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
     try {
       const response = await reviewApi.dislikeReview(reviewId);
-      setReviews((current) =>
-        current.map((review) => (review._id === reviewId ? response.data : review))
-      );
+      patchReview(reviewId, response.data);
     } finally {
       setReactingReviewId(null);
     }
+  };
+
+  const handleRemoveVote = async (reviewId) => {
+    setReactingReviewId(reviewId);
+
+    try {
+      const response = await reviewApi.removeVote(reviewId);
+      patchReview(reviewId, response.data);
+    } finally {
+      setReactingReviewId(null);
+    }
+  };
+
+  const handleRatingFilterChange = (next) => {
+    setCurrentPage(1);
+    setRatingFilter(next);
+  };
+
+  const handleSortChange = (event) => {
+    setCurrentPage(1);
+    setSort(event.target.value);
   };
 
   const totalPages = pagination?.totalPages || 1;
@@ -214,7 +305,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
 
   return (
     <>
-      <section className="pd-reviews-section">
+      <section id="reviews" className="pd-reviews-section">
         <h2 className="pd-section-title">Customer Reviews</h2>
 
         {successMessage && (
@@ -224,16 +315,30 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
         )}
         {error && !loadingSummary && !loadingReviews && (
           <div className="pd-review-error-banner" role="alert">
-            {error}
+            <span>{error}</span>
+            <button type="button" className="pd-btn pd-btn-secondary" onClick={refreshAll}>
+              Retry
+            </button>
           </div>
         )}
+
+        {!usingFallback && !loadingReviews && reviews.length > 0 ? (
+          <ReviewSocialProof
+            reviews={reviews}
+            reviewCount={summary?.reviewCount || reviews.length}
+            averageRating={summary?.averageRating || 0}
+          />
+        ) : null}
 
         {usingFallback ? (
           <div className="pd-reviews-empty">
             <p>Reviews will appear here once this product is available in the catalog.</p>
           </div>
         ) : loadingSummary ? (
-          <div className="pd-state-message">Loading review summary…</div>
+          <div className="pd-review-skeleton" aria-busy="true" aria-label="Loading review summary">
+            <div className="pd-review-skeleton-block" />
+            <div className="pd-review-skeleton-block" />
+          </div>
         ) : (
           <RatingSummary
             summary={summary || { averageRating: 0, reviewCount: 0, ratingBreakdown: [] }}
@@ -241,16 +346,67 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
             customerReview={customerReview}
             onWriteReview={handleWriteReview}
             onEditReview={handleEditReview}
+            activeRatingFilter={ratingFilter}
+            onRatingFilterChange={handleRatingFilterChange}
           />
         )}
 
+        {!usingFallback && highlights ? (
+          <div className="pd-review-highlights">
+            <HighlightStrip title="Most helpful" reviews={highlights.mostHelpful} />
+            <HighlightStrip title="Verified purchases" reviews={highlights.verified} />
+            <HighlightStrip title="Recent reviews" reviews={highlights.recent} />
+          </div>
+        ) : null}
+
+        {!usingFallback ? (
+          <div className="pd-review-toolbar">
+            <div className="pd-review-filters" role="group" aria-label="Filter by rating">
+              <button
+                type="button"
+                className={`pd-review-filter-chip${ratingFilter === '' ? ' is-active' : ''}`}
+                onClick={() => handleRatingFilterChange('')}
+              >
+                All
+              </button>
+              {[5, 4, 3, 2, 1].map((stars) => (
+                <button
+                  key={stars}
+                  type="button"
+                  className={`pd-review-filter-chip${String(ratingFilter) === String(stars) ? ' is-active' : ''}`}
+                  onClick={() => handleRatingFilterChange(String(stars))}
+                >
+                  {stars} star{stars === 1 ? '' : 's'}
+                </button>
+              ))}
+            </div>
+            <label className="pd-review-sort">
+              <span className="sr-only">Sort reviews</span>
+              <select value={sort} onChange={handleSortChange}>
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
+
         {!usingFallback && loadingReviews ? (
-          <div className="pd-state-message">Loading reviews…</div>
+          <div className="pd-review-skeleton" aria-busy="true" aria-label="Loading reviews">
+            <div className="pd-review-skeleton-card" />
+            <div className="pd-review-skeleton-card" />
+          </div>
         ) : null}
 
         {!usingFallback && !loadingReviews && reviews.length === 0 ? (
           <div className="pd-reviews-empty">
-            <p>No reviews yet. Be the first to share your experience.</p>
+            <p>
+              {ratingFilter
+                ? `No ${ratingFilter}-star reviews yet.`
+                : 'No reviews yet. Be the first to share your experience.'}
+            </p>
           </div>
         ) : null}
 
@@ -262,6 +418,7 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
                 review={review}
                 onLike={handleLike}
                 onDislike={handleDislike}
+                onRemoveVote={handleRemoveVote}
                 reacting={reactingReviewId === review._id}
               />
             ))}

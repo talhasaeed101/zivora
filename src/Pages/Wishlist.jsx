@@ -1,16 +1,35 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
+import WishlistOptionsModal from '../components/wishlist/WishlistOptionsModal.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { toast } from '../context/ToastContext.jsx';
 import { ROUTES, productPath } from '../utils/navigation';
-import { getProductInventory, isCatalogOutOfStock, listInStockCombinations } from '../utils/inventory.js';
-import { loadPublicProductBySlug } from '../services/catalogCache.js';
+import {
+  findUniqueVariantId,
+  getProductInventory,
+  isCatalogOutOfStock,
+  listInStockCombinations,
+} from '../utils/inventory.js';
+import {
+  applyWishlistView,
+  getWishlistPriceStatus,
+  getWishlistStockLabel,
+  getWishlistStockStatus,
+  WISHLIST_FILTER_OPTIONS,
+  WISHLIST_SORT_OPTIONS,
+} from '../utils/wishlistShopping.js';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
+import {
+  trackWishlistView,
+  trackWishlistAddToCart,
+  trackWishlistProductClick,
+} from '../utils/analytics.js';
 import '../Pages/Collection.css';
 import './Wishlist.css';
 
@@ -20,7 +39,7 @@ function resolveQuickAdd(product) {
   }
 
   if (product.isCustomizable) {
-    return { mode: 'options' };
+    return { mode: 'options', reason: 'customizable' };
   }
 
   if (getProductInventory(product).length === 0 && !(typeof product.stock === 'number' && product.stock > 0)) {
@@ -38,10 +57,26 @@ function resolveQuickAdd(product) {
   }
 
   if (combinations.length > 1) {
-    return { mode: 'options' };
+    return { mode: 'options', reason: 'variants' };
   }
 
   return { mode: 'oos' };
+}
+
+function WishlistStatusRow({ product }) {
+  const stockStatus = getWishlistStockStatus(product);
+  const priceStatus = getWishlistPriceStatus(product);
+
+  return (
+    <div className="wishlist-status-row" aria-label="Availability and price status">
+      <span className={`wishlist-status-pill wishlist-status-${stockStatus}`}>
+        {getWishlistStockLabel(stockStatus)}
+      </span>
+      {priceStatus.priceDropped ? (
+        <span className="wishlist-status-pill wishlist-status-drop">Price dropped</span>
+      ) : null}
+    </div>
+  );
 }
 
 function WishlistCardActions({
@@ -49,59 +84,78 @@ function WishlistCardActions({
   busy,
   onRemove,
   onAddToCart,
+  onChooseOptions,
 }) {
   const action = resolveQuickAdd(product);
   const href = productPath(product.slug);
   const title = product.title || 'product';
 
   return (
-    <div className="wishlist-card-actions">
-      <button
-        type="button"
-        className="wishlist-action-btn wishlist-action-btn-secondary"
-        onClick={() => onRemove(product)}
-        disabled={busy}
-        aria-label={`Remove ${title} from wishlist`}
-        aria-busy={busy || undefined}
-      >
-        {busy ? 'Removing…' : 'Remove'}
-      </button>
+    <div className="wishlist-card-actions-wrap">
+      <WishlistStatusRow product={product} />
 
-      {action.mode === 'oos' ? (
-        <Link
-          to={href}
-          className="wishlist-action-btn wishlist-action-btn-primary"
-          aria-label={`View ${title}`}
-        >
-          View Product
-        </Link>
-      ) : action.mode === 'add' ? (
+      <div className="wishlist-card-actions">
         <button
           type="button"
-          className="wishlist-action-btn wishlist-action-btn-primary"
-          onClick={() => onAddToCart(product, action.combination)}
+          className="wishlist-action-btn wishlist-action-btn-secondary"
+          onClick={() => onRemove(product)}
           disabled={busy}
-          aria-label={`Add ${title} to cart`}
+          aria-label={`Remove ${title} from wishlist`}
           aria-busy={busy || undefined}
         >
-          {busy ? 'Adding…' : 'Add to Cart'}
+          {busy ? 'Removing…' : 'Remove'}
         </button>
-      ) : (
-        <Link
-          to={href}
-          className="wishlist-action-btn wishlist-action-btn-primary"
-          aria-label={`Choose options for ${title}`}
-        >
-          {action.mode === 'options' ? 'Choose Options' : 'View Product'}
-        </Link>
-      )}
+
+        {action.mode === 'oos' ? (
+          <Link
+            to={href}
+            className="wishlist-action-btn wishlist-action-btn-primary"
+            aria-label={`View ${title} for availability options`}
+          >
+            View Product
+          </Link>
+        ) : action.mode === 'add' ? (
+          <button
+            type="button"
+            className="wishlist-action-btn wishlist-action-btn-primary"
+            onClick={() => onAddToCart(product, action.combination)}
+            disabled={busy}
+            aria-label={`Add ${title} to cart`}
+            aria-busy={busy || undefined}
+          >
+            {busy ? 'Adding…' : 'Add to Cart'}
+          </button>
+        ) : action.mode === 'options' && action.reason === 'variants' ? (
+          <button
+            type="button"
+            className="wishlist-action-btn wishlist-action-btn-primary"
+            onClick={() => onChooseOptions(product)}
+            disabled={busy}
+            aria-label={`Choose options for ${title}`}
+          >
+            Choose Options
+          </button>
+        ) : (
+          <Link
+            to={href}
+            className="wishlist-action-btn wishlist-action-btn-primary"
+            aria-label={
+              action.mode === 'options'
+                ? `Choose options for ${title}`
+                : `View ${title}`
+            }
+          >
+            {action.mode === 'options' ? 'Choose Options' : 'View Product'}
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
 
 export default function Wishlist() {
   usePrivatePageSeo({
-    title: 'My Wishlist',
+    title: 'Wishlist',
     description: 'Saved Zivorah jewelry. This page is private and is not indexed.',
     path: '/wishlist',
   });
@@ -114,41 +168,18 @@ export default function Wishlist() {
   const [removingIds, setRemovingIds] = useState([]);
   const [actionMessage, setActionMessage] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
-  const [catalogProducts, setCatalogProducts] = useState({});
+  const [sort, setSort] = useState('recent');
+  const [filter, setFilter] = useState('all');
+  const [optionsProduct, setOptionsProduct] = useState(null);
 
   useEffect(() => {
-    const slugs = products.map((product) => product.slug).filter(Boolean);
-    if (slugs.length === 0) {
-      return undefined;
-    }
+    trackWishlistView();
+  }, []);
 
-    let cancelled = false;
-
-    Promise.all(
-      slugs.map((slug) =>
-        loadPublicProductBySlug(slug)
-          .then((product) => [slug, product])
-          .catch(() => [slug, null])
-      )
-    ).then((entries) => {
-      if (cancelled) {
-        return;
-      }
-      setCatalogProducts((current) => {
-        const next = { ...current };
-        entries.forEach(([slug, product]) => {
-          if (product) {
-            next[slug] = product;
-          }
-        });
-        return next;
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [products]);
+  const visibleProducts = useMemo(
+    () => applyWishlistView(products, { sort, filter }),
+    [products, sort, filter]
+  );
 
   const handleRemove = useCallback(
     async (product) => {
@@ -165,8 +196,9 @@ export default function Wishlist() {
         await new Promise((resolve) => {
           window.setTimeout(resolve, 240);
         });
-        await removeFromWishlist(productId);
+        await removeFromWishlist(productId, { productSlug: product.slug });
         setStatusMessage(`${product.title || 'Item'} removed from wishlist.`);
+        toast.success('Removed from wishlist');
       } catch (err) {
         setRemovingIds((ids) => ids.filter((id) => id !== productId));
         setActionMessage({
@@ -180,33 +212,36 @@ export default function Wishlist() {
     [busyProductId, removingIds, removeFromWishlist]
   );
 
-  const handleAddToCart = useCallback(
-    async (product, combination) => {
-      const action = resolveQuickAdd(product);
-      if (action.mode === 'options') {
-        navigate(productPath(product.slug));
-        return;
-      }
-      if (action.mode !== 'add' || busyProductId) {
+  const addProductToCart = useCallback(
+    async (product, selection) => {
+      if (!product?._id || busyProductId) {
         return;
       }
 
-      const selection = combination || action.combination;
       setBusyProductId(product._id);
       setActionMessage(null);
 
       try {
+        const variantId = findUniqueVariantId(product, {
+          ringSize: selection?.ringSize || '',
+          metalColor: selection?.metalColor || '',
+        });
+
         await addToCart({
           productId: product._id,
           quantity: 1,
-          ringSize: selection.ringSize || undefined,
-          metalColor: selection.metalColor || undefined,
+          ringSize: selection?.ringSize || undefined,
+          metalColor: selection?.metalColor || undefined,
+          ...(variantId ? { variantId } : {}),
         });
+        trackWishlistAddToCart({ productId: product._id, productSlug: product.slug });
+        setOptionsProduct(null);
         setActionMessage({
           type: 'success',
           text: `"${product.title}" added to cart.`,
         });
         setStatusMessage(`${product.title} added to cart.`);
+        toast.success('Added to cart');
       } catch (err) {
         setActionMessage({
           type: 'error',
@@ -216,7 +251,42 @@ export default function Wishlist() {
         setBusyProductId(null);
       }
     },
-    [addToCart, busyProductId, navigate]
+    [addToCart, busyProductId]
+  );
+
+  const handleAddToCart = useCallback(
+    async (product, combination) => {
+      const action = resolveQuickAdd(product);
+      if (action.mode === 'options') {
+        if (action.reason === 'variants') {
+          setOptionsProduct(product);
+          return;
+        }
+        trackWishlistProductClick({ productId: product._id, productSlug: product.slug });
+        navigate(productPath(product.slug));
+        return;
+      }
+      if (action.mode !== 'add') {
+        return;
+      }
+
+      await addProductToCart(product, combination || action.combination);
+    },
+    [addProductToCart, navigate]
+  );
+
+  const handleChooseOptions = useCallback((product) => {
+    setOptionsProduct(product);
+  }, []);
+
+  const handleOptionsConfirm = useCallback(
+    async (selection) => {
+      if (!optionsProduct) {
+        return;
+      }
+      await addProductToCart(optionsProduct, selection);
+    },
+    [addProductToCart, optionsProduct]
   );
 
   const handleRetry = async () => {
@@ -231,7 +301,7 @@ export default function Wishlist() {
   return (
     <AccountShell
       active="wishlist"
-      title="My Wishlist"
+      title="Wishlist"
       description="A curated collection of jewelry you love."
       countLabel={!loading && !error && totalItems > 0 ? countLabel : undefined}
     >
@@ -247,6 +317,38 @@ export default function Wishlist() {
             Continue Shopping
           </Link>
         </div>
+
+        {!loading && !error && products.length > 0 ? (
+          <div className="wishlist-controls">
+            <div className="wishlist-filters" role="group" aria-label="Filter wishlist">
+              {WISHLIST_FILTER_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`wishlist-filter-chip${filter === option.value ? ' is-active' : ''}`}
+                  aria-pressed={filter === option.value}
+                  onClick={() => setFilter(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <label className="wishlist-sort">
+              <span className="wishlist-sort-label">Sort</span>
+              <select
+                className="wishlist-sort-select"
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                {WISHLIST_SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : null}
 
         <div className="sr-only" aria-live="polite" aria-atomic="true">
           {statusMessage}
@@ -307,14 +409,25 @@ export default function Wishlist() {
           </Reveal>
         ) : null}
 
-        {!loading && !error && products.length > 0 ? (
+        {!loading && !error && products.length > 0 && visibleProducts.length === 0 ? (
+          <div className="wishlist-state">
+            <h2 className="wishlist-state-title">No pieces match this filter</h2>
+            <p className="wishlist-state-copy">Try another filter or show all saved jewelry.</p>
+            <button
+              type="button"
+              className="wishlist-state-btn"
+              onClick={() => setFilter('all')}
+            >
+              Show all
+            </button>
+          </div>
+        ) : null}
+
+        {!loading && !error && visibleProducts.length > 0 ? (
           <div className="wishlist-grid catalog-results-fade">
-            {products.map((product, index) => {
+            {visibleProducts.map((product, index) => {
               const isBusy = busyProductId === product._id;
               const isRemoving = removingIds.includes(product._id);
-              const catalogProduct = catalogProducts[product.slug]
-                ? { ...product, ...catalogProducts[product.slug] }
-                : product;
 
               return (
                 <Reveal
@@ -323,25 +436,50 @@ export default function Wishlist() {
                   variant="fade-up"
                   delay={Math.min(index, 7) * 40}
                 >
-                  <CatalogProductCard
-                    product={catalogProduct}
-                    variant="desktop"
-                    removing={isRemoving}
-                    footer={
-                      <WishlistCardActions
-                        product={catalogProduct}
-                        busy={isBusy}
-                        onRemove={handleRemove}
-                        onAddToCart={handleAddToCart}
-                      />
+                  <div
+                    onClick={() =>
+                      trackWishlistProductClick({
+                        productId: product._id,
+                        productSlug: product.slug,
+                      })
                     }
-                  />
+                    onKeyDown={undefined}
+                    role="presentation"
+                  >
+                    <CatalogProductCard
+                      product={product}
+                      variant="desktop"
+                      removing={isRemoving}
+                      showLowStock
+                      footer={
+                        <WishlistCardActions
+                          product={product}
+                          busy={isBusy}
+                          onRemove={handleRemove}
+                          onAddToCart={handleAddToCart}
+                          onChooseOptions={handleChooseOptions}
+                        />
+                      }
+                    />
+                  </div>
                 </Reveal>
               );
             })}
           </div>
         ) : null}
       </div>
+
+      <WishlistOptionsModal
+        isOpen={Boolean(optionsProduct)}
+        product={optionsProduct}
+        submitting={Boolean(optionsProduct && busyProductId === optionsProduct._id)}
+        onClose={() => {
+          if (!busyProductId) {
+            setOptionsProduct(null);
+          }
+        }}
+        onConfirm={handleOptionsConfirm}
+      />
     </AccountShell>
   );
 }

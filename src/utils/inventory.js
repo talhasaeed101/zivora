@@ -207,6 +207,32 @@ export const listInStockCombinations = (product) => {
   return combinations;
 };
 
+/**
+ * Resolve a stable Mongo variant _id when the selection uniquely matches one variant.
+ * Returns null when identity is ambiguous or unavailable — never guess.
+ */
+export const findUniqueVariantId = (product, { ringSize = '', metalColor = '' } = {}) => {
+  if (!Array.isArray(product?.variants) || product.variants.length === 0) {
+    return null;
+  }
+
+  const key = inventoryCellKey(ringSize, metalColor);
+  const matches = product.variants.filter((variant) => {
+    const variantRing = resolveVariantAttribute(variant.attributes, RING_SIZE_ATTR_KEYS);
+    const variantMetal = resolveVariantAttribute(variant.attributes, METAL_COLOR_ATTR_KEYS);
+    return inventoryCellKey(variantRing, variantMetal) === key;
+  });
+
+  if (matches.length !== 1) {
+    return null;
+  }
+
+  const matched = matches[0];
+  if (matched?._id) return String(matched._id);
+  if (matched?.id) return String(matched.id);
+  return null;
+};
+
 export const isCatalogOutOfStock = (product) => {
   const inventory = getProductInventory(product);
 

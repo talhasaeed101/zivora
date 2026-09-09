@@ -6,6 +6,7 @@ import { SocketProvider } from './context/SocketContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
+import { CampaignProvider } from './context/CampaignContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
 import Login from './Pages/Login.jsx';
@@ -27,10 +28,12 @@ const Notifications = lazy(() => import('./Pages/Notifications.jsx'));
 const Tickets = lazy(() => import('./Pages/Tickets.jsx'));
 const TicketDetail = lazy(() => import('./Pages/TicketDetail.jsx'));
 const Wishlist = lazy(() => import('./Pages/Wishlist.jsx'));
+const DashboardLoyalty = lazy(() => import('./Pages/account/sections/DashboardLoyalty.jsx'));
 const PrivacyPolicy = lazy(() => import('./Pages/PrivacyPolicy.jsx'));
 const TermsOfUse = lazy(() => import('./Pages/TermsOfUse.jsx'));
 const Collection = lazy(() => import('./Pages/Collection.jsx'));
 const CategoryPage = lazy(() => import('./Pages/CategoryPage.jsx'));
+const CampaignPage = lazy(() => import('./Pages/CampaignPage.jsx'));
 const About = lazy(() => import('./Pages/About.jsx'));
 const Contact = lazy(() => import('./Pages/Contact.jsx'));
 
@@ -61,6 +64,7 @@ function App() {
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <AuthProvider>
         <SocketProvider>
+          <CampaignProvider>
           <CartProvider>
             <WishlistProvider>
               <ToastProvider>
@@ -95,10 +99,12 @@ function App() {
               <Route path="/order-success/:id" element={<OrderSuccess />} />
               <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/account/loyalty" element={<DashboardLoyalty />} />
             </Route>
             <Route path="/product/:slug" element={<ProductDetails />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/campaign/:slug" element={<CampaignPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/search" element={<SearchResultsRoute />} />
             <Route path="/about" element={<About />} />
@@ -113,6 +119,7 @@ function App() {
               </ToastProvider>
           </WishlistProvider>
         </CartProvider>
+          </CampaignProvider>
         </SocketProvider>
       </AuthProvider>
       </GoogleOAuthProvider>

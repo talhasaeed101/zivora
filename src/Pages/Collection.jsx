@@ -47,7 +47,9 @@ export default function Collection() {
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('category') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
+  const [sort, setSort] = useState(
+    searchParams.get('sort') || (searchParams.get('q') ? 'relevance' : 'newest')
+  );
   const [priceRangeId, setPriceRangeId] = useState(searchParams.get('price') || '');
   const [customMinPrice, setCustomMinPrice] = useState(searchParams.get('minPrice') || '');
   const [customMaxPrice, setCustomMaxPrice] = useState(searchParams.get('maxPrice') || '');
@@ -138,7 +140,8 @@ export default function Collection() {
     const next = new URLSearchParams();
     if (searchQuery) next.set('q', searchQuery);
     if (categoryFilter) next.set('category', categoryFilter);
-    if (sort && sort !== 'newest') next.set('sort', sort);
+    const defaultSort = searchQuery ? 'relevance' : 'newest';
+    if (sort && sort !== defaultSort) next.set('sort', sort);
     if (priceRangeId) next.set('price', priceRangeId);
     if (!priceRangeId && customMinPrice) next.set('minPrice', customMinPrice);
     if (!priceRangeId && customMaxPrice) next.set('maxPrice', customMaxPrice);

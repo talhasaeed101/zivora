@@ -1,21 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Hero.css';
 import { ROUTES } from '../utils/navigation';
 import SafeImage from './SafeImage.jsx';
+import { useCampaigns } from '../context/CampaignContext.jsx';
+import {
+  CampaignCtaLink,
+  CampaignSaleBadge,
+  useCampaignCountdown,
+  useCampaignCtaHref,
+} from './campaign/campaignUi.jsx';
 
 const HERO_ARCH_IMAGE = '/images/hero00.png';
-const HERO_PILL_IMAGE_SVG = '/images/hero1.svg';
 const HERO_PILL_IMAGE = '/images/hero111.png';
 
 const HERO_TAGLINE =
   'From everyday elegance to unforgettable celebrations, discover jewelry crafted with exceptional artistry.';
 
-
-
 function prefersReducedMotion() {
-  return typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return (
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 function useHeroTaglineTypewriter(text) {
@@ -62,31 +67,35 @@ function HeroTagline({ displayed, done }) {
     </h1>
   );
 }
-const SHOP_BADGE = (
-  <>
-    <svg viewBox="0 0 100 100" className="hero-circular-rotating-svg" aria-hidden="true">
-      <defs>
-        <path id="heroCirclePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
-      </defs>
-      <text fontSize="8" fontWeight="600" letterSpacing="1px" fill="#000">
-        <textPath href="#heroCirclePath" startOffset="0%">
-          SHOP THE COLLECTION • SHOP THE COLLECTION •
-        </textPath>
-      </text>
-    </svg>
-    <div className="hero-circular-inner-button">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M9 18L15 12L9 6"
-          stroke="white"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+
+function HeroShopBadge({ label = 'SHOP THE COLLECTION', pathId = 'heroCirclePath' }) {
+  const text = `${label} • ${label} • `;
+  return (
+    <>
+      <svg viewBox="0 0 100 100" className="hero-circular-rotating-svg" aria-hidden="true">
+        <defs>
+          <path id={pathId} d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" />
+        </defs>
+        <text fontSize="8" fontWeight="600" letterSpacing="1px" fill="#000">
+          <textPath href={`#${pathId}`} startOffset="0%">
+            {text}
+          </textPath>
+        </text>
       </svg>
-    </div>
-  </>
-);
+      <div className="hero-circular-inner-button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M9 18L15 12L9 6"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+    </>
+  );
+}
 
 function CollectionRow() {
   return (
@@ -118,11 +127,65 @@ function CollectionRow() {
   );
 }
 
+function HeroCampaignPanel({ campaign, ctaHref, countdown }) {
+  const merch = campaign.merchandising;
+  return (
+    <div className="hero-campaign-panel" role="region" aria-label="Active sale">
+      <div className="hero-campaign-panel-top">
+        <span className="hero-campaign-kicker">Sale now on</span>
+        {merch.badgeText ? (
+          <CampaignSaleBadge text={merch.badgeText} className="hero-campaign-mini-stamp" />
+        ) : null}
+      </div>
+      <p className="hero-campaign-title">{merch.homeTitle || campaign.name}</p>
+      {merch.homeSubtitle ? (
+        <p className="hero-campaign-subtitle">{merch.homeSubtitle}</p>
+      ) : null}
+      {countdown ? (
+        <p className="hero-campaign-countdown" aria-live="polite">
+          Ends in {countdown}
+        </p>
+      ) : null}
+      <CampaignCtaLink to={ctaHref} className="hero-campaign-cta">
+        {merch.homeCtaText || 'Shop Sale'}
+      </CampaignCtaLink>
+    </div>
+  );
+}
+
 export default function Hero() {
   const { displayed, done } = useHeroTaglineTypewriter(HERO_TAGLINE);
+  const { primary, refresh } = useCampaigns();
+  const merch = primary?.merchandising;
+  const showCampaign = Boolean(primary && merch?.showHomeSection);
+  const ctaHref = useCampaignCtaHref(showCampaign ? merch : null, primary?.slug);
+  const onExpire = useCallback(() => {
+    refresh();
+  }, [refresh]);
+  const countdown = useCampaignCountdown(
+    primary?.endAt,
+    Boolean(showCampaign && merch?.showCountdown),
+    onExpire
+  );
+
+  const shopLabel = showCampaign ? 'SHOP THE SALE' : 'SHOP THE COLLECTION';
+  const shopHref = showCampaign ? ctaHref : ROUTES.collection;
 
   return (
-    <section className="hero-section">
+    <section className={`hero-section${showCampaign ? ' hero-section--campaign' : ''}`}>
+      {showCampaign ? (
+        <div className="hero-campaign-ribbon">
+          <CampaignCtaLink to={ctaHref} className="hero-campaign-ribbon-link">
+            {merch.badgeText ? <span className="hero-campaign-ribbon-chip">{merch.badgeText}</span> : null}
+            <span className="hero-campaign-ribbon-text">
+              {merch.homeTitle || primary.name}
+              {merch.homeSubtitle ? ` — ${merch.homeSubtitle}` : ''}
+            </span>
+            <span className="hero-campaign-ribbon-cta">{merch.homeCtaText || 'Shop Now'}</span>
+          </CampaignCtaLink>
+        </div>
+      ) : null}
+
       <div className="hero-main-wrapper">
         <div className="hero-left-zone-container">
           <div className="hero-left-column-1">
@@ -144,13 +207,17 @@ export default function Hero() {
 
           <div className="hero-left-column-2">
             <div className="hero-vertical-text-container">
-              <p className="hero-vertical-text">COLLECTIONS</p>
+              <p className="hero-vertical-text">{showCampaign ? 'SALE' : 'COLLECTIONS'}</p>
             </div>
           </div>
         </div>
 
         <div className="hero-content-column">
-          <HeroTagline displayed={displayed} done={done} />
+          {showCampaign ? (
+            <HeroCampaignPanel campaign={primary} ctaHref={ctaHref} countdown={countdown} />
+          ) : (
+            <HeroTagline displayed={displayed} done={done} />
+          )}
 
           <CollectionRow />
         </div>
@@ -167,14 +234,35 @@ export default function Hero() {
               height={900}
             />
           </div>
+          {showCampaign && merch.badgeText ? (
+            <CampaignSaleBadge text={merch.badgeText} className="hero-arch-sale-stamp" />
+          ) : null}
 
-          <Link to={ROUTES.collection} className="hero-circular-badge-container" aria-label="Shop the collection" prefetch="intent">
-            {SHOP_BADGE}
+          <Link
+            to={shopHref}
+            className="hero-circular-badge-container"
+            aria-label={showCampaign ? 'Shop the sale' : 'Shop the collection'}
+            prefetch="intent"
+          >
+            <HeroShopBadge label={shopLabel} pathId="heroCirclePathDesktop" />
           </Link>
         </div>
       </div>
 
       <div className="mobile-hero-container">
+        {showCampaign ? (
+          <div className="hero-campaign-ribbon hero-campaign-ribbon--mobile">
+            <CampaignCtaLink to={ctaHref} className="hero-campaign-ribbon-link">
+              {merch.badgeText ? (
+                <span className="hero-campaign-ribbon-chip">{merch.badgeText}</span>
+              ) : null}
+              <span className="hero-campaign-ribbon-text">
+                {merch.homeTitle || primary.name}
+              </span>
+            </CampaignCtaLink>
+          </div>
+        ) : null}
+
         <div className="mobile-hero-top">
           <div className="hero-left-zone-container">
             <div className="hero-left-column-1">
@@ -196,21 +284,25 @@ export default function Hero() {
 
             <div className="hero-left-column-2">
               <div className="hero-vertical-text-container">
-                <p className="hero-vertical-text">COLLECTIONS</p>
+                <p className="hero-vertical-text">{showCampaign ? 'SALE' : 'COLLECTIONS'}</p>
               </div>
             </div>
           </div>
 
           <div className="mobile-hero-copy-block">
-            <HeroTagline displayed={displayed} done={done} />
+            {showCampaign ? (
+              <HeroCampaignPanel campaign={primary} ctaHref={ctaHref} countdown={countdown} />
+            ) : (
+              <HeroTagline displayed={displayed} done={done} />
+            )}
 
             <Link
-              to={ROUTES.collection}
+              to={shopHref}
               className="hero-circular-badge-container mobile-hero-badge"
-              aria-label="Shop the collection"
+              aria-label={showCampaign ? 'Shop the sale' : 'Shop the collection'}
               prefetch="intent"
             >
-              {SHOP_BADGE}
+              <HeroShopBadge label={shopLabel} pathId="heroCirclePathMobile" />
             </Link>
 
             <div className="mobile-collection-row">
@@ -231,6 +323,9 @@ export default function Hero() {
               height={900}
             />
           </div>
+          {showCampaign && merch.badgeText ? (
+            <CampaignSaleBadge text={merch.badgeText} className="hero-arch-sale-stamp" />
+          ) : null}
         </div>
       </div>
     </section>

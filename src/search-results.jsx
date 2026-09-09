@@ -38,9 +38,13 @@ export default function SearchResults() {
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [searchMeta, setSearchMeta] = useState(null);
   
   const [categoryFilter, setCategoryFilter] = useState(initialCategory || searchParams.get('category') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
+  const [sort, setSort] = useState(
+    searchParams.get('sort') || (searchQuery ? 'relevance' : 'newest')
+  );
   const [priceRangeId, setPriceRangeId] = useState(searchParams.get('price') || '');
   const [customMinPrice, setCustomMinPrice] = useState(searchParams.get('minPrice') || '');
   const [customMaxPrice, setCustomMaxPrice] = useState(searchParams.get('maxPrice') || '');
@@ -101,12 +105,14 @@ export default function SearchResults() {
       .then((response) => {
         setProducts(response.data?.products || []);
         setPagination(response.data?.pagination || null);
+        setSearchMeta(response.data?.searchMeta || null);
         setError('');
       })
       .catch((err) => {
         if (err?.name === 'AbortError') return;
         setError(err.message || 'Unable to load products.');
         setProducts([]);
+        setSearchMeta(null);
       })
       .finally(() => {
         if (!controller.signal.aborted) {
@@ -120,10 +126,40 @@ export default function SearchResults() {
   }, [searchQuery, categoryFilter, sort, minPrice, maxPrice, page, reloadToken]);
 
   useEffect(() => {
+    if (loading || error || products.length > 0) {
+      setSuggestedProducts([]);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    loadPublicProducts(
+      {
+        isFeatured: true,
+        page: 1,
+        limit: 8,
+        sort: 'newest',
+      },
+      { signal: controller.signal }
+    )
+      .then((response) => {
+        setSuggestedProducts(response.data?.products || []);
+      })
+      .catch((err) => {
+        if (err?.name === 'AbortError') return;
+        setSuggestedProducts([]);
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [loading, error, products.length]);
+
+  useEffect(() => {
     const next = new URLSearchParams();
     if (searchQuery) next.set('q', searchQuery);
     if (categoryFilter) next.set('category', categoryFilter);
-    if (sort && sort !== 'newest') next.set('sort', sort);
+    const defaultSort = searchQuery ? 'relevance' : 'newest';
+    if (sort && sort !== defaultSort) next.set('sort', sort);
     if (priceRangeId) next.set('price', priceRangeId);
     if (!priceRangeId && appliedMinPrice) next.set('minPrice', appliedMinPrice);
     if (!priceRangeId && appliedMaxPrice) next.set('maxPrice', appliedMaxPrice);
@@ -159,6 +195,18 @@ export default function SearchResults() {
     setSortMenuOpen(false);
     setMobileSortOpen(false);
     setPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setCategoryFilter('');
+    setPriceRangeId('');
+    setCustomMinPrice('');
+    setCustomMaxPrice('');
+    setAppliedMinPrice('');
+    setAppliedMaxPrice('');
+    setSort('newest');
+    setPage(1);
+    setSearchParams({}, { replace: true });
   };
 
   const handleClearFilters = () => {
@@ -322,6 +370,11 @@ export default function SearchResults() {
           <p className="catalog-page-count" aria-live="polite">
             {loading ? 'Loading products…' : `(${productCount} ${productCount === 1 ? 'Product' : 'Products'})`}
           </p>
+          {searchMeta?.correctedQuery && searchQuery ? (
+            <p className="catalog-page-correction">
+              Including matches for “{searchMeta.correctedQuery}”
+            </p>
+          ) : null}
         </Reveal>
 
         <Reveal className="catalog-toolbar" variant="fade-up" delay={90}>
@@ -472,11 +525,18 @@ export default function SearchResults() {
               </div>
             ) : products.length === 0 ? (
               <div className="catalog-state">
-                <h2 className="catalog-state-title">No pieces match your search</h2>
+                <h2 className="catalog-state-title">No products found</h2>
                 <p className="catalog-state-copy">
-                  Try adjusting filters or search query to see more jewelry.
+                  {searchQuery
+                    ? `We couldn’t find jewelry matching “${searchQuery}”.`
+                    : 'Try adjusting filters to see more jewelry.'}
                 </p>
                 <div className="catalog-state-actions">
+                  {searchQuery ? (
+                    <button type="button" className="catalog-state-btn" onClick={handleClearSearch}>
+                      Clear search
+                    </button>
+                  ) : null}
                   {hasActiveFilters && (
                     <button type="button" className="catalog-state-btn" onClick={handleClearFilters}>
                       Clear Filters
@@ -486,6 +546,49 @@ export default function SearchResults() {
                     Browse All Jewelry
                   </Link>
                 </div>
+
+                {categories.length > 0 ? (
+                  <div className="catalog-empty-suggestions">
+                    <p className="catalog-empty-suggestions-title">Browse categories</p>
+                    <div className="catalog-empty-suggestion-chips">
+                      {categories.slice(0, 6).map((category) => (
+                        <button
+                          key={category._id || category.slug}
+                          type="button"
+                          className="catalog-chip"
+                          onClick={() => {
+                            setCategoryFilter(category._id);
+                            setPriceRangeId('');
+                            setCustomMinPrice('');
+                            setCustomMaxPrice('');
+                            setAppliedMinPrice('');
+                            setAppliedMaxPrice('');
+                            setSort('newest');
+                            setPage(1);
+                            setSearchParams({ category: category._id }, { replace: true });
+                          }}
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {suggestedProducts.length > 0 ? (
+                  <div className="catalog-empty-recommendations">
+                    <p className="catalog-empty-suggestions-title">Recommended for you</p>
+                    <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
+                      {suggestedProducts.map((product) => (
+                        <CatalogProductCard
+                          key={product._id}
+                          product={product}
+                          variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : (
               <div key={`${sort}-${categoryFilter}-${priceRangeId}-${page}`} className="catalog-results-fade">

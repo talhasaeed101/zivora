@@ -7,6 +7,8 @@ export default function RatingSummary({
   customerReview,
   onWriteReview,
   onEditReview,
+  activeRatingFilter = '',
+  onRatingFilterChange,
 }) {
   const averageRating = summary?.averageRating ?? 0;
   const reviewCount = summary?.reviewCount ?? 0;
@@ -14,6 +16,14 @@ export default function RatingSummary({
   const breakdown = summary?.ratingBreakdown || [];
   const sizingPercent = summary?.sizingPercent ?? 0;
   const qualityPercent = summary?.qualityPercent ?? 0;
+
+  const handleFilterClick = (stars) => {
+    if (!onRatingFilterChange) {
+      return;
+    }
+    const next = String(activeRatingFilter) === String(stars) ? '' : String(stars);
+    onRatingFilterChange(next);
+  };
 
   return (
     <div className="pd-rating-summary">
@@ -31,28 +41,37 @@ export default function RatingSummary({
               ))}
             </div>
             <p className="pd-rating-count">
-              {reviewCount.toLocaleString()} local ratings
+              {reviewCount.toLocaleString()} review{reviewCount === 1 ? '' : 's'}
             </p>
           </div>
         </div>
 
         <div className="pd-rating-breakdown-boxes">
           {[5, 4, 3, 2, 1].map((stars) => {
-            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0 };
+            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0, percent: 0 };
+            const isActive = String(activeRatingFilter) === String(stars);
             return (
-              <div key={stars} className="pd-rating-breakdown-box">
+              <button
+                key={stars}
+                type="button"
+                className={`pd-rating-breakdown-box${isActive ? ' is-active' : ''}`}
+                onClick={() => handleFilterClick(stars)}
+                aria-pressed={isActive}
+              >
                 <StarIcon filled className="w-3.5 h-3.5 pd-star-filled" />
                 <span className="pd-rating-breakdown-val">{stars}.0</span>
-                <span className="pd-rating-breakdown-count">({row.count || 0} reviews)</span>
-              </div>
+                <span className="pd-rating-breakdown-count">
+                  ({row.count || 0}) · {row.percent || 0}%
+                </span>
+              </button>
             );
           })}
         </div>
 
         <div className="pd-rating-breakdown-bars" aria-hidden="true">
           {[5, 4, 3, 2, 1].map((stars) => {
-            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0 };
-            const percent = reviewCount > 0 ? Math.round(((row.count || 0) / reviewCount) * 100) : 0;
+            const row = breakdown.find((r) => r.stars === stars) || { stars, count: 0, percent: 0 };
+            const percent = row.percent ?? (reviewCount > 0 ? Math.round(((row.count || 0) / reviewCount) * 100) : 0);
             return (
               <div key={`bar-${stars}`} className="pd-rating-bar-row">
                 <span className="pd-rating-bar-label">{stars}</span>

@@ -7,11 +7,12 @@ import StatusBadge from '../components/orders/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { usePrivatePageSeo } from '../hooks/useSeo.js';
-import { addressApi, orderApi } from '../services/api.js';
+import { addressApi, orderApi, loyaltyApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { formatPrice } from '../utils/products.js';
 import { formatOrderDate } from '../utils/orderDisplay.js';
+import { formatLoyaltyPoints } from '../utils/loyaltyDisplay.js';
 import '../components/orders/orderStatus.css';
 import './Profile.css';
 import './CartPage.css';
@@ -76,6 +77,8 @@ export default function Profile() {
   const [addressSaving, setAddressSaving] = useState(false);
   const [addressActionId, setAddressActionId] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [loyalty, setLoyalty] = useState(null);
+  const [loyaltyLoading, setLoyaltyLoading] = useState(true);
 
   const pageLoading = authLoading || ordersLoading || addressesLoading;
   const memberSince = formatMemberSince(customer?.createdAt);
@@ -117,6 +120,33 @@ export default function Profile() {
   useEffect(() => {
     loadAddresses();
   }, [loadAddresses]);
+
+  useEffect(() => {
+    let isMounted = true;
+    setLoyaltyLoading(true);
+
+    loyaltyApi
+      .getAccount()
+      .then((response) => {
+        if (isMounted) {
+          setLoyalty(response.data || null);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setLoyalty(null);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setLoyaltyLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const openAddAddress = () => {
     setEditingAddress(null);
@@ -194,6 +224,7 @@ export default function Profile() {
   const quickActions = [
     { to: ROUTES.orders, label: 'View Orders', hint: 'Track purchases' },
     { to: ROUTES.wishlist, label: 'Manage Wishlist', hint: 'Saved jewelry' },
+    { to: ROUTES.loyalty, label: 'Loyalty & Rewards', hint: 'Points & tiers' },
     { to: ROUTES.supportTickets, label: 'Contact Support', hint: 'Need help?' },
     { to: ROUTES.collection, label: 'Browse Collection', hint: 'Continue shopping' },
   ];
@@ -237,6 +268,21 @@ export default function Profile() {
               <a href="#profile-addresses">{addresses.length} addresses</a>
             </p>
           </Reveal>
+
+          {!loyaltyLoading && loyalty ? (
+            <Reveal className="profile-loyalty-summary" variant="fade-up" delay={50}>
+              <div className="profile-loyalty-copy">
+                <p className="profile-loyalty-eyebrow">Zivora Rewards</p>
+                <p className="profile-loyalty-tier">{loyalty.tier} tier</p>
+                <p className="profile-loyalty-points">
+                  {formatLoyaltyPoints(loyalty.balance)} points available
+                </p>
+              </div>
+              <Link to={ROUTES.loyalty} className="profile-loyalty-link">
+                View Rewards
+              </Link>
+            </Reveal>
+          ) : null}
 
           <section className="profile-section" aria-label="Quick actions">
             <h2 className="profile-section-title">Quick actions</h2>
