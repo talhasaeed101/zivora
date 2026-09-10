@@ -20,7 +20,7 @@ import {
   optionHasAnyStock,
   syncSelection,
 } from '../../utils/inventory.js';
-import { backInStockApi, socialProofApi } from '../../services/api.js';
+import { backInStockApi, priceAlertApi, socialProofApi } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
 import { useCampaigns } from '../../context/CampaignContext.jsx';
@@ -92,6 +92,9 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [subscribedCells, setSubscribedCells] = useState(() => new Set());
   const [notifying, setNotifying] = useState(false);
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [priceAlertCells, setPriceAlertCells] = useState(() => new Set());
+  const [priceAlerting, setPriceAlerting] = useState(false);
+  const [priceAlertModalOpen, setPriceAlertModalOpen] = useState(false);
   const [purchaseActivity, setPurchaseActivity] = useState(null);
   const [wishlistActivity, setWishlistActivity] = useState(null);
 
@@ -110,11 +113,16 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const selectionComplete = (!showRingSize || Boolean(size)) && (!showMetalColors || Boolean(color));
   const selectionKey = inventoryCellKey(selectedRingSize, selectedMetalColor);
   const isNotifySubscribed = subscribedCells.has(selectionKey);
+  const isPriceAlertSubscribed = priceAlertCells.has(selectionKey);
   const showNotifyMe =
     Boolean(product?._id) &&
     selectionComplete &&
     selectedCell != null &&
     Number(selectedCell.quantity) === 0;
+  const showPriceAlert =
+    Boolean(product?._id) &&
+    selectionComplete &&
+    inStock;
 
   const selectedVariantId = findUniqueVariantId(product, {
     ringSize: selectedRingSize,
@@ -181,6 +189,9 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     setSubscribedCells(new Set());
     setNotifyModalOpen(false);
     setNotifying(false);
+    setPriceAlertCells(new Set());
+    setPriceAlertModalOpen(false);
+    setPriceAlerting(false);
   }, [product?._id]);
 
   useEffect(() => {
@@ -455,6 +466,88 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     }
 
     setNotifyModalOpen(true);
+  };
+
+  const markPriceAlertSubscribed = useCallback((ringSize, metalColor) => {
+    const key = inventoryCellKey(ringSize, metalColor);
+    setPriceAlertCells((prev) => {
+      if (prev.has(key)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+  }, []);
+
+  const submitPriceAlert = useCallback(
+    async (email) => {
+      if (!product?._id || priceAlerting) {
+        return;
+      }
+
+      const ringSize = showRingSize ? size : '';
+      const metalColor = showMetalColors ? color : '';
+
+      setPriceAlerting(true);
+
+      try {
+        await priceAlertApi.subscribe({
+          productId: product._id,
+          ringSize,
+          metalColor,
+          variantId: selectedVariantId || undefined,
+          email,
+        });
+
+        markPriceAlertSubscribed(ringSize, metalColor);
+        setPriceAlertModalOpen(false);
+        toast.success("You'll be notified if the price drops.");
+      } catch (error) {
+        if (error?.status === 409) {
+          markPriceAlertSubscribed(ringSize, metalColor);
+          setPriceAlertModalOpen(false);
+          toast.info('You already have a price alert for this item.');
+          return;
+        }
+
+        toast.error(error?.message || 'Unable to save your price alert. Please try again.');
+      } finally {
+        setPriceAlerting(false);
+      }
+    },
+    [
+      product?._id,
+      priceAlerting,
+      showRingSize,
+      size,
+      showMetalColors,
+      color,
+      selectedVariantId,
+      markPriceAlertSubscribed,
+    ]
+  );
+
+  const handlePriceAlertClick = () => {
+    if (!showPriceAlert || isPriceAlertSubscribed || priceAlerting) {
+      return;
+    }
+
+    if (isAuthenticated) {
+      const email = String(customer?.email || '')
+        .trim()
+        .toLowerCase();
+
+      if (!email) {
+        toast.error('Unable to find your account email. Please update your profile and try again.');
+        return;
+      }
+
+      submitPriceAlert(email);
+      return;
+    }
+
+    setPriceAlertModalOpen(true);
   };
 
   const stockLabel = !inStock
@@ -764,6 +857,24 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
             {notifying ? 'Submitting…' : isNotifySubscribed ? 'Subscribed' : 'Notify Me When Available'}
           </button>
         ) : null}
+
+        {showPriceAlert ? (
+          <button
+            type="button"
+            className={`pd-btn pd-btn-secondary pd-btn-notify-me pd-btn-price-alert${
+              isPriceAlertSubscribed ? ' is-subscribed' : ''
+            }`}
+            onClick={handlePriceAlertClick}
+            disabled={isPriceAlertSubscribed || priceAlerting}
+            aria-live="polite"
+          >
+            {priceAlerting
+              ? 'Submitting…'
+              : isPriceAlertSubscribed
+                ? 'Price alert on'
+                : 'Notify me when price drops'}
+          </button>
+        ) : null}
       </div>
 
       <ul className="pd-trust-list" aria-label="Purchase reassurance">
@@ -813,6 +924,26 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         submitting={notifying}
         ringSize={showRingSize ? size : undefined}
         metalColor={showMetalColors ? color : undefined}
+      />
+
+      <NotifyMeModal
+        isOpen={priceAlertModalOpen}
+        onClose={() => {
+          if (!priceAlerting) {
+            setPriceAlertModalOpen(false);
+          }
+        }}
+        onSubmit={submitPriceAlert}
+        submitting={priceAlerting}
+        ringSize={showRingSize ? size : undefined}
+        metalColor={showMetalColors ? color : undefined}
+        title="Notify me when price drops"
+        copy={`Enter your email and we’ll let you know if the price of ${
+          [showRingSize ? size : null, showMetalColors ? color : null].filter(Boolean).join(' · ') ||
+          'this item'
+        } drops below today’s price.`}
+        submitLabel="Watch price"
+        submittingLabel="Submitting…"
       />
     </div>
   );

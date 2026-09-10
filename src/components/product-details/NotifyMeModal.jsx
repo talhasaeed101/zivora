@@ -21,6 +21,10 @@ export default function NotifyMeModal({
   submitting = false,
   ringSize,
   metalColor,
+  title = 'Notify Me When Available',
+  copy,
+  submitLabel = 'Notify Me',
+  submittingLabel = 'Submitting…',
 }) {
   const titleId = useId();
   const emailId = useId();
@@ -87,6 +91,9 @@ export default function NotifyMeModal({
 
   const variantBits = [ringSize, metalColor].filter(Boolean);
   const variantLabel = variantBits.length > 0 ? variantBits.join(' · ') : 'this exact option';
+  const bodyCopy =
+    copy ||
+    `Enter your email and we’ll let you know when ${variantLabel} is back in stock.`;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -129,7 +136,7 @@ export default function NotifyMeModal({
       >
         <div className="pd-review-modal-header">
           <h2 id={titleId} className="pd-review-modal-title">
-            Notify Me When Available
+            {title}
           </h2>
           <button
             type="button"
@@ -142,9 +149,7 @@ export default function NotifyMeModal({
           </button>
         </div>
 
-        <p className="pd-notify-modal-copy">
-          Enter your email and we&apos;ll let you know when {variantLabel} is back in stock.
-        </p>
+        <p className="pd-notify-modal-copy">{bodyCopy}</p>
 
         <form className="pd-review-modal-form" onSubmit={handleSubmit} noValidate>
           <div className="pd-review-field">
@@ -187,7 +192,7 @@ export default function NotifyMeModal({
               Cancel
             </button>
             <button type="submit" className="pd-btn pd-btn-primary" disabled={submitting}>
-              {submitting ? 'Submitting…' : 'Notify Me'}
+              {submitting ? submittingLabel : submitLabel}
             </button>
           </div>
         </form>
@@ -195,3 +200,4 @@ export default function NotifyMeModal({
     </div>
   );
 }
+

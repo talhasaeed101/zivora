@@ -292,6 +292,32 @@ export const backInStockApi = {
     }),
 };
 
+export const priceAlertApi = {
+  subscribe: (payload, options = {}) =>
+    request('/price-alerts', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      suppressErrorToast: true,
+      ...options,
+    }),
+
+  listMine: (options = {}) => request('/price-alerts/me', options),
+
+  cancelMine: (id, options = {}) =>
+    request(`/price-alerts/me/${id}`, {
+      method: 'DELETE',
+      suppressErrorToast: true,
+      ...options,
+    }),
+
+  unsubscribe: (token, options = {}) =>
+    request(`/price-alerts/unsubscribe/${encodeURIComponent(token)}`, {
+      method: 'DELETE',
+      suppressErrorToast: true,
+      ...options,
+    }),
+};
+
 export const wishlistApi = {
   getWishlist: () => request('/wishlist'),
 

@@ -31,6 +31,8 @@ const Tickets = lazy(() => import('./Pages/Tickets.jsx'));
 const TicketDetail = lazy(() => import('./Pages/TicketDetail.jsx'));
 const Wishlist = lazy(() => import('./Pages/Wishlist.jsx'));
 const DashboardLoyalty = lazy(() => import('./Pages/account/sections/DashboardLoyalty.jsx'));
+const PriceAlerts = lazy(() => import('./Pages/account/PriceAlerts.jsx'));
+const PriceAlertUnsubscribe = lazy(() => import('./Pages/PriceAlertUnsubscribe.jsx'));
 const PrivacyPolicy = lazy(() => import('./Pages/PrivacyPolicy.jsx'));
 const TermsOfUse = lazy(() => import('./Pages/TermsOfUse.jsx'));
 const Collection = lazy(() => import('./Pages/Collection.jsx'));
@@ -105,7 +107,9 @@ function App() {
               <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/account/loyalty" element={<DashboardLoyalty />} />
+              <Route path="/account/price-alerts" element={<PriceAlerts />} />
             </Route>
+            <Route path="/price-alerts/unsubscribe/:token" element={<PriceAlertUnsubscribe />} />
             <Route path="/product/:slug" element={<ProductDetails />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
