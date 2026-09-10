@@ -1,0 +1,53 @@
+.save-for-later-page {
+  color: #000;
+  font-family: Inter, sans-serif;
+}
+
+.save-for-later-error {
+  margin: 0 0 16px;
+  color: #8a2f2f;
+  font-size: 14px;
+}
+
+.save-for-later-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.save-for-later-empty-title {
+  margin: 0 0 8px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.save-for-later-empty-copy {
+  margin: 0 auto 20px;
+  max-width: 420px;
+  font-size: 14px;
+  color: #5f5f5f;
+  line-height: 1.5;
+}
+
+.save-for-later-cart-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 18px;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.save-for-later-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

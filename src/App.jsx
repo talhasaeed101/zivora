@@ -32,6 +32,7 @@ const TicketDetail = lazy(() => import('./Pages/TicketDetail.jsx'));
 const Wishlist = lazy(() => import('./Pages/Wishlist.jsx'));
 const DashboardLoyalty = lazy(() => import('./Pages/account/sections/DashboardLoyalty.jsx'));
 const PriceAlerts = lazy(() => import('./Pages/account/PriceAlerts.jsx'));
+const SaveForLater = lazy(() => import('./Pages/account/SaveForLater.jsx'));
 const PriceAlertUnsubscribe = lazy(() => import('./Pages/PriceAlertUnsubscribe.jsx'));
 const PrivacyPolicy = lazy(() => import('./Pages/PrivacyPolicy.jsx'));
 const TermsOfUse = lazy(() => import('./Pages/TermsOfUse.jsx'));
@@ -108,6 +109,7 @@ function App() {
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/account/loyalty" element={<DashboardLoyalty />} />
               <Route path="/account/price-alerts" element={<PriceAlerts />} />
+              <Route path="/account/saved" element={<SaveForLater />} />
             </Route>
             <Route path="/price-alerts/unsubscribe/:token" element={<PriceAlertUnsubscribe />} />
             <Route path="/product/:slug" element={<ProductDetails />} />

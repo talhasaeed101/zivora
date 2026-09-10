@@ -211,6 +211,28 @@ export const cartApi = {
     request('/cart/clear', {
       method: 'DELETE',
     }),
+
+  saveItemForLater: (itemId) =>
+    request(`/cart/items/${itemId}/save-for-later`, {
+      method: 'POST',
+    }),
+
+  moveSavedToCart: (itemId) =>
+    request(`/cart/saved/${itemId}/move-to-cart`, {
+      method: 'POST',
+    }),
+
+  removeSavedItem: (itemId) =>
+    request(`/cart/saved/${itemId}`, {
+      method: 'DELETE',
+    }),
+
+  mergeGuestSavedItems: (items) =>
+    request('/cart/saved/merge', {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+      suppressErrorToast: true,
+    }),
 };
 
 export const publicCampaignApi = {

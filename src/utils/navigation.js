@@ -17,6 +17,7 @@ export const ROUTES = {
   wishlist: '/wishlist',
   loyalty: '/account/loyalty',
   priceAlerts: '/account/price-alerts',
+  savedForLater: '/account/saved',
   compare: '/compare',
   privacyPolicy: '/privacy-policy',
   termsOfUse: '/terms-of-use',
