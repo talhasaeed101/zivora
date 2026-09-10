@@ -1,0 +1,12 @@
+.catalog-compare-btn-active,
+.pd-btn-compare-icon-active,
+.pd-btn-wishlist-icon-active {
+  color: #967259;
+}
+
+.catalog-product-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}

@@ -5,10 +5,12 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { SocketProvider } from './context/SocketContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { WishlistProvider } from './context/WishlistContext.jsx';
+import { CompareProvider } from './context/CompareContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { CampaignProvider } from './context/CampaignContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
+import CompareBar from './components/CompareBar.jsx';
 import Login from './Pages/Login.jsx';
 import Register from './Pages/Register.jsx';
 import ForgetPassword from './Pages/ForgetPassword.jsx';
@@ -36,6 +38,7 @@ const CategoryPage = lazy(() => import('./Pages/CategoryPage.jsx'));
 const CampaignPage = lazy(() => import('./Pages/CampaignPage.jsx'));
 const About = lazy(() => import('./Pages/About.jsx'));
 const Contact = lazy(() => import('./Pages/Contact.jsx'));
+const Compare = lazy(() => import('./Pages/Compare.jsx'));
 
 function RouteFallback() {
   return (
@@ -67,8 +70,10 @@ function App() {
           <CampaignProvider>
           <CartProvider>
             <WishlistProvider>
+              <CompareProvider>
               <ToastProvider>
               <AnalyticsTracker />
+              <CompareBar />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -106,6 +111,7 @@ function App() {
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/campaign/:slug" element={<CampaignPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/compare" element={<Compare />} />
             <Route path="/search" element={<SearchResultsRoute />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -117,6 +123,7 @@ function App() {
           </Routes>
           </Suspense>
               </ToastProvider>
+              </CompareProvider>
           </WishlistProvider>
         </CartProvider>
           </CampaignProvider>

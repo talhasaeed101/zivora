@@ -2,9 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
+import CompareButton from '../CompareButton.jsx';
 import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
 import CustomizationModal from './CustomizationModal.jsx';
 import NotifyMeModal from './NotifyMeModal.jsx';
+import '../CompareButton.css';
 import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { trackAddToCart, trackPersonalizationStart } from '../../utils/analytics.js';
@@ -732,6 +734,14 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
         >
           Buy it now
         </button>
+
+        <CompareButton
+          productId={product?._id}
+          className="pd-btn pd-btn-wishlist-icon pd-btn-compare-icon"
+          activeClassName="pd-btn-wishlist-icon-active pd-btn-compare-icon-active"
+          showLabel={false}
+          stopPropagation={false}
+        />
 
         <WishlistButton
           productId={product?._id}
