@@ -39,7 +39,7 @@ export default function GiftIdeasSection() {
 
   return (
     <Reveal as="section" className="gift-ideas-section" variant="fade-up">
-      <div className="gift-ideas-inner">
+      {/* <div className="gift-ideas-inner">
         <header className="gift-ideas-header">
           <h2 className="gift-ideas-title">Gift Ideas</h2>
           <p className="gift-ideas-subtitle">
@@ -73,7 +73,7 @@ export default function GiftIdeasSection() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
     </Reveal>
   );
 }
