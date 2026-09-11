@@ -1,0 +1,59 @@
+.price-alerts-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.price-alerts-thumb {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  background: #f5f2ee;
+}
+
+.price-alerts-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.price-alerts-copy {
+  min-width: 0;
+}
+
+.price-alerts-title {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.price-alerts-title:hover {
+  color: #967259;
+}
+
+.price-alerts-cancel-btn {
+  background: transparent;
+  color: #000;
+  border-color: #d8d2ca;
+  flex-shrink: 0;
+}
+
+.price-alerts-cancel-btn:hover:not(:disabled) {
+  border-color: #000;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .price-alerts-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .price-alerts-cancel-btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,148 @@
+.compare-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  background: #ffffff;
+  border-top: 1px solid #e8e4df;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.compare-bar-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.compare-bar-thumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.compare-bar-thumb {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #e8e4df;
+  background: #f7f5f2;
+  overflow: hidden;
+}
+
+.compare-bar-thumb.is-empty {
+  border-style: dashed;
+  opacity: 0.55;
+}
+
+.compare-bar-thumb-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compare-bar-thumb-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.compare-bar-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.compare-bar-count {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #000;
+}
+
+.compare-bar-hint {
+  margin: 2px 0 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  color: #767676;
+}
+
+.compare-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.compare-bar-clear {
+  border: 1px solid #ddd8d2;
+  background: #fff;
+  color: #000;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.compare-bar-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+}
+
+.compare-bar-cta.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .compare-bar-inner {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .compare-bar-thumbs {
+    order: 1;
+    width: 100%;
+  }
+
+  .compare-bar-meta {
+    order: 2;
+    flex: 1 1 auto;
+  }
+
+  .compare-bar-actions {
+    order: 3;
+    width: 100%;
+  }
+
+  .compare-bar-clear,
+  .compare-bar-cta {
+    flex: 1;
+    text-align: center;
+  }
+}

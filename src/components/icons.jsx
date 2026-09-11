@@ -160,3 +160,21 @@ export function BellIcon({ className = 'w-4 h-4' }) {
     </svg>
   );
 }
+
+/** Side-by-side columns — used for Compare controls */
+export function CompareIcon({ className = 'w-4 h-4', filled = false }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
+      <rect x="3" y="4" width="7" height="16" rx="1" />
+      <rect x="14" y="4" width="7" height="16" rx="1" />
+    </svg>
+  );
+}
+

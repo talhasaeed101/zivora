@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import WishlistButton from '../WishlistButton.jsx';
+import CompareButton from '../CompareButton.jsx';
 import SafeImage from '../SafeImage.jsx';
 import { formatPrice, getProductImage, getCategoryName, hasSale } from '../../utils/products.js';
 import { productPath } from '../../utils/navigation';
@@ -7,6 +8,7 @@ import { isCatalogOutOfStock } from '../../utils/inventory.js';
 import { getWishlistStockStatus } from '../../utils/wishlistShopping.js';
 import { useCampaigns } from '../../context/CampaignContext.jsx';
 import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
+import '../CompareButton.css';
 
 export default function CatalogProductCard({
   product,
@@ -91,11 +93,18 @@ export default function CatalogProductCard({
               {product.title}
             </Link>
           </h3>
-          <WishlistButton
-            productId={product._id}
-            className="catalog-wishlist-btn"
-            activeClassName="catalog-wishlist-btn-active"
-          />
+          <div className="catalog-product-actions">
+            <CompareButton
+              productId={product._id}
+              className="catalog-wishlist-btn catalog-compare-btn"
+              activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
+            />
+            <WishlistButton
+              productId={product._id}
+              className="catalog-wishlist-btn"
+              activeClassName="catalog-wishlist-btn-active"
+            />
+          </div>
         </div>
         {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
         <div className="catalog-price-row">
@@ -126,11 +135,18 @@ export default function CatalogProductCard({
             <div className="catalog-product-overlay">
               <div className="catalog-product-info-row">
                 <h3 className="catalog-product-name catalog-product-name-mobile">{product.title}</h3>
-                <WishlistButton
-                  productId={product._id}
-                  className="catalog-wishlist-btn"
-                  activeClassName="catalog-wishlist-btn-active"
-                />
+                <div className="catalog-product-actions">
+                  <CompareButton
+                    productId={product._id}
+                    className="catalog-wishlist-btn catalog-compare-btn"
+                    activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
+                  />
+                  <WishlistButton
+                    productId={product._id}
+                    className="catalog-wishlist-btn"
+                    activeClassName="catalog-wishlist-btn-active"
+                  />
+                </div>
               </div>
               {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
               <div className="catalog-price-row">
@@ -147,11 +163,18 @@ export default function CatalogProductCard({
           <div className="catalog-product-text-wrap">
             <div className="catalog-product-info-row">
               <h3 className="catalog-product-name">{product.title}</h3>
-              <WishlistButton
-                productId={product._id}
-                className="catalog-wishlist-btn"
-                activeClassName="catalog-wishlist-btn-active"
-              />
+              <div className="catalog-product-actions">
+                <CompareButton
+                  productId={product._id}
+                  className="catalog-wishlist-btn catalog-compare-btn"
+                  activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
+                />
+                <WishlistButton
+                  productId={product._id}
+                  className="catalog-wishlist-btn"
+                  activeClassName="catalog-wishlist-btn-active"
+                />
+              </div>
             </div>
             {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
             <div className="catalog-price-row">

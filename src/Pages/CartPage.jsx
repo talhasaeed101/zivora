@@ -11,6 +11,7 @@ import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
 import { toast } from '../context/ToastContext.jsx';
 import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
+import SavedCartItem from '../components/cart/SavedCartItem';
 import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -115,10 +116,15 @@ export default function CartPage() {
     error,
     totalItems,
     subtotal,
+    savedItems: rawSavedItems,
     updateCartItem,
     removeCartItem,
     clearCart,
     refreshCart,
+    saveItemForLater,
+    moveSavedToCart,
+    removeSavedItem,
+    removeGuestSaved,
   } = useCart();
   const { addToWishlist } = useWishlist();
 
@@ -151,6 +157,8 @@ export default function CartPage() {
   const [appliedLoyaltyPoints, setAppliedLoyaltyPoints] = useState(null);
   const [loyaltyError, setLoyaltyError] = useState('');
   const [loyaltyApplying, setLoyaltyApplying] = useState(false);
+  const [savingItemId, setSavingItemId] = useState(null);
+  const [savedBusyId, setSavedBusyId] = useState(null);
 
   const items = useMemo(
     () =>
@@ -171,6 +179,26 @@ export default function CartPage() {
       }),
     [cart, productDetailsBySlug]
   );
+
+  const savedItems = useMemo(() => {
+    if (!isAuthenticated) {
+      return (rawSavedItems || []).map((entry) => ({
+        id: entry.clientId,
+        clientId: entry.clientId,
+        productId: entry.productId,
+        slug: entry.slug,
+        title: entry.title,
+        image: entry.image,
+        ringSize: entry.ringSize || null,
+        metalColor: entry.metalColor || null,
+        quantity: entry.quantity || 1,
+        unitPrice: entry.price,
+        isGuest: true,
+      }));
+    }
+
+    return (rawSavedItems || []).map((item) => mapCartItemForUi(item));
+  }, [isAuthenticated, rawSavedItems]);
 
   useEffect(() => {
     const slugs = [...new Set(items.map((item) => item.slug).filter(Boolean))];
@@ -521,6 +549,76 @@ export default function CartPage() {
     });
   };
 
+  const handleSaveForLater = async (item) => {
+    if (!item?.id || savingItemId || updatingItemId) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: ROUTES.cart } });
+      return;
+    }
+
+    setSavingItemId(item.id);
+    setActionError('');
+    try {
+      await saveItemForLater(item.id);
+      resetPromo();
+      toast.success('Saved for later.');
+      setStatusMessage(`${item.title || 'Item'} saved for later.`);
+    } catch (err) {
+      setActionError(friendlyCartError(err.message, 'Unable to save for later. Please try again.'));
+    } finally {
+      setSavingItemId(null);
+    }
+  };
+
+  const handleMoveSavedToCart = async (item) => {
+    if (!item?.id || savedBusyId) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: ROUTES.cart } });
+      return;
+    }
+
+    setSavedBusyId(item.id);
+    setActionError('');
+    try {
+      await moveSavedToCart(item.id);
+      resetPromo();
+      toast.success('Moved to cart.');
+      setStatusMessage(`${item.title || 'Item'} moved to cart.`);
+    } catch (err) {
+      setActionError(friendlyCartError(err.message, 'Unable to move item to cart.'));
+    } finally {
+      setSavedBusyId(null);
+    }
+  };
+
+  const handleRemoveSaved = async (item) => {
+    if (!item?.id || savedBusyId) {
+      return;
+    }
+
+    setSavedBusyId(item.id);
+    setActionError('');
+    try {
+      if (!isAuthenticated || item.isGuest) {
+        removeGuestSaved(item.clientId || item.id);
+        toast.success('Removed from saved items.');
+      } else {
+        await removeSavedItem(item.id);
+        toast.success('Removed from saved items.');
+      }
+    } catch (err) {
+      setActionError(friendlyCartError(err.message, 'Unable to remove saved item.'));
+    } finally {
+      setSavedBusyId(null);
+    }
+  };
+
   const openAddAddress = () => {
     setEditingAddress(null);
     setAddressModalOpen(true);
@@ -798,8 +896,10 @@ export default function CartPage() {
                         item={item}
                         onQuantityChange={handleQuantityChange}
                         onRemove={handleRemoveRequest}
+                        onSaveForLater={handleSaveForLater}
                         updating={updatingItemId === item.id && !exitingIds.includes(item.id)}
                         removing={exitingIds.includes(item.id)}
+                        saving={savingItemId === item.id}
                       />
                     </Reveal>
                   ))}
@@ -878,6 +978,29 @@ export default function CartPage() {
             </div>
           ) : null}
         </div>
+
+        {savedItems.length > 0 ? (
+          <Reveal className="cart-saved-section" variant="fade-up" delay={60}>
+            <h2 className="cart-saved-heading">Saved for later</h2>
+            <p className="cart-saved-subheading">
+              {isAuthenticated
+                ? 'Move items back to your bag when you are ready.'
+                : 'Sign in to move these items into your bag. Guest saves stay on this device.'}
+            </p>
+            <div className="cart-items-list">
+              {savedItems.map((item) => (
+                <SavedCartItem
+                  key={item.id}
+                  item={item}
+                  busy={savedBusyId === item.id}
+                  showMoveToCart={isAuthenticated && !item.isGuest}
+                  onMoveToCart={handleMoveSavedToCart}
+                  onRemove={handleRemoveSaved}
+                />
+              ))}
+            </div>
+          </Reveal>
+        ) : null}
 
         <RecommendedProducts cartItems={items} />
       </main>

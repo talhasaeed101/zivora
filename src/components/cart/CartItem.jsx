@@ -28,8 +28,10 @@ export default function CartItem({
   item,
   onQuantityChange,
   onRemove,
+  onSaveForLater,
   updating = false,
   removing = false,
+  saving = false,
 }) {
   const lineTotal = item.unitPrice * item.quantity;
   const productHref = item.slug ? productPath(item.slug) : ROUTES.product;
@@ -108,6 +110,17 @@ export default function CartItem({
             <p className="cart-item-extra-price">
               Customization extras: {formatPrice(item.extraPrice)} each
             </p>
+          ) : null}
+
+          {onSaveForLater ? (
+            <button
+              type="button"
+              className="cart-item-save-later"
+              onClick={() => onSaveForLater(item)}
+              disabled={updating || removing || saving}
+            >
+              {saving ? 'Saving…' : 'Save for later'}
+            </button>
           ) : null}
 
           <div className="cart-item-unit-price">

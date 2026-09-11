@@ -72,6 +72,17 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+/* Collection.css hides .catalog-product-grid on small screens in favor of
+   .catalog-product-grid-mobile. Gift Ideas still uses the desktop grid class,
+   so restore display here without changing card design. */
+@media (max-width: 768px) {
+  .gift-ideas-section .catalog-product-grid.gift-ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
 @media (max-width: 900px) {
   .gift-ideas-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

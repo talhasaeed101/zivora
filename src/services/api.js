@@ -211,6 +211,28 @@ export const cartApi = {
     request('/cart/clear', {
       method: 'DELETE',
     }),
+
+  saveItemForLater: (itemId) =>
+    request(`/cart/items/${itemId}/save-for-later`, {
+      method: 'POST',
+    }),
+
+  moveSavedToCart: (itemId) =>
+    request(`/cart/saved/${itemId}/move-to-cart`, {
+      method: 'POST',
+    }),
+
+  removeSavedItem: (itemId) =>
+    request(`/cart/saved/${itemId}`, {
+      method: 'DELETE',
+    }),
+
+  mergeGuestSavedItems: (items) =>
+    request('/cart/saved/merge', {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+      suppressErrorToast: true,
+    }),
 };
 
 export const publicCampaignApi = {
@@ -287,6 +309,32 @@ export const backInStockApi = {
     request('/back-in-stock', {
       method: 'POST',
       body: JSON.stringify(payload),
+      suppressErrorToast: true,
+      ...options,
+    }),
+};
+
+export const priceAlertApi = {
+  subscribe: (payload, options = {}) =>
+    request('/price-alerts', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      suppressErrorToast: true,
+      ...options,
+    }),
+
+  listMine: (options = {}) => request('/price-alerts/me', options),
+
+  cancelMine: (id, options = {}) =>
+    request(`/price-alerts/me/${id}`, {
+      method: 'DELETE',
+      suppressErrorToast: true,
+      ...options,
+    }),
+
+  unsubscribe: (token, options = {}) =>
+    request(`/price-alerts/unsubscribe/${encodeURIComponent(token)}`, {
+      method: 'DELETE',
       suppressErrorToast: true,
       ...options,
     }),
