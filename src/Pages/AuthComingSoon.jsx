@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { ROUTES } from '../utils/navigation';
 import './Auth.css';
 

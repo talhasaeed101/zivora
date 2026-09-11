@@ -16,7 +16,7 @@ import {
 } from '../utils/catalogFilters.js';
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import { ROUTES, categoryPath } from '../utils/navigation';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import './Collection.css';
 

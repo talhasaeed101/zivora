@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import AuthShell from '../components/auth/AuthShell.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { ROUTES } from '../utils/navigation';
 import { customerAuthApi } from '../services/api';
 import { friendlyAuthError } from '../utils/authUi.js';

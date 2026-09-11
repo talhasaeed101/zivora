@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo';
+import { usePrivatePageSeo } from '../hooks/useSEO';
 import { ticketApi } from '../services/api';
 import { ROUTES } from '../utils/navigation';
 import './TicketDetail.css';

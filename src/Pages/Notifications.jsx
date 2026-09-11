@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { useSocket } from '../context/SocketContext.jsx';
 import { ROUTES } from '../utils/navigation';
 import { ShimmerTableRows } from '../components/Shimmer.jsx';

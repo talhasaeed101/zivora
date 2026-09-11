@@ -3,7 +3,7 @@ import Footer from '../Footer';
 import Reveal from '../Reveal.jsx';
 import JsonLd from '../seo/JsonLd.jsx';
 import PageBreadcrumbs from '../seo/PageBreadcrumbs.jsx';
-import { useSeo } from '../../hooks/useSeo.js';
+import { useSeo } from '../../hooks/useSEO.js';
 import '../../Pages/Legal.css';
 
 export default function InfoPageShell({

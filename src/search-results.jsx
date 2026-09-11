@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ROUTES, getSearchQueryFromUrl, getSearchCategoryFromUrl } from './utils/navigation';
-import { useSeo } from './hooks/useSeo.js';
+import { useSeo } from './hooks/useSEO.js';
 import { useMediaQuery } from './hooks/useMediaQuery.js';
 import { loadPublicCategories, loadPublicProducts } from './services/catalogCache.js';
 import { PRICE_RANGES, SORT_OPTIONS, getSortLabel } from './utils/catalogFilters.js';

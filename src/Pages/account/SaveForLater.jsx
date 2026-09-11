@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AccountShell from '../../components/account/AccountShell.jsx';
 import SavedCartItem from '../../components/cart/SavedCartItem.jsx';
 import Reveal from '../../components/Reveal.jsx';
-import { usePrivatePageSeo } from '../../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../../hooks/useSEO.js';
 import { useCart } from '../../context/CartContext.jsx';
 import { mapCartItemForUi } from '../../utils/products.js';
 import { toast } from '../../context/ToastContext.jsx';

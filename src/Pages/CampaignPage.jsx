@@ -10,7 +10,7 @@ import {
   CampaignSaleBadge,
   useCampaignCountdown,
 } from '../components/campaign/campaignUi.jsx';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { useCampaigns } from '../context/CampaignContext.jsx';
 import { publicCampaignApi } from '../services/api.js';

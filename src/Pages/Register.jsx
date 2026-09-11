@@ -4,7 +4,7 @@ import AuthShell from '../components/auth/AuthShell.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { toast } from '../context/ToastContext.jsx';

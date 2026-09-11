@@ -3,7 +3,7 @@ import AccountShell from '../../../components/account/AccountShell.jsx';
 import Reveal from '../../../components/Reveal.jsx';
 import { loyaltyApi } from '../../../services/api.js';
 import { toast } from '../../../context/ToastContext.jsx';
-import { usePrivatePageSeo } from '../../../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../../../hooks/useSEO.js';
 import {
   REDEMPTION_MIN_POINTS,
   REDEMPTION_PKR_PER_POINT,

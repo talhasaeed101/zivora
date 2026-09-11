@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo';
+import { usePrivatePageSeo } from '../hooks/useSEO';
 import { ticketApi } from '../services/api';
 import { ROUTES, ticketPath } from '../utils/navigation';
 import { toast } from '../context/ToastContext.jsx';
