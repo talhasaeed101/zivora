@@ -271,11 +271,20 @@ export const addressApi = {
 };
 
 export const orderApi = {
-  checkout: (payload) =>
-    request('/checkout', {
+  checkout: (payload) => {
+    const idempotencyKey =
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `chk-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+
+    return request('/checkout', {
       method: 'POST',
+      headers: {
+        'Idempotency-Key': idempotencyKey,
+      },
       body: JSON.stringify(payload),
-    }),
+    });
+  },
 
   getOrders: () => request('/orders'),
 
