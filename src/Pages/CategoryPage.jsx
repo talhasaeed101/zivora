@@ -6,7 +6,7 @@ import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
 import Reveal from '../components/Reveal.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { loadPublicCategories, loadPublicProducts } from '../services/catalogCache.js';
 import { ROUTES, categoryPath } from '../utils/navigation';

@@ -15,7 +15,7 @@ import '../components/landing/landing-motion.css';
 import GiftIdeasSection from '../components/GiftIdeasSection';
 import SocialProofHomeSections from '../components/SocialProofHomeSections.jsx';
 import JsonLd from '../components/seo/JsonLd.jsx';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import { SEO_DEFAULT_DESCRIPTION, SEO_DEFAULT_TITLE } from '../constants/seo.js';
 import { organizationJsonLd, websiteJsonLd } from '../utils/structuredData.js';
 

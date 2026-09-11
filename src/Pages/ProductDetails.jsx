@@ -22,7 +22,7 @@ import {
   getCategoryName,
   PLACEHOLDER_IMAGE,
 } from '../utils/products.js';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import { productJsonLd } from '../utils/structuredData.js';
 import { truncateText } from '../utils/seo.js';
 import {

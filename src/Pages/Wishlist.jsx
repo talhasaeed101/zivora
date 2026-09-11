@@ -23,7 +23,7 @@ import {
   WISHLIST_FILTER_OPTIONS,
   WISHLIST_SORT_OPTIONS,
 } from '../utils/wishlistShopping.js';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import {
   trackWishlistView,

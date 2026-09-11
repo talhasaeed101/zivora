@@ -9,7 +9,7 @@ import { loadProductsByIds } from '../services/catalogCache.js';
 import { buildCompareRows } from '../utils/compareStorage.js';
 import { formatPrice, getProductImage } from '../utils/products.js';
 import { productPath, ROUTES } from '../utils/navigation';
-import { useSeo } from '../hooks/useSeo.js';
+import { useSeo } from '../hooks/useSEO.js';
 import './Compare.css';
 
 export default function Compare() {

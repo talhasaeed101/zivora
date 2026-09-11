@@ -27,7 +27,7 @@ import {
   parseLoyaltyRedeemInput,
 } from '../utils/loyaltyDisplay.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import './CartPage.css';
 
 function friendlyCartError(message, fallback) {

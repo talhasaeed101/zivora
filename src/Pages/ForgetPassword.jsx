@@ -5,7 +5,7 @@ import GuestRoute from '../components/GuestRoute.jsx';
 import { customerAuthApi } from '../services/api.js';
 import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 

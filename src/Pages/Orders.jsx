@@ -4,7 +4,7 @@ import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import SafeImage from '../components/SafeImage.jsx';
 import StatusBadge from '../components/orders/StatusBadge.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { orderApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { PLACEHOLDER_IMAGE, formatPrice } from '../utils/products.js';

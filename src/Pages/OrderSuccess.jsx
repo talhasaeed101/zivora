@@ -9,7 +9,7 @@ import { orderApi } from '../services/api.js';
 import { loadRelatedProducts } from '../services/catalogCache.js';
 import { ROUTES, orderPath, productPath } from '../utils/navigation';
 import { formatPrice } from '../utils/products.js';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { ORDER_STATUS_LABELS } from '../constants/orderConstants.js';
 import {
   BANK_TRANSFER_DETAILS,

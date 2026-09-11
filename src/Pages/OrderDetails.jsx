@@ -7,7 +7,7 @@ import { orderApi, reviewApi } from '../services/api.js';
 import { ROUTES } from '../utils/navigation';
 import { formatPrice, PLACEHOLDER_IMAGE } from '../utils/products.js';
 import { buildCustomizationSummaryLines } from '../utils/customizationSummary.js';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import SafeImage from '../components/SafeImage.jsx';
 import ReviewModal from '../components/product-details/ReviewModal.jsx';
 import OrderProgressTracker from '../components/OrderProgressTracker.jsx';

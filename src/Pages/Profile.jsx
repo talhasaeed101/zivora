@@ -6,7 +6,7 @@ import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
 import StatusBadge from '../components/orders/StatusBadge.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { usePrivatePageSeo } from '../hooks/useSeo.js';
+import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { addressApi, orderApi, loyaltyApi } from '../services/api.js';
 import { ROUTES, orderPath } from '../utils/navigation';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
