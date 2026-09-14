@@ -17,6 +17,7 @@ export default function InfoPageShell({
   path,
   jsonLd = null,
   robots = 'index, follow',
+  hideHeader = false,
 }) {
   useSeo({
     title,
@@ -35,11 +36,17 @@ export default function InfoPageShell({
       <Navbar homeHref="/" />
       <main id="main-content" className="info-page">
         <div className="info-inner">
-          <Reveal className="info-header" variant="fade-up">
-            <PageBreadcrumbs items={crumbs} />
-            <h1 className="info-title">{title}</h1>
-            {intro ? <p className="info-intro">{intro}</p> : null}
-          </Reveal>
+          {!hideHeader ? (
+            <Reveal className="info-header" variant="fade-up">
+              <PageBreadcrumbs items={crumbs} />
+              <h1 className="info-title">{title}</h1>
+              {intro ? <p className="info-intro">{intro}</p> : null}
+            </Reveal>
+          ) : (
+            <Reveal className="info-header info-header--crumbs-only" variant="fade-up">
+              <PageBreadcrumbs items={crumbs} />
+            </Reveal>
+          )}
 
           <div className="info-content">{children}</div>
 

@@ -1,17 +1,13 @@
 import { useId, useState } from 'react';
-import { Link } from 'react-router-dom';
 import InfoPageShell from '../components/info/InfoPageShell.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
 import { STORE_CONTACT } from '../constants/storeContact.js';
 import { publicEngagementApi } from '../services/api.js';
 import { contactFaqJsonLd } from '../utils/structuredData.js';
-import { ROUTES } from '../utils/navigation';
 import { toast } from '../context/ToastContext.jsx';
 import './Contact.css';
 
 export default function Contact() {
-  const { isAuthenticated } = useAuth();
   const formId = useId();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -21,7 +17,6 @@ export default function Contact() {
   const nameId = `${formId}-name`;
   const emailId = `${formId}-email`;
   const messageId = `${formId}-message`;
-  const errorId = `${formId}-error`;
 
   const handleChange = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
@@ -57,7 +52,6 @@ export default function Contact() {
       return;
     }
 
-    setError('');
     if (!validate()) {
       return;
     }
@@ -89,60 +83,13 @@ export default function Contact() {
       title="Contact Us"
       breadcrumbCurrent="Contact"
       path="/contact"
-      description="Contact Zivorah customer care by form, email, phone, or WhatsApp for order and product questions."
+      description="Contact Zivorah for orders, product questions, or anything else — our team is here to help."
       jsonLd={contactFaqJsonLd()}
-      intro="Questions about an order, a piece from our collection, or something else? Reach out and we will help."
+      intro="We're here to help with orders, products, and anything else you need."
       variant="wide"
-      cta={
-        isAuthenticated ? (
-          <>
-            <Link to={ROUTES.supportTickets} className="info-btn info-btn-primary">
-              View Support Tickets
-            </Link>
-            <Link
-              to={ROUTES.supportTickets}
-              state={{ openForm: true }}
-              className="info-btn info-btn-secondary"
-            >
-              Create Support Ticket
-            </Link>
-          </>
-        ) : (
-          <Link to={ROUTES.collection} className="info-btn info-btn-secondary">
-            Browse Collection
-          </Link>
-        )
-      }
     >
       <div className="contact-layout">
         <Reveal className="contact-main" variant="fade-up">
-          <p className="contact-note">
-            For help with an existing order, include your order number in your message
-            {isAuthenticated ? ', or create a support ticket from your account.' : '.'}
-          </p>
-
-          {isAuthenticated ? (
-            <div className="contact-support-banner">
-              <p>
-                Signed in? For order-specific help, use support tickets so our team can follow up in
-                one place.
-              </p>
-              <div className="contact-support-actions">
-                <Link to={ROUTES.supportTickets} className="contact-support-link">
-                  View tickets
-                </Link>
-                <span aria-hidden="true">·</span>
-                <Link
-                  to={ROUTES.supportTickets}
-                  state={{ openForm: true }}
-                  className="contact-support-link"
-                >
-                  Create ticket
-                </Link>
-              </div>
-            </div>
-          ) : null}
-
           {submitted ? (
             <div className="contact-success" role="status" aria-live="polite">
               <p className="contact-success-title">Message sent</p>
@@ -222,7 +169,7 @@ export default function Contact() {
                   required
                   minLength={10}
                   disabled={saving}
-                  placeholder="Tell us how we can help (at least 10 characters)"
+                  placeholder="How can we help? Include your order number if needed."
                   aria-invalid={Boolean(fieldErrors.message)}
                   aria-describedby={fieldErrors.message ? `${messageId}-error` : undefined}
                 />
@@ -241,6 +188,7 @@ export default function Contact() {
         </Reveal>
 
         <Reveal className="contact-aside" variant="fade-up" delay={80} as="aside" aria-label="Customer care details">
+          <p className="contact-aside-eyebrow">Support</p>
           <h2 className="contact-aside-title">Customer care</h2>
 
           <div className="contact-methods">

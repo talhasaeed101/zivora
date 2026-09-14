@@ -1,24 +1,110 @@
 @import './Legal.css';
 
-.about-split {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 40px;
-  align-items: center;
-  margin-bottom: 40px;
+.about-eyebrow {
+  margin: 0 0 14px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--info-accent);
 }
 
-.about-split-copy .info-section {
+.about-title {
+  margin: 0 0 18px;
+  font-family: Teneka, serif;
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--info-black);
+}
+
+.about-lead {
+  margin: 0 0 40px;
+  max-width: 34em;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--info-muted);
+}
+
+.about-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+  margin-bottom: 72px;
+}
+
+.about-hero-copy {
+  padding-top: 12px;
+}
+
+.about-story {
+  padding-top: 28px;
+
+}
+
+.about-story h2 {
+  margin: 0 0 14px;
+  font-family: Teneka, serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--info-black);
+}
+
+.about-story p {
+  margin: 0 0 14px;
+  max-width: 36em;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--info-gray);
+}
+
+.about-story p:last-child {
   margin-bottom: 0;
 }
 
-.about-split-media {
+.about-hero-media {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  max-width: 420px;
+  margin-left: 24px;
+}
+
+.about-hero-arch {
+  width: 100%;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 713 / 971;
+  border-radius: 50% 50% 0 0 / 36% 36% 0 0;
   background: #ebe7e2;
 }
 
-.about-split-image {
+.about-hero-arch-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 10%;
+  display: block;
+}
+
+.about-hero-pill {
+  position: absolute;
+  left: -18%;
+  bottom: 10%;
+  width: 26%;
+  max-width: 92px;
+  aspect-ratio: 153 / 305;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ebe7e2;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+}
+
+.about-hero-pill-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -26,25 +112,237 @@
   display: block;
 }
 
-@media (max-width: 768px) {
-  .about-split {
+.about-statement {
+  margin: 0 0 72px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+.about-statement p {
+  margin: 0 auto;
+  max-width: 34em;
+  font-family: Teneka, serif;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--info-black);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin-bottom: 72px;
+
+}
+
+.about-panel {
+  padding: 36px 40px 40px 0;
+}
+
+.about-panel + .about-panel {
+  padding-left: 40px;
+  padding-right: 0;
+}
+
+.about-panel h2 {
+  margin: 0 0 14px;
+  font-family: Teneka, serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--info-black);
+}
+
+.about-panel p {
+  margin: 0 0 12px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--info-gray);
+}
+
+.about-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.about-principles {
+  margin-bottom: 72px;
+}
+
+.about-principles-intro {
+  margin-bottom: 28px;
+  max-width: 28em;
+}
+
+.about-principles-intro h2 {
+  margin: 0;
+  font-family: Teneka, serif;
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--info-black);
+}
+
+.about-principle-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+
+.about-principle {
+  padding: 8px 28px 8px 0;
+}
+
+.about-principle + .about-principle {
+  padding-left: 28px;
+  border-left: 1px solid var(--info-border);
+}
+
+.about-principle-index {
+  display: block;
+  margin-bottom: 14px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--info-accent);
+}
+
+.about-principle h3 {
+  margin: 0 0 10px;
+  font-family: Teneka, serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--info-black);
+}
+
+.about-principle p {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--info-muted);
+}
+
+.about-closing {
+  margin: 0 0 40px;
+  max-width: 40em;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-closing h2 {
+  margin: 0 0 14px;
+  font-family: Teneka, serif;
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--info-black);
+}
+
+.about-closing p {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--info-gray);
+}
+
+@media (max-width: 900px) {
+  .about-hero {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    margin-bottom: 56px;
+  }
+
+  .about-hero-copy {
+    order: 1;
+    padding-top: 0;
+  }
+
+  .about-hero-media {
+    order: 2;
+    justify-self: center;
+    width: min(100%, 340px);
+    max-width: 340px;
+    margin-left: 0;
+  }
+
+  .about-hero-pill {
+    display: none;
+  }
+
+  .about-lead {
+    margin-bottom: 28px;
+  }
+
+  .about-statement {
+    margin-bottom: 56px;
+    padding: 32px 8px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    margin-bottom: 56px;
+  }
+
+  .about-panel {
+    padding: 28px 0;
+  }
+
+  .about-panel + .about-panel {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--info-border);
+  }
+
+  .about-principles {
+    margin-bottom: 56px;
+  }
+
+  .about-principle-list {
     grid-template-columns: 1fr;
     gap: 24px;
   }
 
-  .about-split-media {
-    order: 2;
-    aspect-ratio: 16 / 10;
-    max-height: 280px;
+  .about-principle,
+  .about-principle + .about-principle {
+    padding: 0;
+    border-left: none;
   }
 
-  .about-split-copy {
-    order: 1;
+  .about-closing {
+    padding: 0 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-title {
+    font-size: 36px;
+  }
+
+  .about-hero-media {
+    max-width: 240px;
+  }
+
+  .about-statement p {
+    font-size: 20px;
   }
 }
 
 @media print {
-  .about-split-media {
+  .about-hero-media,
+  .about-hero-pill {
     display: none;
+  }
+
+  .about-hero {
+    grid-template-columns: 1fr;
   }
 }

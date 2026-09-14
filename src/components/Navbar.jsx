@@ -195,7 +195,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 </NavLink>
               ))}
 
-              {categories.length > 0 ? (
+              {/* {categories.length > 0 ? (
                 <div className="navbar-shop" ref={shopMenuRef}>
                   <button
                     type="button"
@@ -237,7 +237,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                     </div>
                   ) : null}
                 </div>
-              ) : null}
+              ) : null} */}
             </nav>
 
             <div className="navbar-actions">
