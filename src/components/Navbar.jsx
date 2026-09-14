@@ -5,14 +5,12 @@ import {
   ShoppingCartIcon,
   UserIcon,
   HeartIcon,
-  BellIcon,
   ChevronDownIcon,
 } from './icons';
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { useSocket } from '../context/SocketContext.jsx';
 import { loadPublicCategories } from '../services/catalogCache.js';
 import AnnouncementBar from './AnnouncementBar.jsx';
 import HeaderSearch from './header/HeaderSearch.jsx';
@@ -40,7 +38,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   const { isAuthenticated } = useAuth();
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
-  const { unreadCount: unreadNotificationCount } = useSocket();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,9 +53,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
 
   const cartCount = isAuthenticated ? totalItems : 0;
   const wishlistBadge = formatBadgeCount(isAuthenticated ? wishlistCount : 0);
-  const notificationBadge = formatBadgeCount(
-    isAuthenticated ? unreadNotificationCount : 0
-  );
   const cartBadge = formatBadgeCount(cartCount);
 
   const closeOverlays = useCallback(() => {
@@ -249,25 +243,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
               >
                 <SearchIcon className="w-6 h-6" />
               </button>
-
-              {isAuthenticated ? (
-                <Link
-                  to={ROUTES.notifications}
-                  className="navbar-icon-btn navbar-icon-desktop"
-                  aria-label={
-                    notificationBadge
-                      ? `Notifications, ${notificationBadge} unread`
-                      : 'Notifications'
-                  }
-                >
-                  <BellIcon className="w-6 h-6" />
-                  {notificationBadge ? (
-                    <span className="navbar-badge" aria-hidden="true">
-                      {notificationBadge}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
 
               <Link
                 to={isAuthenticated ? ROUTES.wishlist : ROUTES.login}

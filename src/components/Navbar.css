@@ -203,6 +203,11 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  display: block;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .navbar-icon-btn:hover {
@@ -255,7 +260,8 @@
 .header-account-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 6px;
+  border-bottom: 1px solid var(--nav-border);
 }
 
 .header-account-link {
@@ -271,18 +277,30 @@
 }
 
 .header-account-logout {
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-  padding: 12px 16px;
-  border: none;
-  border-top: 1px solid var(--nav-border);
-  background: transparent;
-  text-align: left;
-  font-family: inherit;
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 24px);
+  margin: 10px 12px 4px;
+  padding: 11px 16px;
+  border: 1px solid #e8d5d3;
+  border-radius: 0;
+  background: #faf6f5;
+  text-align: center;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: #8f4a45;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.header-account-logout:hover {
+  background: #8f4a45;
+  border-color: #8f4a45;
+  color: #fff;
 }
 
 .navbar-mobile-toggle {

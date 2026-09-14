@@ -253,8 +253,9 @@
 }
 
 .pd-info-price {
-  font-size: 28px;
-  font-weight: 600;
+  font-family: Teneka, serif;
+  font-size: 26px;
+  font-weight: 400;
   margin: 0 0 24px;
 }
 
@@ -2170,7 +2171,7 @@
 }
 
 .pd-info-price-old {
-  font-family: Inter, sans-serif;
+  font-family: Teneka, serif;
   font-size: 16px;
   color: #999;
   text-decoration: line-through;

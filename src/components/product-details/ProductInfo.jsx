@@ -828,13 +828,13 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           Buy it now
         </button>
 
-        <CompareButton
+        {/* <CompareButton
           productId={product?._id}
           className="pd-btn pd-btn-wishlist-icon pd-btn-compare-icon"
           activeClassName="pd-btn-wishlist-icon-active pd-btn-compare-icon-active"
           showLabel={false}
           stopPropagation={false}
-        />
+        /> */}
 
         <WishlistButton
           productId={product?._id}
