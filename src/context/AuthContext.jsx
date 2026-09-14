@@ -62,6 +62,50 @@ export function AuthProvider({ children }) {
     return customerData;
   }, []);
 
+  const refreshCustomer = useCallback(async () => {
+    const response = await customerAuthApi.getProfile();
+    setCustomer(response.data);
+    setStoredCustomer(response.data);
+    return response.data;
+  }, []);
+
+  const updateProfile = useCallback(async (payload) => {
+    const response = await customerAuthApi.updateProfile(payload);
+    const customerData = response.data;
+    setCustomer(customerData);
+    setStoredCustomer(customerData);
+    return {
+      customer: customerData,
+      message: response.message,
+      emailChanged: Boolean(customerData?.pendingEmail),
+    };
+  }, []);
+
+  const changePassword = useCallback(async (payload) => {
+    const response = await customerAuthApi.changePassword(payload);
+    if (response.data) {
+      setCustomer(response.data);
+      setStoredCustomer(response.data);
+    } else {
+      await refreshCustomer();
+    }
+    return { message: response.message };
+  }, [refreshCustomer]);
+
+  const cancelEmailChange = useCallback(async () => {
+    const response = await customerAuthApi.cancelEmailChange();
+    setCustomer(response.data);
+    setStoredCustomer(response.data);
+    return { customer: response.data, message: response.message };
+  }, []);
+
+  const resendEmailChange = useCallback(async () => {
+    const response = await customerAuthApi.resendEmailChange();
+    setCustomer(response.data);
+    setStoredCustomer(response.data);
+    return { customer: response.data, message: response.message };
+  }, []);
+
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = getStoredToken();
@@ -104,8 +148,26 @@ export function AuthProvider({ children }) {
       googleLogin,
       register,
       logout,
+      refreshCustomer,
+      updateProfile,
+      changePassword,
+      cancelEmailChange,
+      resendEmailChange,
     }),
-    [customer, token, loading, login, googleLogin, register, logout]
+    [
+      customer,
+      token,
+      loading,
+      login,
+      googleLogin,
+      register,
+      logout,
+      refreshCustomer,
+      updateProfile,
+      changePassword,
+      cancelEmailChange,
+      resendEmailChange,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

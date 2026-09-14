@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
@@ -62,7 +62,16 @@ function ProfileSkeleton() {
 export default function Profile() {
   usePrivatePageSeo({ title: 'My Account', path: '/profile' });
 
-  const { customer, loading: authLoading } = useAuth();
+  const formId = useId();
+  const {
+    customer,
+    loading: authLoading,
+    updateProfile,
+    changePassword,
+    cancelEmailChange,
+    resendEmailChange,
+    refreshCustomer,
+  } = useAuth();
   const { totalItems: wishlistCount } = useWishlist();
 
   const [orders, setOrders] = useState([]);
@@ -80,9 +89,40 @@ export default function Profile() {
   const [loyalty, setLoyalty] = useState(null);
   const [loyaltyLoading, setLoyaltyLoading] = useState(true);
 
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [profileErrors, setProfileErrors] = useState({});
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [emailActionLoading, setEmailActionLoading] = useState('');
+  const [profileInitialized, setProfileInitialized] = useState(false);
+
   const pageLoading = authLoading || ordersLoading || addressesLoading;
   const memberSince = formatMemberSince(customer?.createdAt);
   const firstName = customer?.name?.trim().split(/\s+/)[0] || '';
+  const pendingEmail = customer?.pendingEmail || '';
+
+  useEffect(() => {
+    if (!customer) {
+      return;
+    }
+
+    setProfileForm({
+      name: customer.name || '',
+      email: customer.pendingEmail || customer.email || '',
+      phone: customer.phone || '',
+    });
+    setProfileInitialized(true);
+  }, [customer]);
 
   const loadAddresses = useCallback(async () => {
     setAddressesLoading(true);
@@ -176,7 +216,7 @@ export default function Profile() {
       setAddressModalOpen(false);
       setEditingAddress(null);
       setStatusMessage('Address saved successfully.');
-    } catch (err) {
+    } catch {
       // Error toast handled automatically by api.js
     } finally {
       setAddressSaving(false);
@@ -195,7 +235,7 @@ export default function Profile() {
       await loadAddresses();
       toast.success('Address deleted.');
       setStatusMessage('Address deleted.');
-    } catch (err) {
+    } catch {
       // Error toast handled automatically by api.js
     } finally {
       setAddressActionId(null);
@@ -214,10 +254,147 @@ export default function Profile() {
       await loadAddresses();
       toast.success('Default address updated.');
       setStatusMessage('Default address updated.');
-    } catch (err) {
+    } catch {
       // Error toast handled automatically by api.js
     } finally {
       setAddressActionId(null);
+    }
+  };
+
+  const updateProfileField = (field) => (event) => {
+    setProfileForm((prev) => ({ ...prev, [field]: event.target.value }));
+    if (profileErrors[field]) {
+      setProfileErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const updatePasswordField = (field) => (event) => {
+    setPasswordForm((prev) => ({ ...prev, [field]: event.target.value }));
+    if (passwordErrors[field]) {
+      setPasswordErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const validateProfile = () => {
+    const next = {};
+    if (!profileForm.name.trim()) {
+      next.name = 'Name is required.';
+    }
+    if (!profileForm.email.trim()) {
+      next.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email.trim())) {
+      next.email = 'Enter a valid email address.';
+    }
+    setProfileErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const validatePassword = () => {
+    const next = {};
+    if (!passwordForm.newPassword) {
+      next.newPassword = 'Enter a new password.';
+    } else if (passwordForm.newPassword.length < 8) {
+      next.newPassword = 'Password must be at least 8 characters.';
+    }
+    if (!passwordForm.confirmPassword) {
+      next.confirmPassword = 'Confirm your new password.';
+    } else if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      next.confirmPassword = 'Passwords do not match.';
+    }
+    if (customer?.hasPassword && !passwordForm.currentPassword) {
+      next.currentPassword = 'Enter your current password.';
+    }
+    setPasswordErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleProfileSubmit = async (event) => {
+    event.preventDefault();
+    if (profileSaving || !validateProfile()) {
+      return;
+    }
+
+    setProfileSaving(true);
+    try {
+      const result = await updateProfile({
+        name: profileForm.name.trim(),
+        email: profileForm.email.trim(),
+        phone: profileForm.phone.trim(),
+      });
+      toast.success(result.message || 'Profile updated successfully.');
+      setStatusMessage(result.message || 'Profile updated successfully.');
+    } catch {
+      // Error toast handled automatically by api.js
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (event) => {
+    event.preventDefault();
+    if (passwordSaving || !validatePassword()) {
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      const result = await changePassword({
+        currentPassword: passwordForm.currentPassword || undefined,
+        newPassword: passwordForm.newPassword,
+        confirmPassword: passwordForm.confirmPassword,
+      });
+      setPasswordForm({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      toast.success(result.message || 'Password updated successfully.');
+      setStatusMessage(result.message || 'Password updated successfully.');
+    } catch {
+      // Error toast handled automatically by api.js
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const handleResendEmailChange = async () => {
+    if (emailActionLoading) {
+      return;
+    }
+    setEmailActionLoading('resend');
+    try {
+      const result = await resendEmailChange();
+      toast.success(result.message || 'Verification email sent.');
+      setStatusMessage(result.message || 'Verification email sent.');
+    } catch {
+      // Error toast handled automatically by api.js
+    } finally {
+      setEmailActionLoading('');
+    }
+  };
+
+  const handleCancelEmailChange = async () => {
+    if (emailActionLoading) {
+      return;
+    }
+    setEmailActionLoading('cancel');
+    try {
+      const result = await cancelEmailChange();
+      toast.success(result.message || 'Email change cancelled.');
+      setStatusMessage(result.message || 'Email change cancelled.');
+      await refreshCustomer();
+    } catch {
+      // Error toast handled automatically by api.js
+    } finally {
+      setEmailActionLoading('');
     }
   };
 
@@ -229,6 +406,13 @@ export default function Profile() {
     { to: ROUTES.collection, label: 'Browse Collection', hint: 'Continue shopping' },
   ];
 
+  const nameId = `${formId}-name`;
+  const emailId = `${formId}-email`;
+  const phoneId = `${formId}-phone`;
+  const currentPasswordId = `${formId}-current-password`;
+  const newPasswordId = `${formId}-new-password`;
+  const confirmPasswordId = `${formId}-confirm-password`;
+
   return (
     <AccountShell
       active="overview"
@@ -239,9 +423,9 @@ export default function Profile() {
         {statusMessage}
       </div>
 
-      {pageLoading ? <ProfileSkeleton /> : null}
+      {pageLoading || !profileInitialized ? <ProfileSkeleton /> : null}
 
-      {!pageLoading ? (
+      {!pageLoading && profileInitialized ? (
         <div className="profile-layout">
           <Reveal className="profile-greeting" variant="fade-up">
             <div className="profile-avatar" aria-hidden="true">
@@ -302,40 +486,219 @@ export default function Profile() {
             </div>
           </section>
 
-          <Reveal as="section" className="profile-section" variant="fade-up" delay={80} id="profile-details">
+          <Reveal
+            as="section"
+            className="profile-section"
+            variant="fade-up"
+            delay={80}
+            id="profile-details"
+          >
             <h2 className="profile-section-title">Personal information</h2>
-            <dl className="profile-details-list">
-              <div>
-                <dt>Name</dt>
-                <dd>{customer?.name || '—'}</dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd>{customer?.email || '—'}</dd>
-              </div>
-              {customer?.phone ? (
-                <div>
-                  <dt>Phone</dt>
-                  <dd>{customer.phone}</dd>
+
+            {pendingEmail ? (
+              <div className="profile-pending-banner" role="status">
+                <p>
+                  Confirm <strong>{pendingEmail}</strong> via the link we sent. Your current email
+                  stays active until then.
+                </p>
+                <div className="profile-pending-actions">
+                  <button
+                    type="button"
+                    className="profile-text-btn"
+                    onClick={handleResendEmailChange}
+                    disabled={Boolean(emailActionLoading)}
+                  >
+                    {emailActionLoading === 'resend' ? 'Sending…' : 'Resend link'}
+                  </button>
+                  <button
+                    type="button"
+                    className="profile-text-btn profile-text-btn-muted"
+                    onClick={handleCancelEmailChange}
+                    disabled={Boolean(emailActionLoading)}
+                  >
+                    {emailActionLoading === 'cancel' ? 'Cancelling…' : 'Cancel change'}
+                  </button>
                 </div>
-              ) : null}
-            </dl>
-            <p className="profile-helper">
-              Profile details come from your account registration. Password changes use the{' '}
-              <Link to={ROUTES.forgetPassword}>Forgot Password</Link> flow from the sign-in page —
-              there is no in-account password form yet.
-            </p>
+              </div>
+            ) : null}
+
+            <form className="profile-edit-form" onSubmit={handleProfileSubmit} noValidate>
+              <div className="profile-edit-grid">
+                <div className="profile-field">
+                  <label htmlFor={nameId}>Name</label>
+                  <input
+                    id={nameId}
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    value={profileForm.name}
+                    onChange={updateProfileField('name')}
+                    disabled={profileSaving}
+                    aria-invalid={Boolean(profileErrors.name)}
+                    aria-describedby={profileErrors.name ? `${nameId}-error` : undefined}
+                  />
+                  {profileErrors.name ? (
+                    <p id={`${nameId}-error`} className="profile-field-error">
+                      {profileErrors.name}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="profile-field">
+                  <label htmlFor={emailId}>Email</label>
+                  <input
+                    id={emailId}
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    value={profileForm.email}
+                    onChange={updateProfileField('email')}
+                    disabled={profileSaving}
+                    aria-invalid={Boolean(profileErrors.email)}
+                    aria-describedby={
+                      profileErrors.email
+                        ? `${emailId}-error`
+                        : pendingEmail
+                          ? `${emailId}-hint`
+                          : undefined
+                    }
+                  />
+                  {profileErrors.email ? (
+                    <p id={`${emailId}-error`} className="profile-field-error">
+                      {profileErrors.email}
+                    </p>
+                  ) : null}
+                  {pendingEmail && !profileErrors.email ? (
+                    <p id={`${emailId}-hint`} className="profile-field-hint">
+                      Pending confirmation for this address.
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="profile-field">
+                  <label htmlFor={phoneId}>
+                    Phone <span className="profile-optional">(optional)</span>
+                  </label>
+                  <input
+                    id={phoneId}
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={profileForm.phone}
+                    onChange={updateProfileField('phone')}
+                    disabled={profileSaving}
+                    placeholder="+923001234567"
+                  />
+                </div>
+              </div>
+
+              <div className="profile-edit-actions">
+                <button type="submit" className="profile-save-btn" disabled={profileSaving}>
+                  {profileSaving ? 'Saving…' : 'Save profile'}
+                </button>
+              </div>
+            </form>
           </Reveal>
 
-          <Reveal as="section" className="profile-section" variant="fade-up" delay={90} id="profile-security">
+          <Reveal
+            as="section"
+            className="profile-section"
+            variant="fade-up"
+            delay={90}
+            id="profile-security"
+          >
             <h2 className="profile-section-title">Password &amp; security</h2>
             <p className="profile-helper">
-              To reset your password, request a secure link via email. You will be signed out of this
-              session only after you complete the reset on the recovery pages.
+              {customer?.hasPassword
+                ? 'Change your password below, or use the forgot-password email link if you cannot sign in.'
+                : 'Your account has no password yet (for example Google sign-in). Set one below to also sign in with email.'}
             </p>
-            <Link to={ROUTES.forgetPassword} className="profile-text-link">
-              Reset password
-            </Link>
+
+            <form className="profile-edit-form" onSubmit={handlePasswordSubmit} noValidate>
+              <div className="profile-edit-grid">
+                {customer?.hasPassword ? (
+                  <div className="profile-field">
+                    <label htmlFor={currentPasswordId}>Current password</label>
+                    <input
+                      id={currentPasswordId}
+                      name="currentPassword"
+                      type="password"
+                      autoComplete="current-password"
+                      value={passwordForm.currentPassword}
+                      onChange={updatePasswordField('currentPassword')}
+                      disabled={passwordSaving}
+                      aria-invalid={Boolean(passwordErrors.currentPassword)}
+                      aria-describedby={
+                        passwordErrors.currentPassword
+                          ? `${currentPasswordId}-error`
+                          : undefined
+                      }
+                    />
+                    {passwordErrors.currentPassword ? (
+                      <p id={`${currentPasswordId}-error`} className="profile-field-error">
+                        {passwordErrors.currentPassword}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                <div className="profile-field">
+                  <label htmlFor={newPasswordId}>New password</label>
+                  <input
+                    id={newPasswordId}
+                    name="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    value={passwordForm.newPassword}
+                    onChange={updatePasswordField('newPassword')}
+                    disabled={passwordSaving}
+                    aria-invalid={Boolean(passwordErrors.newPassword)}
+                    aria-describedby={
+                      passwordErrors.newPassword ? `${newPasswordId}-error` : undefined
+                    }
+                  />
+                  {passwordErrors.newPassword ? (
+                    <p id={`${newPasswordId}-error`} className="profile-field-error">
+                      {passwordErrors.newPassword}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="profile-field">
+                  <label htmlFor={confirmPasswordId}>Confirm new password</label>
+                  <input
+                    id={confirmPasswordId}
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    value={passwordForm.confirmPassword}
+                    onChange={updatePasswordField('confirmPassword')}
+                    disabled={passwordSaving}
+                    aria-invalid={Boolean(passwordErrors.confirmPassword)}
+                    aria-describedby={
+                      passwordErrors.confirmPassword
+                        ? `${confirmPasswordId}-error`
+                        : undefined
+                    }
+                  />
+                  {passwordErrors.confirmPassword ? (
+                    <p id={`${confirmPasswordId}-error`} className="profile-field-error">
+                      {passwordErrors.confirmPassword}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="profile-edit-actions profile-edit-actions-split">
+                <button type="submit" className="profile-save-btn" disabled={passwordSaving}>
+                  {passwordSaving ? 'Updating…' : 'Update password'}
+                </button>
+                <Link to={ROUTES.forgetPassword} className="profile-text-link">
+                  Forgot password?
+                </Link>
+              </div>
+            </form>
           </Reveal>
 
           <Reveal
@@ -352,7 +715,14 @@ export default function Profile() {
               </button>
             </div>
 
-
+            {addressesError ? (
+              <div className="profile-error-banner" role="alert">
+                <p>{addressesError}</p>
+                <button type="button" className="profile-retry-btn" onClick={loadAddresses}>
+                  Retry
+                </button>
+              </div>
+            ) : null}
 
             {!addressesError && addresses.length === 0 ? (
               <div className="profile-empty">

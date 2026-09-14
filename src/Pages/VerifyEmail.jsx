@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import AuthShell from '../components/auth/AuthShell.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { ROUTES } from '../utils/navigation';
 import { customerAuthApi } from '../services/api';
@@ -12,6 +13,7 @@ export default function VerifyEmail() {
   const { token } = useParams();
   const location = useLocation();
   const email = location.state?.email || '';
+  const { isAuthenticated, refreshCustomer } = useAuth();
 
   usePrivatePageSeo({
     title: token ? 'Verifying Email' : 'Check Your Email',
@@ -20,6 +22,7 @@ export default function VerifyEmail() {
 
   const [status, setStatus] = useState(token ? 'verifying' : 'pending');
   const [message, setMessage] = useState('');
+  const [emailChanged, setEmailChanged] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
@@ -27,9 +30,22 @@ export default function VerifyEmail() {
 
   const verify = async (verificationToken) => {
     try {
-      await customerAuthApi.verifyEmail(verificationToken);
+      const response = await customerAuthApi.verifyEmail(verificationToken);
+      const changed = Boolean(response?.data?.emailChanged);
+      setEmailChanged(changed);
       setStatus('success');
-      toast.success('Your email has been verified. You can now sign in.');
+      toast.success(
+        changed
+          ? 'Your email has been updated successfully.'
+          : 'Your email has been verified. You can now sign in.'
+      );
+      if (isAuthenticated) {
+        try {
+          await refreshCustomer();
+        } catch {
+          // Session refresh is best-effort after email change
+        }
+      }
     } catch (error) {
       setStatus('error');
       setMessage(
@@ -63,7 +79,7 @@ export default function VerifyEmail() {
       await customerAuthApi.resendVerificationEmail(email);
       toast.success('A new verification link has been sent to your email.');
       setResendCooldown(60);
-    } catch (error) {
+    } catch {
       // Error toast handled automatically by api.js
     } finally {
       setResendLoading(false);
@@ -82,10 +98,16 @@ export default function VerifyEmail() {
     status === 'verifying'
       ? 'Verifying Email'
       : status === 'success'
-        ? 'Email Verified'
+        ? emailChanged
+          ? 'Email Updated'
+          : 'Email Verified'
         : status === 'error'
           ? 'Verification Failed'
           : 'Check Your Email';
+
+  const successCopy = emailChanged
+    ? 'Your new email address is confirmed and active on your account.'
+    : 'Your email has been verified! You can now sign in.';
 
   return (
     <AuthShell>
@@ -101,11 +123,7 @@ export default function VerifyEmail() {
         </p>
       ) : null}
 
-      {status === 'success' ? (
-        <p className="auth-status-copy">
-          Your email has been verified! You can now sign in.
-        </p>
-      ) : null}
+      {status === 'success' ? <p className="auth-status-copy">{successCopy}</p> : null}
 
       {status === 'error' ? (
         <div className="auth-error-banner" role="alert">
@@ -114,20 +132,36 @@ export default function VerifyEmail() {
       ) : null}
 
       {status === 'pending' ? (
-        <>
-          <p className="auth-status-copy">
-            We sent a verification link to{' '}
-            {email ? <strong>{maskEmail(email)}</strong> : 'your email address'}. Check your inbox
-            and verify to continue.
-          </p>
-        </>
+        <p className="auth-status-copy">
+          We sent a verification link to{' '}
+          {email ? <strong>{maskEmail(email)}</strong> : 'your email address'}. Check your inbox
+          and verify to continue.
+        </p>
       ) : null}
 
-      {(status === 'success' || status === 'error') && (
-        <Link to={ROUTES.login} className="auth-submit">
-          Sign in
-        </Link>
-      )}
+      {status === 'success' ? (
+        isAuthenticated ? (
+          <Link to={ROUTES.profile} className="auth-submit">
+            Back to account
+          </Link>
+        ) : (
+          <Link to={ROUTES.login} className="auth-submit">
+            Sign in
+          </Link>
+        )
+      ) : null}
+
+      {status === 'error' ? (
+        isAuthenticated ? (
+          <Link to={ROUTES.profile} className="auth-submit">
+            Back to account
+          </Link>
+        ) : (
+          <Link to={ROUTES.login} className="auth-submit">
+            Sign in
+          </Link>
+        )
+      ) : null}
 
       {status === 'pending' ? (
         <button
@@ -152,7 +186,11 @@ export default function VerifyEmail() {
       ) : null}
 
       <p className="auth-switch">
-        <Link to={ROUTES.login}>Back to sign in</Link>
+        {isAuthenticated ? (
+          <Link to={ROUTES.profile}>Back to account</Link>
+        ) : (
+          <Link to={ROUTES.login}>Back to sign in</Link>
+        )}
       </p>
     </AuthShell>
   );

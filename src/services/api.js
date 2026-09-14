@@ -132,6 +132,28 @@ export const customerAuthApi = {
 
   getProfile: () => request('/auth/profile'),
 
+  updateProfile: (payload) =>
+    request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  changePassword: (payload) =>
+    request('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  cancelEmailChange: () =>
+    request('/auth/cancel-email-change', {
+      method: 'POST',
+    }),
+
+  resendEmailChange: () =>
+    request('/auth/resend-email-change', {
+      method: 'POST',
+    }),
+
   forgotPassword: (email) =>
     request('/auth/forgot-password', {
       method: 'POST',

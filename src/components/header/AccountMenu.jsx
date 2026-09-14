@@ -6,7 +6,6 @@ import { ROUTES } from '../../utils/navigation';
 const ACCOUNT_LINKS = [
   { label: 'Account Overview', to: ROUTES.profile },
   { label: 'My Orders', to: ROUTES.orders },
-  { label: 'Wishlist', to: ROUTES.wishlist },
   { label: 'Notifications', to: ROUTES.notifications },
 ];
 
