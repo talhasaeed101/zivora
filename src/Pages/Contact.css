@@ -218,9 +218,6 @@
   transition: color 0.2s ease;
 }
 
-.contact-info-link:hover {
-  color: var(--info-accent);
-}
 
 .contact-whatsapp-btn {
   display: inline-flex;
