@@ -17,6 +17,7 @@ export default function CatalogProductCard({
   className = '',
   removing = false,
   showLowStock = false,
+  showCompare = true,
 }) {
   const { active } = useCampaigns();
   const image = getProductImage(product);
@@ -75,6 +76,23 @@ export default function CatalogProductCard({
     </>
   );
 
+  const actionButtons = (
+    <div className="catalog-product-actions">
+      {showCompare ? (
+        <CompareButton
+          productId={product._id}
+          className="catalog-wishlist-btn catalog-compare-btn"
+          activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
+        />
+      ) : null}
+      <WishlistButton
+        productId={product._id}
+        className="catalog-wishlist-btn"
+        activeClassName="catalog-wishlist-btn-active"
+      />
+    </div>
+  );
+
   if (withFooter) {
     return (
       <article className={cardClass} aria-busy={removing || undefined}>
@@ -87,31 +105,22 @@ export default function CatalogProductCard({
           {imageInner}
         </Link>
 
-        <div className="catalog-product-info-row">
-          <h3 className="catalog-product-name">
-            <Link to={href} className="catalog-product-name-link">
-              {product.title}
-            </Link>
-          </h3>
-          <div className="catalog-product-actions">
-            <CompareButton
-              productId={product._id}
-              className="catalog-wishlist-btn catalog-compare-btn"
-              activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
-            />
-            <WishlistButton
-              productId={product._id}
-              className="catalog-wishlist-btn"
-              activeClassName="catalog-wishlist-btn-active"
-            />
+        <div className="catalog-product-text-wrap">
+          <div className="catalog-product-info-row">
+            <h3 className="catalog-product-name">
+              <Link to={href} className="catalog-product-name-link">
+                {product.title}
+              </Link>
+            </h3>
+            {actionButtons}
           </div>
-        </div>
-        {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
-        <div className="catalog-price-row">
-          <span className="catalog-price-current">{formatPrice(product.price)}</span>
-          {product.oldPrice && product.oldPrice > product.price ? (
-            <span className="catalog-price-original">{formatPrice(product.oldPrice)}</span>
-          ) : null}
+          {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
+          <div className="catalog-price-row">
+            <span className="catalog-price-current">{formatPrice(product.price)}</span>
+            {product.oldPrice && product.oldPrice > product.price ? (
+              <span className="catalog-price-original">{formatPrice(product.oldPrice)}</span>
+            ) : null}
+          </div>
         </div>
         <div className="catalog-product-footer">{footer}</div>
       </article>
@@ -135,18 +144,7 @@ export default function CatalogProductCard({
             <div className="catalog-product-overlay">
               <div className="catalog-product-info-row">
                 <h3 className="catalog-product-name catalog-product-name-mobile">{product.title}</h3>
-                <div className="catalog-product-actions">
-                  <CompareButton
-                    productId={product._id}
-                    className="catalog-wishlist-btn catalog-compare-btn"
-                    activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
-                  />
-                  <WishlistButton
-                    productId={product._id}
-                    className="catalog-wishlist-btn"
-                    activeClassName="catalog-wishlist-btn-active"
-                  />
-                </div>
+                {actionButtons}
               </div>
               {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
               <div className="catalog-price-row">
@@ -163,18 +161,7 @@ export default function CatalogProductCard({
           <div className="catalog-product-text-wrap">
             <div className="catalog-product-info-row">
               <h3 className="catalog-product-name">{product.title}</h3>
-              <div className="catalog-product-actions">
-                <CompareButton
-                  productId={product._id}
-                  className="catalog-wishlist-btn catalog-compare-btn"
-                  activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
-                />
-                <WishlistButton
-                  productId={product._id}
-                  className="catalog-wishlist-btn"
-                  activeClassName="catalog-wishlist-btn-active"
-                />
-              </div>
+              {actionButtons}
             </div>
             {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
             <div className="catalog-price-row">

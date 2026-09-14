@@ -451,6 +451,7 @@ export default function Wishlist() {
                       variant="desktop"
                       removing={isRemoving}
                       showLowStock
+                      showCompare={false}
                       footer={
                         <WishlistCardActions
                           product={product}
