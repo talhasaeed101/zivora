@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { loadPublicCategories } from '../services/catalogCache.js';
+// import { isLaunchTimerActive } from './LaunchTimer.jsx';
 import AnnouncementBar from './AnnouncementBar.jsx';
 import HeaderSearch from './header/HeaderSearch.jsx';
 import AccountMenu from './header/AccountMenu.jsx';
@@ -38,6 +39,8 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
 
+  // Launch timer lock disabled — was: useState(isLaunchTimerActive)
+  const [locked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -60,6 +63,28 @@ export default function Navbar({ homeHref = ROUTES.home }) {
     setAccountOpen(false);
     setShopOpen(false);
   }, []);
+
+  // useEffect(() => {
+  //   if (!locked) {
+  //     return undefined;
+  //   }
+  //
+  //   const unlock = () => {
+  //     if (!isLaunchTimerActive()) {
+  //       setLocked(false);
+  //     }
+  //   };
+  //
+  //   unlock();
+  //   const timer = window.setInterval(unlock, 1000);
+  //   return () => window.clearInterval(timer);
+  // }, [locked]);
+  //
+  // useEffect(() => {
+  //   if (locked) {
+  //     closeOverlays();
+  //   }
+  // }, [locked, closeOverlays]);
 
   useEffect(() => {
     closeOverlays();
@@ -93,7 +118,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   }, []);
 
   useEffect(() => {
-    if (!shopOpen) {
+    if (!shopOpen || locked) {
       return undefined;
     }
 
@@ -120,9 +145,19 @@ export default function Navbar({ homeHref = ROUTES.home }) {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('mousedown', onPointerDown);
     };
-  }, [shopOpen]);
+  }, [shopOpen, locked]);
+
+  const blockIfLocked = (event) => {
+    if (locked) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
 
   const openSearch = () => {
+    if (locked) {
+      return;
+    }
     setAccountOpen(false);
     setShopOpen(false);
     setMenuOpen(false);
@@ -130,6 +165,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   };
 
   const toggleAccount = () => {
+    if (locked) {
+      return;
+    }
     if (!isAuthenticated) {
       navigate(ROUTES.login, { state: { from: location.pathname } });
       return;
@@ -140,6 +178,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   };
 
   const toggleMenu = () => {
+    if (locked) {
+      return;
+    }
     setSearchOpen(false);
     setAccountOpen(false);
     setShopOpen(false);
@@ -152,16 +193,23 @@ export default function Navbar({ homeHref = ROUTES.home }) {
         Skip to content
       </a>
       <header
-        className={`navbar-header${scrolled ? ' is-scrolled' : ''}`}
+        className={`navbar-header${scrolled ? ' is-scrolled' : ''}${locked ? ' is-locked' : ''}`}
+        aria-disabled={locked || undefined}
       >
         <AnnouncementBar />
-        <div className="navbar-shell">
+        <div
+          className="navbar-shell"
+          onClickCapture={blockIfLocked}
+          onKeyDownCapture={locked ? blockIfLocked : undefined}
+        >
           <div className="navbar-inner">
             <button
               type="button"
               ref={menuTriggerRef}
               className="navbar-mobile-toggle"
               onClick={toggleMenu}
+              disabled={locked}
+              aria-disabled={locked || undefined}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
               aria-controls="mobile-navigation"
@@ -175,6 +223,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
               to={homeHref}
               className="navbar-logo"
               aria-label="Zivorah home"
+              aria-disabled={locked || undefined}
+              tabIndex={locked ? -1 : undefined}
+              onClick={blockIfLocked}
             >
               ZIVORAH
             </Link>
@@ -189,6 +240,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                   className={({ isActive }) =>
                     `navbar-link${isActive ? ' is-active' : ''}`
                   }
+                  aria-disabled={locked || undefined}
+                  tabIndex={locked ? -1 : undefined}
+                  onClick={blockIfLocked}
                 >
                   {item.label}
                 </NavLink>
@@ -200,6 +254,8 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 type="button"
                 className="navbar-icon-btn"
                 onClick={openSearch}
+                disabled={locked}
+                aria-disabled={locked || undefined}
                 aria-label="Search"
               >
                 <SearchIcon className="w-6 h-6" />
@@ -212,6 +268,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 aria-label={
                   wishlistBadge ? `Wishlist, ${wishlistBadge} items` : 'Wishlist'
                 }
+                aria-disabled={locked || undefined}
+                tabIndex={locked ? -1 : undefined}
+                onClick={blockIfLocked}
               >
                 <HeartIcon className="w-6 h-6" />
                 {wishlistBadge ? (
@@ -225,6 +284,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 to={ROUTES.cart}
                 className="navbar-icon-btn navbar-cart-btn"
                 aria-label={cartBadge ? `Cart, ${cartBadge} items` : 'Cart'}
+                aria-disabled={locked || undefined}
+                tabIndex={locked ? -1 : undefined}
+                onClick={blockIfLocked}
               >
                 <ShoppingCartIcon className="w-6 h-6" />
                 {cartBadge ? (
@@ -242,15 +304,19 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                   aria-label="Account"
                   aria-expanded={accountOpen}
                   aria-haspopup="menu"
+                  disabled={locked}
+                  aria-disabled={locked || undefined}
                   onClick={toggleAccount}
                 >
                   <UserIcon className="w-6 h-6" />
                 </button>
-                <AccountMenu
-                  open={accountOpen}
-                  onClose={() => setAccountOpen(false)}
-                  triggerRef={accountTriggerRef}
-                />
+                {!locked ? (
+                  <AccountMenu
+                    open={accountOpen}
+                    onClose={() => setAccountOpen(false)}
+                    triggerRef={accountTriggerRef}
+                  />
+                ) : null}
               </div>
             </div>
           </div>
@@ -258,19 +324,23 @@ export default function Navbar({ homeHref = ROUTES.home }) {
       </header>
       <div className="navbar-spacer" aria-hidden="true" />
 
-      <HeaderSearch
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        categories={categories}
-      />
+      {!locked ? (
+        <>
+          <HeaderSearch
+            open={searchOpen}
+            onClose={() => setSearchOpen(false)}
+            categories={categories}
+          />
 
-      <MobileDrawer
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        categories={categories}
-        navItems={PRIMARY_NAV}
-        triggerRef={menuTriggerRef}
-      />
+          <MobileDrawer
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            categories={categories}
+            navItems={PRIMARY_NAV}
+            triggerRef={menuTriggerRef}
+          />
+        </>
+      ) : null}
     </>
   );
 }
