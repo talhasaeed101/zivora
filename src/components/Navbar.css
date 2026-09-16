@@ -42,29 +42,6 @@
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
 }
 
-.navbar-header.is-locked .navbar-shell,
-.navbar-header.is-locked .navbar-shell a,
-.navbar-header.is-locked .navbar-shell button,
-.navbar-header.is-locked .announcement-bar,
-.navbar-header.is-locked .announcement-bar a {
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-.navbar-header.is-locked .navbar-shell {
-  opacity: 0.72;
-  user-select: none;
-}
-
-.navbar-header.is-locked .navbar-link.is-active {
-  color: var(--nav-gray);
-}
-
-.navbar-header.is-locked .navbar-icon-btn:disabled,
-.navbar-header.is-locked .navbar-mobile-toggle:disabled {
-  opacity: 1;
-}
-
 .navbar-spacer {
   width: 100%;
   height: calc(34px + 100px);
