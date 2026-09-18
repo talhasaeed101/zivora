@@ -6,8 +6,26 @@ import SafeImage from '../SafeImage.jsx';
 
 function CloseIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
       <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ReturnIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M9 14L4 9l5-5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 9h10a6 6 0 010 12h-3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -22,6 +40,12 @@ function formatMetalLabel(value) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function displayTitle(title) {
+  const text = String(title || 'Product').trim();
+  if (text.length <= 28) return text;
+  return `${text.slice(0, 28).trimEnd()}…`;
 }
 
 export default function CartItem({
@@ -44,12 +68,13 @@ export default function CartItem({
   const metalLabel = formatMetalLabel(item.metalColor);
   const materialLabel =
     item.material && item.material !== item.metalColor ? item.material : null;
-  const showSale = Boolean(item.oldPrice && item.oldPrice > item.unitPrice);
+  const variantLabel = metalLabel || materialLabel || (item.ringSize ? `Size ${item.ringSize}` : '');
   const title = item.title || 'Product';
   const maxQuantity = Number(item.maxQuantity);
   const hasMax = Number.isFinite(maxQuantity);
   const atMax = hasMax && item.quantity >= maxQuantity;
   const remaining = hasMax ? Math.max(0, maxQuantity - item.quantity) : null;
+  const shippingNote = item.shippingDate || item.product?.shippingDate || null;
 
   return (
     <article
@@ -63,41 +88,28 @@ export default function CartItem({
             alt={title}
             className="cart-item-image"
             width={160}
-            height={200}
-            sizes="120px"
+            height={130}
+            sizes="160px"
           />
         </Link>
 
         <div className="cart-item-details">
-          <h3 className="cart-item-title">
+          <h3 className="cart-item-title" title={title}>
             <Link to={productHref} className="cart-item-title-link">
-              {title}
+              {displayTitle(title)}
             </Link>
           </h3>
 
-          <ul className="cart-item-variants">
-            {item.ringSize ? (
-              <li>
-                <span className="cart-item-variant-label">Ring size</span>
-                <span>{item.ringSize}</span>
-              </li>
-            ) : null}
-            {metalLabel ? (
-              <li>
-                <span className="cart-item-variant-label">Metal</span>
-                <span>{metalLabel}</span>
-              </li>
-            ) : null}
-            {materialLabel && !metalLabel ? (
-              <li>
-                <span className="cart-item-variant-label">Material</span>
-                <span>{materialLabel}</span>
-              </li>
-            ) : null}
-          </ul>
+          {variantLabel ? <p className="cart-item-variant">{variantLabel}</p> : null}
 
-          {customizationLines.length > 0 ? (
-            <ul className="cart-item-customization">
+          {(item.ringSize && metalLabel) || customizationLines.length > 0 ? (
+            <ul className="cart-item-variants cart-item-variants-extra">
+              {item.ringSize && metalLabel ? (
+                <li>
+                  <span className="cart-item-variant-label">Ring size</span>
+                  <span>{item.ringSize}</span>
+                </li>
+              ) : null}
               {customizationLines.map((line) => (
                 <li key={`${line.label}-${line.value}`}>
                   <strong>{line.label}:</strong> {line.value}
@@ -112,6 +124,20 @@ export default function CartItem({
             </p>
           ) : null}
 
+          <div className="cart-item-meta">
+            <span className="cart-item-meta-row">
+              <ClockIcon />
+              <span>{shippingNote || 'Nationwide delivery'}</span>
+            </span>
+            <span className="cart-item-meta-divider" aria-hidden="true" />
+            <span className="cart-item-meta-row">
+              <ReturnIcon />
+              <span>
+                <strong>7 days</strong> return available
+              </span>
+            </span>
+          </div>
+
           {onSaveForLater ? (
             <button
               type="button"
@@ -122,18 +148,10 @@ export default function CartItem({
               {saving ? 'Saving…' : 'Save for later'}
             </button>
           ) : null}
-
-          <div className="cart-item-unit-price">
-            <span className="cart-item-unit-current">{formatPrice(item.unitPrice)}</span>
-            {showSale ? (
-              <span className="cart-item-unit-old">{formatPrice(item.oldPrice)}</span>
-            ) : null}
-            <span className="cart-item-unit-note">each</span>
-          </div>
         </div>
       </div>
 
-      <div className="cart-item-actions">
+      <div className="cart-item-qty-wrap">
         <div className="cart-item-qty" role="group" aria-label={`Quantity for ${title}`}>
           <button
             type="button"
@@ -158,28 +176,27 @@ export default function CartItem({
           </button>
         </div>
         {atMax ? (
-          <p className="cart-item-stock-hint">Maximum available quantity reached.</p>
+          <p className="cart-item-stock-hint">Max quantity reached</p>
         ) : remaining !== null && remaining <= 5 ? (
           <p className="cart-item-stock-hint">
             {remaining === 1 ? 'Only 1 left' : `Only ${remaining} left`}
           </p>
         ) : null}
-
-        <div className="cart-item-price-col">
-          <span className="cart-item-price-label">Line total</span>
-          <span className="cart-item-price">{formatPrice(lineTotal)}</span>
-        </div>
-
-        <button
-          type="button"
-          className="cart-item-remove"
-          onClick={() => onRemove(item)}
-          aria-label={`Remove ${title} from cart`}
-          disabled={updating || removing}
-        >
-          <CloseIcon />
-        </button>
       </div>
+
+      <div className="cart-item-price-col">
+        <span className="cart-item-price">{formatPrice(lineTotal)}</span>
+      </div>
+
+      <button
+        type="button"
+        className="cart-item-remove"
+        onClick={() => onRemove(item)}
+        aria-label={`Remove ${title} from cart`}
+        disabled={updating || removing}
+      >
+        <CloseIcon />
+      </button>
     </article>
   );
 }

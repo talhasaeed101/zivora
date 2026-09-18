@@ -177,6 +177,15 @@
   letter-spacing: 0.08px;
 }
 
+.trending-product-category {
+  font-family: Cabin, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7c7c7c;
+  margin: 4px 0 0;
+}
+
 .trending-product-text-wrap {
   background-color: #fff;
   padding: 20px;

@@ -2502,7 +2502,14 @@
 
 /* Phase 6A — CatalogProductCard rails on PDP — match home trending scroll + type */
 .product-discovery-rail {
-  margin: 0 0 48px;
+  width: calc(100% + 80px);
+  max-width: none;
+  margin: 0 -80px 48px 0;
+  overflow: visible;
+}
+
+.product-discovery-rail .pd-related-header {
+  padding-right: 80px;
 }
 
 .catalog-product-grid.product-discovery-grid {
@@ -2514,6 +2521,7 @@
   overflow-x: scroll;
   overflow-y: hidden;
   padding-bottom: 24px;
+  padding-right: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -2573,6 +2581,15 @@
 }
 
 @media (max-width: 1200px) {
+  .product-discovery-rail {
+    width: calc(100% + 40px);
+    margin-right: -40px;
+  }
+
+  .product-discovery-rail .pd-related-header {
+    padding-right: 40px;
+  }
+
   .catalog-product-grid.product-discovery-grid {
     grid-auto-columns: 300px;
   }
@@ -2601,6 +2618,17 @@
 }
 
 @media (max-width: 768px) {
+  .product-discovery-rail {
+    width: calc(100% + 16px);
+    margin-right: -16px;
+  }
+
+  .product-discovery-rail .pd-related-header {
+    padding-right: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   /* Keep visible — Collection.css hides plain .catalog-product-grid on mobile */
   .catalog-product-grid.product-discovery-grid {
     display: flex;
@@ -2634,11 +2662,6 @@
 
   .product-discovery-grid .catalog-product-name {
     font-size: 18px;
-  }
-
-  .product-discovery-rail .pd-related-header {
-    flex-wrap: wrap;
-    gap: 8px;
   }
 }
 

@@ -65,14 +65,11 @@ export default function OrderSummary({
   return (
     <aside className="cart-summary" id="checkout-review">
       <div className="cart-summary-card">
-        <div className="checkout-section-header cart-summary-step-header">
-          <span className="checkout-step-num" aria-hidden="true">
-            3
-          </span>
-          <div>
-            <h2 className="cart-summary-title">Order review</h2>
-            <p className="cart-summary-subtitle">{itemLabel}</p>
-          </div>
+        <div className="cart-summary-header">
+          <h2 className="cart-summary-title">
+            Summary{' '}
+            <span className="cart-summary-count">({itemLabel})</span>
+          </h2>
         </div>
 
         {reviewItems.length > 0 ? (
@@ -131,7 +128,7 @@ export default function OrderSummary({
               <input
                 id="promo-code"
                 type="text"
-                placeholder="Enter code"
+                placeholder="Type here..."
                 className="cart-promo-input"
                 value={promoCode}
                 onChange={(event) => onPromoCodeChange?.(event.target.value)}
@@ -252,19 +249,24 @@ export default function OrderSummary({
               </span>
               <span>−{formatPrice(discount)}</span>
             </div>
-          ) : null}
+          ) : (
+            <div className="cart-summary-row cart-summary-discount">
+              <span>Discount</span>
+              <span>—</span>
+            </div>
+          )}
           {loyaltyAmountApplied > 0 ? (
             <div className="cart-summary-row cart-summary-discount">
               <span>Loyalty Discount</span>
               <span>−{formatPrice(loyaltyAmountApplied)}</span>
             </div>
           ) : null}
-          {taxFee > 0 ? (
-            <div className="cart-summary-row">
-              <span>Tax &amp; fee</span>
-              <span>{formatPrice(taxFee)}</span>
-            </div>
-          ) : null}
+          <div className="cart-summary-row">
+            <span>Tax &amp; fee</span>
+            <span className={taxFee > 0 ? undefined : 'cart-summary-muted'}>
+              {taxFee > 0 ? formatPrice(taxFee) : '—'}
+            </span>
+          </div>
           <div className="cart-summary-row cart-summary-total">
             <span>Total</span>
             <span>{formatPrice(total)}</span>
@@ -289,7 +291,7 @@ export default function OrderSummary({
           disabled={!canCheckout || checkingOut}
           aria-busy={checkingOut || undefined}
         >
-          {checkingOut ? 'Placing your order…' : 'Place secure order'}
+          {checkingOut ? 'Placing your order…' : 'Continue to checkout'}
         </button>
 
         {!reviewAddress?.id ? (

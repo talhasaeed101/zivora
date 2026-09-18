@@ -56,7 +56,7 @@ export default function SocialProofHomeSections() {
 
   return (
     <Reveal as="section" className="sp-home-sections" variant="fade-up">
-      <div className="sp-home-inner">
+      {/* <div className="sp-home-inner">
         {visibleSections.map((section) => (
           <div key={section.key} className="sp-home-block">
             <header className="sp-home-block-header">
@@ -69,7 +69,7 @@ export default function SocialProofHomeSections() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
     </Reveal>
   );
 }

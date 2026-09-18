@@ -42,6 +42,7 @@ const CampaignPage = lazy(() => import('./Pages/CampaignPage.jsx'));
 const About = lazy(() => import('./Pages/About.jsx'));
 const Contact = lazy(() => import('./Pages/Contact.jsx'));
 const Compare = lazy(() => import('./Pages/Compare.jsx'));
+const BuyNowCheckout = lazy(() => import('./Pages/BuyNowCheckout.jsx'));
 
 function RouteFallback() {
   return (
@@ -110,6 +111,7 @@ function App() {
               <Route path="/account/loyalty" element={<DashboardLoyalty />} />
               <Route path="/account/price-alerts" element={<PriceAlerts />} />
               <Route path="/account/saved" element={<SaveForLater />} />
+              <Route path="/checkout/buy-now" element={<BuyNowCheckout />} />
             </Route>
             <Route path="/price-alerts/unsubscribe/:token" element={<PriceAlertUnsubscribe />} />
             <Route path="/product/:slug" element={<ProductDetails />} />

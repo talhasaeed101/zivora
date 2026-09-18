@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
 import CompareButton from '../CompareButton.jsx';
-import BuyNowCheckoutModal from './BuyNowCheckoutModal.jsx';
 import CustomizationModal from './CustomizationModal.jsx';
 import NotifyMeModal from './NotifyMeModal.jsx';
 import '../CompareButton.css';
@@ -27,6 +26,8 @@ import { useCampaigns } from '../../context/CampaignContext.jsx';
 import { toast } from '../../context/ToastContext.jsx';
 import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
 import { PDP_TRUST_ITEMS } from '../../constants/storefrontCopy.js';
+import { ROUTES } from '../../utils/navigation.js';
+import { storeBuyNowCheckout } from '../../utils/buyNowCheckout.js';
 import {
   CampaignSaleBadge,
   useCampaignCountdown,
@@ -84,7 +85,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
-  const [buyNowOpen, setBuyNowOpen] = useState(false);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const [sizeError, setSizeError] = useState('');
@@ -379,11 +379,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
   const handleBuyNow = () => {
     setCartMessage(null);
 
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: location.pathname } });
-      return;
-    }
-
     if (!validateSelection()) {
       return;
     }
@@ -393,7 +388,35 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
       return;
     }
 
-    setBuyNowOpen(true);
+    const payload = {
+      product: {
+        _id: product._id,
+        title: product.title,
+        price: product.price,
+        slug: product.slug,
+        images: product.images,
+        thumbnail: product.thumbnail,
+        image: product.image,
+      },
+      quantity,
+      ringSize: showRingSize ? size : undefined,
+      metalColor: showMetalColors ? color : undefined,
+      variantId:
+        findUniqueVariantId(product, {
+          ringSize: showRingSize ? size : '',
+          metalColor: showMetalColors ? color : '',
+        }) || undefined,
+      returnTo: `${location.pathname}${location.search}`,
+    };
+
+    storeBuyNowCheckout(payload);
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: ROUTES.buyNow } });
+      return;
+    }
+
+    navigate(ROUTES.buyNow, { state: payload });
   };
 
   const markCellSubscribed = useCallback((ringSize, metalColor) => {
@@ -888,21 +911,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           <li key={item}>{item}</li>
         ))}
       </ul>
-
-      <BuyNowCheckoutModal
-        isOpen={buyNowOpen}
-        onClose={() => setBuyNowOpen(false)}
-        product={product}
-        quantity={quantity}
-        ringSize={showRingSize ? size : undefined}
-        metalColor={showMetalColors ? color : undefined}
-        variantId={
-          findUniqueVariantId(product, {
-            ringSize: showRingSize ? size : '',
-            metalColor: showMetalColors ? color : '',
-          }) || undefined
-        }
-      />
 
       <CustomizationModal
         isOpen={customizeOpen}

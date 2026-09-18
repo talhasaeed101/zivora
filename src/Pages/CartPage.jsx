@@ -12,6 +12,7 @@ import { toast } from '../context/ToastContext.jsx';
 import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
 import SavedCartItem from '../components/cart/SavedCartItem';
+import OrderThankYouModal from '../components/cart/OrderThankYouModal';
 import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -144,6 +145,7 @@ export default function CartPage() {
   const [clearing, setClearing] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [thankYouOrderId, setThankYouOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [paymentSectionError, setPaymentSectionError] = useState('');
   const [promoInput, setPromoInput] = useState('');
@@ -159,6 +161,7 @@ export default function CartPage() {
   const [loyaltyApplying, setLoyaltyApplying] = useState(false);
   const [savingItemId, setSavingItemId] = useState(null);
   const [savedBusyId, setSavedBusyId] = useState(null);
+  const [cartSort, setCartSort] = useState('latest');
 
   const items = useMemo(
     () =>
@@ -179,6 +182,19 @@ export default function CartPage() {
       }),
     [cart, productDetailsBySlug]
   );
+
+  const displayedItems = useMemo(() => {
+    const list = [...items];
+    if (cartSort === 'price-asc') {
+      list.sort((a, b) => a.unitPrice * a.quantity - b.unitPrice * b.quantity);
+    } else if (cartSort === 'price-desc') {
+      list.sort((a, b) => b.unitPrice * b.quantity - a.unitPrice * a.quantity);
+    } else if (cartSort === 'name') {
+      list.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+    }
+    // 'latest' keeps cart order (API order)
+    return list;
+  }, [items, cartSort]);
 
   const savedItems = useMemo(() => {
     if (!isAuthenticated) {
@@ -753,7 +769,7 @@ export default function CartPage() {
       resetPromo();
       resetLoyalty();
       await refreshCart();
-      navigate(`/order-success/${response.data._id}`, { replace: true });
+      setThankYouOrderId(response.data._id);
     } catch (err) {
       const message = friendlyCartError(
         err.message,
@@ -803,13 +819,32 @@ export default function CartPage() {
               <div className="cart-title-row">
                 <h1 className="cart-title">Shopping Cart</h1>
                 {isAuthenticated && totalItems > 0 ? (
-                  <span className="cart-count">{itemCountLabel}</span>
+                  <span className="cart-count-badge" aria-label={itemCountLabel}>
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
                 ) : null}
               </div>
 
-              <Link to={ROUTES.collection} className="cart-continue-link">
-                Continue shopping
-              </Link>
+              {showCartContent ? (
+                <label className="cart-sort">
+                  <span className="cart-sort-prefix">Sort by:</span>
+                  <select
+                    className="cart-sort-select"
+                    value={cartSort}
+                    onChange={(event) => setCartSort(event.target.value)}
+                    aria-label="Sort cart items"
+                  >
+                    <option value="latest">Latest added</option>
+                    <option value="price-asc">Price: low to high</option>
+                    <option value="price-desc">Price: high to low</option>
+                    <option value="name">Name</option>
+                  </select>
+                </label>
+              ) : (
+                <Link to={ROUTES.collection} className="cart-continue-link">
+                  Continue shopping
+                </Link>
+              )}
             </div>
           </Reveal>
 
@@ -861,32 +896,36 @@ export default function CartPage() {
           ) : null}
 
           {showCartContent ? (
-            <div className="cart-table-header">
-              <span className="cart-col-product">PRODUCT</span>
-              <span className="cart-col-count">COUNT</span>
-              <span className="cart-col-price">PRICE</span>
-            </div>
-          ) : null}
-
-          {showCartContent ? (
             <div className="cart-body">
               <div className="cart-items-column">
-                <div className="cart-items-toolbar">
-                  <p className="cart-items-toolbar-label">
-                    Bag · {itemCountLabel}
-                  </p>
+                <div className="cart-table-header">
+                  <span className="cart-col-product">Product</span>
+                  <span className="cart-col-count">Count</span>
+                  <span className="cart-col-price">Price</span>
                   <button
                     type="button"
                     className="cart-clear-btn"
                     onClick={handleClearCart}
                     disabled={clearing || Boolean(updatingItemId)}
                   >
+                    <svg
+                      className="cart-clear-icon"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      aria-hidden="true"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+                    </svg>
                     {clearing ? 'Clearing…' : 'Clear cart'}
                   </button>
                 </div>
 
                 <div className="cart-items-list">
-                  {items.map((item, index) => (
+                  {displayedItems.map((item, index) => (
                     <Reveal
                       key={item.id}
                       variant="fade-up"
@@ -905,7 +944,7 @@ export default function CartPage() {
                   ))}
                 </div>
 
-                <Reveal className="cart-checkout-details" variant="fade-up" delay={80}>
+                {/* <Reveal className="cart-checkout-details" variant="fade-up" delay={80}>
                   <h2 className="cart-details-heading">Complete your order</h2>
                   <p className="cart-details-subheading">
                     Confirm delivery, payment, and review your totals before placing the order.
@@ -932,7 +971,7 @@ export default function CartPage() {
                     error={paymentSectionError}
                     disabled={checkingOut}
                   />
-                </Reveal>
+                </Reveal> */}
               </div>
 
               <Reveal variant="fade-up" delay={100}>
@@ -1033,6 +1072,15 @@ export default function CartPage() {
           onMoveToWishlist={handleMoveToWishlist}
         />
       ) : null}
+
+      <OrderThankYouModal
+        isOpen={Boolean(thankYouOrderId)}
+        orderId={thankYouOrderId}
+        onClose={() => {
+          setThankYouOrderId(null);
+          navigate(ROUTES.collection, { replace: true });
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ export const ROUTES = {
   collection: '/collection',
   product: '/?product=true',
   cart: '/cart',
+  buyNow: '/checkout/buy-now',
   orders: '/orders',
   notifications: '/notifications',
   about: '/about',
