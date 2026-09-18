@@ -43,7 +43,12 @@ const buildQueryString = (params = {}) => {
   return query ? `?${query}` : '';
 };
 
-async function request(endpoint, options = {}) {
+const isDbNotReadyError = (status, message) =>
+  status === 503 && /database connection is not ready/i.test(String(message || ''));
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function request(endpoint, options = {}, attempt = 0) {
   const { suppressErrorToast = false, headers: optionHeaders, ...fetchOptions } = options;
   const token = getStoredToken();
   const hadToken = Boolean(token);
@@ -68,6 +73,12 @@ async function request(endpoint, options = {}) {
       throw networkError;
     }
 
+    // Transient network / cold-start blips
+    if (attempt < 2) {
+      await sleep(350 * (attempt + 1));
+      return request(endpoint, options, attempt + 1);
+    }
+
     const hint =
       networkError?.message?.includes('Failed to fetch')
         ? 'Unable to reach the server.'
@@ -85,6 +96,11 @@ async function request(endpoint, options = {}) {
   }
 
   if (!response.ok) {
+    if (isDbNotReadyError(response.status, data.message) && attempt < 2) {
+      await sleep(500 * (attempt + 1));
+      return request(endpoint, options, attempt + 1);
+    }
+
     const validationErrors = data.errors || (Array.isArray(data.data) ? data.data : null);
     const details = validationErrors?.length
       ? validationErrors.map((item) => item.msg || item.message).filter(Boolean).join(', ')
