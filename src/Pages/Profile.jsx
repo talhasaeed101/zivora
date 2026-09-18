@@ -427,7 +427,7 @@ export default function Profile() {
 
       {!pageLoading && profileInitialized ? (
         <div className="profile-layout">
-          <Reveal className="profile-greeting" variant="fade-up">
+          {/* <Reveal className="profile-greeting" variant="fade-up">
             <div className="profile-avatar" aria-hidden="true">
               {getInitials(customer?.name)}
             </div>
@@ -441,9 +441,9 @@ export default function Profile() {
                 <p className="profile-greeting-meta">Member since {memberSince}</p>
               ) : null}
             </div>
-          </Reveal>
+          </Reveal> */}
 
-          <Reveal className="profile-summary-row" variant="fade-up" delay={40}>
+          {/* <Reveal className="profile-summary-row" variant="fade-up" delay={40}>
             <p>
               <Link to={ROUTES.orders}>{orders.length} orders</Link>
               <span aria-hidden="true"> · </span>
@@ -451,9 +451,9 @@ export default function Profile() {
               <span aria-hidden="true"> · </span>
               <a href="#profile-addresses">{addresses.length} addresses</a>
             </p>
-          </Reveal>
+          </Reveal> */}
 
-          {!loyaltyLoading && loyalty ? (
+          {/* {!loyaltyLoading && loyalty ? (
             <Reveal className="profile-loyalty-summary" variant="fade-up" delay={50}>
               <div className="profile-loyalty-copy">
                 <p className="profile-loyalty-eyebrow">Zivora Rewards</p>
@@ -466,9 +466,9 @@ export default function Profile() {
                 View Rewards
               </Link>
             </Reveal>
-          ) : null}
+          ) : null} */}
 
-          <section className="profile-section" aria-label="Quick actions">
+          {/* <section className="profile-section" aria-label="Quick actions">
             <h2 className="profile-section-title">Quick actions</h2>
             <div className="profile-quick-grid">
               {quickActions.map((action, index) => (
@@ -484,7 +484,7 @@ export default function Profile() {
                 </Reveal>
               ))}
             </div>
-          </section>
+          </section> */}
 
           <Reveal
             as="section"
