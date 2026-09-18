@@ -390,32 +390,36 @@ export default function ProductDetails() {
             </ul>
           )}
 
-          <div className="pd-features-row">
-            {activeProduct.guarantee && (
-              <div className="pd-feature-item">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Guarantee for <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.guarantee}</span></span>
-              </div>
-            )}
-            {activeProduct.shippingDate && (
-              <div className="pd-feature-item">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-                <span>Shipped on <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.shippingDate}</span></span>
-              </div>
-            )}
-            {activeProduct.isMadeToOrder && (
-              <div className="pd-feature-item">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Made to order jewelry</span>
-              </div>
-            )}
-          </div>
+          {(activeProduct.guarantee ||
+            activeProduct.shippingDate ||
+            activeProduct.isMadeToOrder) && (
+            <div className="pd-features-row">
+              {activeProduct.guarantee && (
+                <div className="pd-feature-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Guarantee for <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.guarantee}</span></span>
+                </div>
+              )}
+              {activeProduct.shippingDate && (
+                <div className="pd-feature-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  <span>Shipped on <span style={{ fontWeight: 600, color: '#000' }}>{activeProduct.shippingDate}</span></span>
+                </div>
+              )}
+              {activeProduct.isMadeToOrder && (
+                <div className="pd-feature-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Made to order jewelry</span>
+                </div>
+              )}
+            </div>
+          )}
         </Reveal>
 
         <Reveal as="div" variant="fade-up">
@@ -448,7 +452,7 @@ export default function ProductDetails() {
         {recentlyViewedProducts.length > 0 && (
           <Reveal as="div" variant="fade-up">
             <ProductDiscoveryRail
-              title="Recently Viewed"
+              title="You Might Also Like"
               products={recentlyViewedProducts}
               onProductClick={(viewedProduct) =>
                 trackRecentlyViewedClick({ productId: viewedProduct._id })

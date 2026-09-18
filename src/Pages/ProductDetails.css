@@ -564,7 +564,7 @@
 
 /* ── Description ── */
 .pd-description-section {
-  margin-bottom: 80px;
+  margin-bottom: 0;
   padding-top: 48px;
   border-top: 1px solid var(--pd-border);
 }
@@ -1897,7 +1897,7 @@
 
   /* Description section */
   .pd-description-section {
-    margin-bottom: 40px;
+    margin-bottom: 0;
     padding-top: 28px;
   }
 
@@ -2500,25 +2500,145 @@
   margin: 6px 0 0;
 }
 
-/* Phase 6A — CatalogProductCard rails on PDP */
+/* Phase 6A — CatalogProductCard rails on PDP — match home trending scroll + type */
 .product-discovery-rail {
   margin: 0 0 48px;
 }
 
-.product-discovery-grid {
+.catalog-product-grid.product-discovery-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
+  grid-auto-flow: column;
+  grid-auto-columns: 368px;
+  grid-template-columns: unset;
+  gap: 30px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  padding-bottom: 24px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.catalog-product-grid.product-discovery-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .product-discovery-card-wrap {
   min-width: 0;
+  width: 368px;
+}
+
+.product-discovery-grid .catalog-product-card-link,
+.product-discovery-grid .catalog-product-card {
+  width: 368px;
+  height: auto;
+  min-height: 520px;
+}
+
+.product-discovery-grid .catalog-product-image-wrap {
+  height: 470px;
+}
+
+.product-discovery-grid .catalog-product-text-wrap {
+  width: 338px;
+  padding: 20px;
+}
+
+.product-discovery-grid .catalog-product-name {
+  font-family: Cabin, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.1px;
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: hidden;
+}
+
+.product-discovery-grid .catalog-product-label {
+  font-family: Cabin, sans-serif;
+}
+
+.product-discovery-grid .catalog-price-current {
+  font-family: Cabin, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.product-discovery-grid .catalog-price-original {
+  font-family: Cabin, sans-serif;
+  font-size: 12px;
+  color: #7c7c7c;
+  line-height: 1.4;
+  letter-spacing: 0.08px;
+}
+
+@media (max-width: 1200px) {
+  .catalog-product-grid.product-discovery-grid {
+    grid-auto-columns: 300px;
+  }
+
+  .product-discovery-card-wrap,
+  .product-discovery-grid .catalog-product-card-link,
+  .product-discovery-grid .catalog-product-card {
+    width: 300px;
+  }
+
+  .product-discovery-grid .catalog-product-text-wrap {
+    width: calc(100% - 30px);
+  }
 }
 
 @media (max-width: 900px) {
-  .product-discovery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+  .catalog-product-grid.product-discovery-grid {
+    grid-auto-columns: 280px;
+  }
+
+  .product-discovery-card-wrap,
+  .product-discovery-grid .catalog-product-card-link,
+  .product-discovery-grid .catalog-product-card {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Keep visible — Collection.css hides plain .catalog-product-grid on mobile */
+  .catalog-product-grid.product-discovery-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    overflow-x: visible;
+    overflow-y: visible;
+    padding-bottom: 16px;
+    grid-auto-flow: unset;
+    grid-auto-columns: unset;
+  }
+
+  .product-discovery-card-wrap,
+  .product-discovery-grid .catalog-product-card-link,
+  .product-discovery-grid .catalog-product-card {
+    width: 100%;
+    min-height: 480px;
+  }
+
+  .product-discovery-grid .catalog-product-image-wrap {
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .product-discovery-grid .catalog-product-text-wrap {
+    max-width: 315px;
+    width: calc(100% - 20px);
+  }
+
+  .product-discovery-grid .catalog-product-name {
+    font-size: 18px;
+  }
+
+  .product-discovery-rail .pd-related-header {
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
 

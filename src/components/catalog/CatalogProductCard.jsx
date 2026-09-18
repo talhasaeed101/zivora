@@ -10,6 +10,16 @@ import { useCampaigns } from '../../context/CampaignContext.jsx';
 import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
 import '../CompareButton.css';
 
+const TITLE_PREVIEW_LENGTH = 15;
+
+function truncateTitle(title) {
+  const text = String(title || '').trim();
+  if (text.length <= TITLE_PREVIEW_LENGTH) {
+    return text;
+  }
+  return `${text.slice(0, TITLE_PREVIEW_LENGTH)}...`;
+}
+
 export default function CatalogProductCard({
   product,
   variant = 'desktop',
@@ -30,6 +40,8 @@ export default function CatalogProductCard({
   const href = productPath(product.slug);
   const isMobile = variant === 'mobile';
   const withFooter = Boolean(footer);
+  const fullTitle = product.title || 'Product';
+  const displayTitle = truncateTitle(fullTitle);
   const cardClass = `catalog-product-card${isMobile && !withFooter ? ' catalog-product-card-mobile' : ''}${
     outOfStock ? ' is-out-of-stock' : ''
   }${removing ? ' is-removing' : ''}${className ? ` ${className}` : ''}`;
@@ -55,7 +67,7 @@ export default function CatalogProductCard({
     <>
       <SafeImage
         src={image}
-        alt={product.title || 'Product'}
+        alt={fullTitle}
         className="catalog-product-image"
         sizes="(max-width: 768px) 50vw, 25vw"
         width={480}
@@ -78,13 +90,13 @@ export default function CatalogProductCard({
 
   const actionButtons = (
     <div className="catalog-product-actions">
-      {showCompare ? (
+      {/* {showCompare ? (
         <CompareButton
           productId={product._id}
           className="catalog-wishlist-btn catalog-compare-btn"
           activeClassName="catalog-wishlist-btn-active catalog-compare-btn-active"
         />
-      ) : null}
+      ) : null} */}
       <WishlistButton
         productId={product._id}
         className="catalog-wishlist-btn"
@@ -100,16 +112,16 @@ export default function CatalogProductCard({
         <Link
           to={href}
           className="catalog-product-image-link catalog-product-image-wrap"
-          aria-label={`View ${product.title || 'product'}`}
+          aria-label={`View ${fullTitle}`}
         >
           {imageInner}
         </Link>
 
         <div className="catalog-product-text-wrap">
           <div className="catalog-product-info-row">
-            <h3 className="catalog-product-name">
+            <h3 className="catalog-product-name" title={fullTitle}>
               <Link to={href} className="catalog-product-name-link">
-                {product.title}
+                {displayTitle}
               </Link>
             </h3>
             {actionButtons}
@@ -131,6 +143,7 @@ export default function CatalogProductCard({
     <Link
       to={href}
       className={`catalog-product-card-link${isMobile ? ' catalog-product-card-link-mobile' : ''}`}
+      aria-label={`View ${fullTitle}`}
     >
       <article className={cardClass}>
         {badges}
@@ -143,7 +156,12 @@ export default function CatalogProductCard({
           {isMobile ? (
             <div className="catalog-product-overlay">
               <div className="catalog-product-info-row">
-                <h3 className="catalog-product-name catalog-product-name-mobile">{product.title}</h3>
+                <h3
+                  className="catalog-product-name catalog-product-name-mobile"
+                  title={fullTitle}
+                >
+                  {displayTitle}
+                </h3>
                 {actionButtons}
               </div>
               {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
@@ -160,7 +178,9 @@ export default function CatalogProductCard({
         {!isMobile ? (
           <div className="catalog-product-text-wrap">
             <div className="catalog-product-info-row">
-              <h3 className="catalog-product-name">{product.title}</h3>
+              <h3 className="catalog-product-name" title={fullTitle}>
+                {displayTitle}
+              </h3>
               {actionButtons}
             </div>
             {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}

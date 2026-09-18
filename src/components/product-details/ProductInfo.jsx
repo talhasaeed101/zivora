@@ -858,7 +858,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
           </button>
         ) : null}
 
-        {showPriceAlert ? (
+        {/* {showPriceAlert ? (
           <button
             type="button"
             className={`pd-btn pd-btn-secondary pd-btn-notify-me pd-btn-price-alert${
@@ -874,7 +874,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
                 ? 'Price alert on'
                 : 'Notify me when price drops'}
           </button>
-        ) : null}
+        ) : null} */}
       </div>
 
       <ul className="pd-trust-list" aria-label="Purchase reassurance">

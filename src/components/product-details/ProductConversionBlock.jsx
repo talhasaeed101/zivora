@@ -33,25 +33,27 @@ export default function ProductConversionBlock({ product }) {
         </div>
       ) : null}
 
-      <div className="pd-conversion-assurances">
-        <h2 className="pd-conversion-heading">Good to know</h2>
-        <p className="pd-conversion-note">{DELIVERY_REASSURANCE}</p>
-        <ul className="pd-trust-list pd-conversion-trust">
-          {assurances.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-        <p className="pd-conversion-returns">
-          {RETURNS_REASSURANCE}{' '}
-          <Link to={ROUTES.supportTickets} className="pd-conversion-link">
-            Open Support
-          </Link>
-          {' · '}
-          <Link to={ROUTES.contact} className="pd-conversion-link">
-            Contact
-          </Link>
-        </p>
-      </div>
+      {assurances.length > 0 ? (
+        <div className="pd-conversion-assurances">
+          <h2 className="pd-conversion-heading">Good to know</h2>
+          <p className="pd-conversion-note">{DELIVERY_REASSURANCE}</p>
+          <ul className="pd-trust-list pd-conversion-trust">
+            {assurances.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className="pd-conversion-returns">
+            {RETURNS_REASSURANCE}{' '}
+            <Link to={ROUTES.supportTickets} className="pd-conversion-link">
+              Open Support
+            </Link>
+            {' · '}
+            <Link to={ROUTES.contact} className="pd-conversion-link">
+              Contact
+            </Link>
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 }

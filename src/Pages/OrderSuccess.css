@@ -279,10 +279,6 @@
   font-size: 22px;
 }
 
-.order-success-recs .product-discovery-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
 .order-success-reassure {
   margin: 0 0 16px;
   font-family: Inter, sans-serif;
@@ -325,10 +321,6 @@
 }
 
 @media (max-width: 900px) {
-  .order-success-recs .product-discovery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .order-success-trust {
     grid-template-columns: 1fr;
   }
