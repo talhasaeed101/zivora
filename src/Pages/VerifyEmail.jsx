@@ -185,13 +185,15 @@ export default function VerifyEmail() {
         </p>
       ) : null}
 
-      <p className="auth-switch">
-        {isAuthenticated ? (
-          <Link to={ROUTES.profile}>Back to account</Link>
-        ) : (
-          <Link to={ROUTES.login}>Back to sign in</Link>
-        )}
-      </p>
+      {isAuthenticated ? (
+        <Link to={ROUTES.profile} className="auth-submit auth-submit-secondary">
+          Back to account
+        </Link>
+      ) : (
+        <Link to={ROUTES.login} className="auth-submit auth-submit-secondary">
+          Back to sign in
+        </Link>
+      )}
     </AuthShell>
   );
 }

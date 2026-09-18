@@ -37,12 +37,12 @@ export default function AuthShell({
 
             <div className="auth-panel-body">
               {children}
-              {showTrust ? (
+              {/* {showTrust ? (
                 <p className="auth-trust">
                   Secure account access · Manage orders and wishlist · Your information stays within
                   your account
                 </p>
-              ) : null}
+              ) : null} */}
             </div>
           </Reveal>
         </main>

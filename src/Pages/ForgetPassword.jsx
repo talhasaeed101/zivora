@@ -75,7 +75,7 @@ export default function ForgetPassword() {
         <form onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
             <label htmlFor={emailId}>
-              Email <span className="auth-required" aria-hidden="true">*</span>
+              Email <span className="auth-required" aria-hidden="true"></span>
             </label>
             <input
               id={emailId}
@@ -106,9 +106,9 @@ export default function ForgetPassword() {
           </button>
         </form>
 
-        <p className="auth-switch">
-          <Link to={ROUTES.login}>Back to sign in</Link>
-        </p>
+        <Link to={ROUTES.login} className="auth-submit auth-submit-secondary">
+          Back to sign in
+        </Link>
       </AuthShell>
     </GuestRoute>
   );

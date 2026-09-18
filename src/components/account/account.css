@@ -186,10 +186,14 @@
 
 .account-nav-link:focus-visible,
 .account-nav-logout:focus-visible,
-.account-nav-select:focus-visible,
 .account-breadcrumb a:focus-visible {
   outline: 2px solid var(--account-accent);
   outline-offset: 3px;
+}
+
+.account-nav-select:focus,
+.account-nav-select:focus-visible {
+  outline: none;
 }
 
 @media (max-width: 960px) {

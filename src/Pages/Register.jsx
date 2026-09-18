@@ -45,6 +45,13 @@ export default function Register() {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const updatePhone = (event) => {
+    const digitsOnly = event.target.value.replace(/\D/g, '');
+    setForm((prev) => ({ ...prev, phone: digitsOnly }));
+  };
+
+  const isValidPhone = (phone) => /^\d{10,15}$/.test(phone);
+
   const validate = () => {
     const nextErrors = {};
 
@@ -56,6 +63,11 @@ export default function Register() {
       nextErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       nextErrors.email = 'Enter a valid email address';
+    }
+
+    const phone = form.phone.trim();
+    if (phone && !isValidPhone(phone)) {
+      nextErrors.phone = 'Enter a valid phone number';
     }
 
     if (!form.password) {
@@ -71,6 +83,13 @@ export default function Register() {
     }
 
     setErrors(nextErrors);
+
+    const otherErrors = { ...nextErrors };
+    delete otherErrors.phone;
+    if (nextErrors.phone && Object.keys(otherErrors).length === 0) {
+      toast.error('Enter valid phone number');
+    }
+
     return Object.keys(nextErrors).length === 0;
   };
 
@@ -173,19 +192,28 @@ export default function Register() {
           ) : null}
         </div>
 
-        <div className="auth-field">
+        <div className={`auth-field${errors.phone ? ' is-invalid' : ''}`}>
           <label htmlFor={phoneId}>
             Phone <span className="auth-optional">(optional)</span>
           </label>
           <input
             id={phoneId}
             type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={form.phone}
-            onChange={updateField('phone')}
-            placeholder="+923001234567"
+            onChange={updatePhone}
+            placeholder="923001234567"
             autoComplete="tel"
             disabled={loading}
+            aria-invalid={errors.phone ? true : undefined}
+            aria-describedby={errors.phone ? `${phoneId}-error` : undefined}
           />
+          {errors.phone ? (
+            <span id={`${phoneId}-error`} className="auth-field-error" role="alert">
+              {errors.phone}
+            </span>
+          ) : null}
         </div>
 
         <PasswordInput
@@ -196,7 +224,7 @@ export default function Register() {
           placeholder="Minimum 8 characters"
           autoComplete="new-password"
           error={errors.password}
-          hint="Use at least 8 characters."
+          hint=""
           disabled={loading}
           required
         />

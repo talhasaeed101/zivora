@@ -177,3 +177,44 @@ export function CompareIcon({ className = 'w-4 h-4', filled = false }) {
   );
 }
 
+/** Open eye — password visible */
+export function EyeIcon({ className = 'w-5 h-5' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
+      <path
+        d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** Crossed-out eye — password hidden */
+export function EyeOffIcon({ className = 'w-5 h-5' }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
+      <path
+        d="M3 3l18 18M10.6 10.6a3 3 0 004.2 4.2M9.5 5.2A10.4 10.4 0 0112 5c6 0 9.5 7 9.5 7a16.7 16.7 0 01-2.4 3.3M6.1 6.1A16.4 16.4 0 002.5 12s3.5 7 9.5 7c1.5 0 2.9-.3 4.1-.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+

@@ -265,27 +265,67 @@
   color: #9a9a9a;
 }
 
-.profile-field input {
+.profile-field input,
+.profile-field .auth-password-wrap {
   width: 100%;
   min-height: 46px;
+  box-sizing: border-box;
+}
+
+.profile-field input {
   padding: 12px 14px;
   border: 1px solid #ddd8d2;
   background: #fff;
   font-family: inherit;
   font-size: 15px;
   color: #000;
-  box-sizing: border-box;
   transition: border-color 0.2s ease;
 }
 
-.profile-field input:focus {
+.profile-field .auth-password-wrap {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #ddd8d2;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.profile-field .auth-password-wrap input {
+  flex: 1;
+  min-width: 0;
+  min-height: 46px;
+  border: none;
+  box-shadow: none;
+  padding-right: 8px;
+}
+
+.profile-field input:focus,
+.profile-field .auth-password-wrap:focus-within {
   outline: none;
   border-color: #967259;
+}
+
+.profile-field.is-invalid input,
+.profile-field.is-invalid .auth-password-wrap {
+  border-color: #c4a09b;
+}
+
+.profile-field .auth-password-toggle {
+  color: #967259;
+}
+
+.profile-field .auth-password-toggle:hover:not(:disabled) {
+  color: #7d5e49;
 }
 
 .profile-field input:disabled {
   opacity: 0.7;
   cursor: wait;
+  background: #faf8f6;
+}
+
+.profile-field .auth-password-wrap:has(input:disabled) {
+  opacity: 0.7;
   background: #faf8f6;
 }
 
@@ -504,10 +544,18 @@
 .profile-address-action:focus-visible,
 .profile-order-card:focus-visible,
 .profile-save-btn:focus-visible,
-.profile-text-btn:focus-visible,
-.profile-field input:focus-visible {
+.profile-text-btn:focus-visible {
   outline: 2px solid #967259;
   outline-offset: 3px;
+}
+
+.profile-field input:focus,
+.profile-field input:focus-visible,
+.profile-field select:focus,
+.profile-field select:focus-visible,
+.profile-field textarea:focus,
+.profile-field textarea:focus-visible {
+  outline: none;
 }
 
 .profile-skeleton {

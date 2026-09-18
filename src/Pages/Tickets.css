@@ -133,14 +133,21 @@
   min-height: 140px;
 }
 
-.ticket-form-group input:focus-visible,
-.ticket-form-group select:focus-visible,
-.ticket-form-group textarea:focus-visible,
 .tickets-create-btn:focus-visible,
 .tickets-retry-btn:focus-visible,
 .ticket-submit-btn:focus-visible {
   outline: 2px solid var(--tickets-accent);
   outline-offset: 2px;
+}
+
+.ticket-form-group input:focus,
+.ticket-form-group input:focus-visible,
+.ticket-form-group select:focus,
+.ticket-form-group select:focus-visible,
+.ticket-form-group textarea:focus,
+.ticket-form-group textarea:focus-visible {
+  outline: none;
+  border-color: var(--tickets-accent);
 }
 
 .tickets-loading {

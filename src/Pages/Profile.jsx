@@ -13,6 +13,7 @@ import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { formatPrice } from '../utils/products.js';
 import { formatOrderDate } from '../utils/orderDisplay.js';
 import { formatLoyaltyPoints } from '../utils/loyaltyDisplay.js';
+import PasswordInput from '../components/PasswordInput.jsx';
 import '../components/orders/orderStatus.css';
 import './Profile.css';
 import './CartPage.css';
@@ -618,76 +619,45 @@ export default function Profile() {
             <form className="profile-edit-form" onSubmit={handlePasswordSubmit} noValidate>
               <div className="profile-edit-grid">
                 {customer?.hasPassword ? (
-                  <div className="profile-field">
-                    <label htmlFor={currentPasswordId}>Current password</label>
-                    <input
-                      id={currentPasswordId}
-                      name="currentPassword"
-                      type="password"
-                      autoComplete="current-password"
-                      value={passwordForm.currentPassword}
-                      onChange={updatePasswordField('currentPassword')}
-                      disabled={passwordSaving}
-                      aria-invalid={Boolean(passwordErrors.currentPassword)}
-                      aria-describedby={
-                        passwordErrors.currentPassword
-                          ? `${currentPasswordId}-error`
-                          : undefined
-                      }
-                    />
-                    {passwordErrors.currentPassword ? (
-                      <p id={`${currentPasswordId}-error`} className="profile-field-error">
-                        {passwordErrors.currentPassword}
-                      </p>
-                    ) : null}
-                  </div>
+                  <PasswordInput
+                    id={currentPasswordId}
+                    name="currentPassword"
+                    label="Current password"
+                    autoComplete="current-password"
+                    value={passwordForm.currentPassword}
+                    onChange={updatePasswordField('currentPassword')}
+                    disabled={passwordSaving}
+                    error={passwordErrors.currentPassword}
+                    fieldClassName="profile-field"
+                    errorClassName="profile-field-error"
+                  />
                 ) : null}
 
-                <div className="profile-field">
-                  <label htmlFor={newPasswordId}>New password</label>
-                  <input
-                    id={newPasswordId}
-                    name="newPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    value={passwordForm.newPassword}
-                    onChange={updatePasswordField('newPassword')}
-                    disabled={passwordSaving}
-                    aria-invalid={Boolean(passwordErrors.newPassword)}
-                    aria-describedby={
-                      passwordErrors.newPassword ? `${newPasswordId}-error` : undefined
-                    }
-                  />
-                  {passwordErrors.newPassword ? (
-                    <p id={`${newPasswordId}-error`} className="profile-field-error">
-                      {passwordErrors.newPassword}
-                    </p>
-                  ) : null}
-                </div>
+                <PasswordInput
+                  id={newPasswordId}
+                  name="newPassword"
+                  label="New password"
+                  autoComplete="new-password"
+                  value={passwordForm.newPassword}
+                  onChange={updatePasswordField('newPassword')}
+                  disabled={passwordSaving}
+                  error={passwordErrors.newPassword}
+                  fieldClassName="profile-field"
+                  errorClassName="profile-field-error"
+                />
 
-                <div className="profile-field">
-                  <label htmlFor={confirmPasswordId}>Confirm new password</label>
-                  <input
-                    id={confirmPasswordId}
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    value={passwordForm.confirmPassword}
-                    onChange={updatePasswordField('confirmPassword')}
-                    disabled={passwordSaving}
-                    aria-invalid={Boolean(passwordErrors.confirmPassword)}
-                    aria-describedby={
-                      passwordErrors.confirmPassword
-                        ? `${confirmPasswordId}-error`
-                        : undefined
-                    }
-                  />
-                  {passwordErrors.confirmPassword ? (
-                    <p id={`${confirmPasswordId}-error`} className="profile-field-error">
-                      {passwordErrors.confirmPassword}
-                    </p>
-                  ) : null}
-                </div>
+                <PasswordInput
+                  id={confirmPasswordId}
+                  name="confirmPassword"
+                  label="Confirm new password"
+                  autoComplete="new-password"
+                  value={passwordForm.confirmPassword}
+                  onChange={updatePasswordField('confirmPassword')}
+                  disabled={passwordSaving}
+                  error={passwordErrors.confirmPassword}
+                  fieldClassName="profile-field"
+                  errorClassName="profile-field-error"
+                />
               </div>
 
               <div className="profile-edit-actions profile-edit-actions-split">

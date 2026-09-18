@@ -174,10 +174,15 @@
 }
 
 .ticket-back-link:focus-visible,
-.ticket-reply-form textarea:focus-visible,
 .ticket-reply-btn:focus-visible {
   outline: 2px solid #967259;
   outline-offset: 2px;
+}
+
+.ticket-reply-form textarea:focus,
+.ticket-reply-form textarea:focus-visible {
+  outline: none;
+  border-color: #967259;
 }
 
 @media (max-width: 768px) {

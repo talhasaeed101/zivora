@@ -1,7 +1,10 @@
 import { useId, useState } from 'react';
+import { EyeIcon, EyeOffIcon } from './icons.jsx';
+import './PasswordInput.css';
 
 export default function PasswordInput({
   id,
+  name,
   label,
   value,
   onChange,
@@ -12,16 +15,20 @@ export default function PasswordInput({
   autoComplete = 'new-password',
   required = false,
   labelAside = null,
+  fieldClassName = 'auth-field',
+  errorClassName = 'auth-field-error',
+  hintClassName = 'auth-field-hint',
 }) {
   const [visible, setVisible] = useState(false);
   const generatedId = useId();
   const inputId = id || generatedId;
   const errorId = `${inputId}-error`;
   const hintId = `${inputId}-hint`;
-  const describedBy = [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined;
+  const describedBy =
+    [error ? errorId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className={`auth-field${error ? ' is-invalid' : ''}`}>
+    <div className={`${fieldClassName}${error ? ' is-invalid' : ''}`}>
       {label || labelAside ? (
         <div className={labelAside ? 'auth-field-row' : undefined}>
           {label ? (
@@ -45,6 +52,7 @@ export default function PasswordInput({
       <div className="auth-password-wrap">
         <input
           id={inputId}
+          name={name}
           type={visible ? 'text' : 'password'}
           value={value}
           onChange={onChange}
@@ -63,16 +71,20 @@ export default function PasswordInput({
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
         >
-          {visible ? 'Hide' : 'Show'}
+          {visible ? (
+            <EyeOffIcon className="auth-password-toggle-icon" />
+          ) : (
+            <EyeIcon className="auth-password-toggle-icon" />
+          )}
         </button>
       </div>
       {hint && !error ? (
-        <span id={hintId} className="auth-field-hint">
+        <span id={hintId} className={hintClassName}>
           {hint}
         </span>
       ) : null}
       {error ? (
-        <span id={errorId} className="auth-field-error" role="alert">
+        <span id={errorId} className={errorClassName} role="alert">
           {error}
         </span>
       ) : null}
