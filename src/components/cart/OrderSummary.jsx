@@ -151,7 +151,7 @@ export default function OrderSummary({
             {promoError}
           </p>
         ) : null}
-
+{/* 
         {showLoyalty ? (
           <div className="cart-loyalty-block">
             <p className="cart-loyalty-available">
@@ -228,7 +228,7 @@ export default function OrderSummary({
               </p>
             ) : null}
           </div>
-        ) : null}
+        ) : null} */}
 
         <div className="cart-summary-rows">
           <div className="cart-summary-row">

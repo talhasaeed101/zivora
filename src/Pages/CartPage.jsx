@@ -38,8 +38,19 @@ function friendlyCartError(message, fallback) {
   }
 
   const lower = text.toLowerCase();
-  if (lower.includes('stock') || lower.includes('available') || lower.includes('quantity')) {
-    return 'Not enough stock available for that quantity.';
+  if (
+    lower.includes('stock') ||
+    lower.includes('available') ||
+    lower.includes('quantity') ||
+    lower.includes('reserve inventory') ||
+    lower.includes('insufficient')
+  ) {
+    return text.length <= 160 && !lower.includes('unable to reserve inventory for one or more')
+      ? text
+      : 'Not enough stock for one or more items. Update quantities and try again.';
+  }
+  if (lower.includes('size') || lower.includes('color') || lower.includes('variant')) {
+    return text;
   }
   if (lower.includes('promo') || lower.includes('coupon') || lower.includes('expired')) {
     return text;

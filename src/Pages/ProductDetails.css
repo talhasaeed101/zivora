@@ -20,9 +20,24 @@
 }
 
 .pd-main {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 32px 80px 80px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 32px 0 80px 80px;
+  overflow: visible;
+}
+
+.pd-breadcrumb,
+.pd-hero-section,
+.pd-description-section,
+.pd-conversion-block,
+.pd-reviews-section,
+.pd-state-panel {
+  padding-right: 80px;
+}
+
+.pd-related-section.product-discovery-rail .pd-related-header {
+  padding-right: 80px;
 }
 
 /* ── Breadcrumb ── */
@@ -1655,7 +1670,16 @@
 /* ── Tablet ── */
 @media (max-width: 1200px) {
   .pd-main {
-    padding: 32px 40px 64px;
+    padding: 32px 0 64px 40px;
+  }
+
+  .pd-breadcrumb,
+  .pd-hero-section,
+  .pd-description-section,
+  .pd-conversion-block,
+  .pd-reviews-section,
+  .pd-state-panel {
+    padding-right: 40px;
   }
 
   .pd-hero-grid {
@@ -1715,6 +1739,15 @@
   .pd-main {
     padding: 16px 16px 48px;
     overflow-x: clip;
+  }
+
+  .pd-breadcrumb,
+  .pd-hero-section,
+  .pd-description-section,
+  .pd-conversion-block,
+  .pd-reviews-section,
+  .pd-state-panel {
+    padding-right: 0;
   }
 
   .pd-breadcrumb {
@@ -2502,9 +2535,9 @@
 
 /* Phase 6A — CatalogProductCard rails on PDP — match home trending scroll + type */
 .product-discovery-rail {
-  width: calc(100% + 80px);
+  width: 100%;
   max-width: none;
-  margin: 0 -80px 48px 0;
+  margin: 0 0 48px;
   overflow: visible;
 }
 
@@ -2518,12 +2551,14 @@
   grid-auto-columns: 368px;
   grid-template-columns: unset;
   gap: 30px;
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 24px;
   padding-right: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 100%;
+  margin: 0;
 }
 
 .catalog-product-grid.product-discovery-grid::-webkit-scrollbar {
@@ -2582,8 +2617,8 @@
 
 @media (max-width: 1200px) {
   .product-discovery-rail {
-    width: calc(100% + 40px);
-    margin-right: -40px;
+    width: 100%;
+    margin-right: 0;
   }
 
   .product-discovery-rail .pd-related-header {
@@ -2619,12 +2654,12 @@
 
 @media (max-width: 768px) {
   .product-discovery-rail {
-    width: calc(100% + 16px);
-    margin-right: -16px;
+    width: 100%;
+    margin-right: 0;
   }
 
   .product-discovery-rail .pd-related-header {
-    padding-right: 16px;
+    padding-right: 0;
     flex-wrap: wrap;
     gap: 8px;
   }

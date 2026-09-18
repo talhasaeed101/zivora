@@ -7,7 +7,6 @@ import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
 import Reveal from '../components/Reveal.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { useSeo } from '../hooks/useSEO.js';
-import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { loadPublicCategories, loadPublicProducts } from '../services/catalogCache.js';
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { ShimmerCategoryHero, ShimmerProductGrid } from '../components/Shimmer.jsx';
@@ -19,7 +18,6 @@ const PAGE_SIZE = 12;
 
 export default function CategoryPage() {
   const { slug } = useParams();
-  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -233,7 +231,7 @@ export default function CategoryPage() {
 
           {category && !loading && !error && products.length > 0 ? (
             <div key={`${slug}-${page}`} className="catalog-results-fade">
-              <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
+              <div className="catalog-product-grid">
                 {products.map((product, index) => (
                   <Reveal
                     key={product._id}
@@ -243,7 +241,7 @@ export default function CategoryPage() {
                   >
                     <CatalogProductCard
                       product={product}
-                      variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                      variant="desktop"
                     />
                   </Reveal>
                 ))}

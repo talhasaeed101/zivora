@@ -125,11 +125,11 @@ export default function CartItem({
           ) : null}
 
           <div className="cart-item-meta">
-            <span className="cart-item-meta-row">
+            {/* <span className="cart-item-meta-row">
               <ClockIcon />
               <span>{shippingNote || 'Nationwide delivery'}</span>
-            </span>
-            <span className="cart-item-meta-divider" aria-hidden="true" />
+            </span> */}
+            {/* <span className="cart-item-meta-divider" aria-hidden="true" /> */}
             <span className="cart-item-meta-row">
               <ReturnIcon />
               <span>
@@ -138,7 +138,7 @@ export default function CartItem({
             </span>
           </div>
 
-          {onSaveForLater ? (
+          {/* {onSaveForLater ? (
             <button
               type="button"
               className="cart-item-save-later"
@@ -147,7 +147,7 @@ export default function CartItem({
             >
               {saving ? 'Saving…' : 'Save for later'}
             </button>
-          ) : null}
+          ) : null} */}
         </div>
       </div>
 

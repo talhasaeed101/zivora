@@ -11,7 +11,6 @@ import {
   useCampaignCountdown,
 } from '../components/campaign/campaignUi.jsx';
 import { useSeo } from '../hooks/useSEO.js';
-import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import { useCampaigns } from '../context/CampaignContext.jsx';
 import { publicCampaignApi } from '../services/api.js';
 import { ROUTES, campaignPath } from '../utils/navigation';
@@ -40,7 +39,6 @@ function formatDiscountLabel(campaign) {
  */
 export default function CampaignPage() {
   const { slug } = useParams();
-  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
   const { refresh: refreshActiveCampaigns } = useCampaigns();
 
   const [campaign, setCampaign] = useState(null);
@@ -268,11 +266,7 @@ export default function CampaignPage() {
 
               {!loading && products.length > 0 ? (
                 <div key={`${slug}-${page}`} className="catalog-results-fade">
-                  <div
-                    className={
-                      isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'
-                    }
-                  >
+                  <div className="catalog-product-grid">
                     {products.map((product, index) => (
                       <Reveal
                         key={product._id}
@@ -282,7 +276,7 @@ export default function CampaignPage() {
                       >
                         <CatalogProductCard
                           product={product}
-                          variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                          variant="desktop"
                         />
                       </Reveal>
                     ))}

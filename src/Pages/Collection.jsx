@@ -17,7 +17,6 @@ import {
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { useSeo } from '../hooks/useSEO.js';
-import { useMediaQuery } from '../hooks/useMediaQuery.js';
 import './Collection.css';
 
 const PAGE_SIZE = 12;
@@ -31,8 +30,6 @@ function Checkbox({ checked }) {
 }
 
 export default function Collection() {
-  const isMobileCatalog = useMediaQuery('(max-width: 768px)');
-
   const [searchParams, setSearchParams] = useSearchParams();
   const filterButtonRef = useRef(null);
   const filterPanelRef = useRef(null);
@@ -618,7 +615,7 @@ export default function Collection() {
               </div>
             ) : (
               <div key={`${sort}-${categoryFilter}-${priceRangeId}-${productFlag}-${searchQuery}-${page}`} className="catalog-results-fade">
-                <div className={isMobileCatalog ? 'catalog-product-grid-mobile' : 'catalog-product-grid'}>
+                <div className="catalog-product-grid">
                   {products.map((product, index) => (
                     <Reveal
                       key={product._id}
@@ -628,7 +625,7 @@ export default function Collection() {
                     >
                       <CatalogProductCard
                         product={product}
-                        variant={isMobileCatalog ? 'mobile' : 'desktop'}
+                        variant="desktop"
                       />
                     </Reveal>
                   ))}

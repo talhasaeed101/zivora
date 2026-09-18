@@ -10,7 +10,7 @@ import { useCampaigns } from '../../context/CampaignContext.jsx';
 import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
 import '../CompareButton.css';
 
-const TITLE_PREVIEW_LENGTH = 15;
+const TITLE_PREVIEW_LENGTH = 20;
 
 function truncateTitle(title) {
   const text = String(title || '').trim();

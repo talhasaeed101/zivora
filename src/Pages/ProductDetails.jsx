@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -241,6 +241,27 @@ export default function ProductDetails() {
   const ratingCount = Number(reviewSummary?.reviewCount ?? activeProduct?.reviewCount) || 0;
   const ratingValue = Number(reviewSummary?.averageRating ?? activeProduct?.averageRating) || 0;
 
+  const alsoLikeProducts = useMemo(() => {
+    const currentId = String(activeProduct?._id || '');
+    const seen = new Set(currentId ? [currentId] : []);
+    const merged = [];
+
+    for (const item of [...relatedProducts, ...recentlyViewedProducts]) {
+      const id = String(item?._id || '');
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      merged.push(item);
+      if (merged.length >= 8) break;
+    }
+
+    return merged;
+  }, [activeProduct?._id, relatedProducts, recentlyViewedProducts]);
+
+  const relatedIdSet = useMemo(
+    () => new Set(relatedProducts.map((item) => String(item?._id))),
+    [relatedProducts]
+  );
+
   useSeo({
     title: activeProduct?.title || (loading ? 'Product' : 'Product'),
     description: truncateText(
@@ -433,30 +454,23 @@ export default function ProductDetails() {
           />
         </Reveal>
 
-        {relatedProducts.length > 0 && (
+        {alsoLikeProducts.length > 0 && (
           <Reveal as="div" variant="fade-up">
             <ProductDiscoveryRail
               title="You May Also Like"
-              products={relatedProducts.slice(0, 8)}
+              products={alsoLikeProducts}
               viewAllHref={ROUTES.collection}
-              onProductClick={(relatedProduct) =>
-                trackRelatedProductClick({
-                  productId: relatedProduct._id,
-                  sourceProductId: activeProduct._id,
-                })
-              }
-            />
-          </Reveal>
-        )}
-
-        {recentlyViewedProducts.length > 0 && (
-          <Reveal as="div" variant="fade-up">
-            <ProductDiscoveryRail
-              title="You Might Also Like"
-              products={recentlyViewedProducts}
-              onProductClick={(viewedProduct) =>
-                trackRecentlyViewedClick({ productId: viewedProduct._id })
-              }
+              onProductClick={(clickedProduct) => {
+                const productId = clickedProduct._id;
+                if (relatedIdSet.has(String(productId))) {
+                  trackRelatedProductClick({
+                    productId,
+                    sourceProductId: activeProduct._id,
+                  });
+                  return;
+                }
+                trackRecentlyViewedClick({ productId });
+              }}
             />
           </Reveal>
         )}
