@@ -23,6 +23,8 @@ import {
   getTrackingUrl,
   hasCustomerShippingInfo,
 } from '../utils/orderDisplay.js';
+import { BANK_TRANSFER_DETAILS } from '../constants/bankTransfer.js';
+import { buildBankTransferWhatsAppUrl } from '../utils/whatsappPayment.js';
 import { ORDER_STATUS } from '../constants/orderConstants.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import '../components/orders/orderStatus.css';
@@ -482,35 +484,38 @@ export default function OrderDetails() {
                 <h2 className="od-section-title">Verify your payment</h2>
                 <p className="od-muted-copy">
                   Please transfer <strong>{formatPrice(order.total)}</strong> to the account below,
-                  then send your payment screenshot on WhatsApp.
+                  then send your payment screenshot on WhatsApp. Admin will verify payment and
+                  confirm your order.
                 </p>
                 <div className="od-bank-card">
                   <div className="od-bank-row">
                     <span>Bank</span>
-                    <strong>United Bank Limited (UBL)</strong>
+                    <strong>{BANK_TRANSFER_DETAILS.bankName}</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>Account title</span>
-                    <strong>ZIVORAH</strong>
+                    <strong>{BANK_TRANSFER_DETAILS.accountTitle}</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>Account number</span>
-                    <strong>0000385727723</strong>
+                    <strong>{BANK_TRANSFER_DETAILS.accountNumber}</strong>
                   </div>
                   <div className="od-bank-row">
                     <span>IBAN</span>
-                    <strong className="od-tracking-id">PK09UNIL0109000385727723</strong>
+                    <strong className="od-tracking-id">{BANK_TRANSFER_DETAILS.iban}</strong>
                   </div>
                 </div>
                 <a
-                  href={`https://wa.me/923392215181?text=${encodeURIComponent(
-                    `Hello Zivorah,\n\nI have completed my payment.\n\nOrder ID:\n${order.orderNumber}\n\nName:\n${address?.name || ''}\n\nPlease find my payment screenshot attached.`
-                  )}`}
+                  href={buildBankTransferWhatsAppUrl({
+                    orderNumber: order.orderNumber,
+                    customerName: address?.name,
+                    totalLabel: formatPrice(order.total),
+                  })}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="od-whatsapp-btn"
                 >
-                  Send Payment Screenshot
+                  Open WhatsApp &amp; send screenshot
                 </a>
               </Reveal>
             ) : null}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal.jsx';
@@ -15,6 +15,11 @@ import {
   BANK_TRANSFER_DETAILS,
   formatPaymentMethodLabel,
 } from '../constants/bankTransfer.js';
+import {
+  buildBankTransferWhatsAppUrl,
+  openBankTransferWhatsApp,
+} from '../utils/whatsappPayment.js';
+import { formatPaymentStatusLabel } from '../utils/orderDisplay.js';
 import { trackPurchase } from '../utils/analytics.js';
 import { PDP_TRUST_ITEMS } from '../constants/storefrontCopy.js';
 import './Collection.css';
@@ -46,11 +51,13 @@ function CopyButton({ value, label }) {
 export default function OrderSuccess() {
   usePrivatePageSeo({ title: 'Order Confirmed', path: '/order-success' });
   const { id } = useParams();
+  const location = useLocation();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [completeLook, setCompleteLook] = useState([]);
   const purchaseTracked = useRef(false);
+  const whatsappOpened = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -120,12 +127,41 @@ export default function OrderSuccess() {
     };
   }, [order]);
 
+  useEffect(() => {
+    if (!order || order.paymentMethod !== 'bank_transfer' || whatsappOpened.current) {
+      return undefined;
+    }
+
+    if (location.state?.openWhatsApp !== true) {
+      return undefined;
+    }
+
+    whatsappOpened.current = true;
+    const timer = window.setTimeout(() => {
+      openBankTransferWhatsApp({
+        orderNumber: order.orderNumber,
+        customerName: order.deliveryAddress?.name,
+        totalLabel: formatPrice(order.total),
+      });
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [order, location.state]);
+
   const address = order?.deliveryAddress;
   const addressLine = address
     ? [address.address || address.street, address.city, address.province, address.postalCode]
         .filter(Boolean)
         .join(', ')
     : '';
+  const isBankTransfer = order?.paymentMethod === 'bank_transfer';
+  const whatsappHref = isBankTransfer
+    ? buildBankTransferWhatsAppUrl({
+        orderNumber: order.orderNumber,
+        customerName: address?.name,
+        totalLabel: formatPrice(order.total),
+      })
+    : null;
 
   const reviewProduct = order?.items?.[0];
   const reviewProductId =
@@ -165,12 +201,17 @@ export default function OrderSuccess() {
 
         {!loading && order ? (
           <Reveal className="order-success-card" variant="fade-up">
-            <p className="order-success-kicker">Order confirmed</p>
-            <h1 className="order-success-title">Thank you for your order</h1>
+            <p className="order-success-kicker">
+              {isBankTransfer ? 'Payment verification needed' : 'Order confirmed'}
+            </p>
+            <h1 className="order-success-title">
+              {isBankTransfer ? 'Send payment on WhatsApp' : 'Thank you for your order'}
+            </h1>
 
             <p className="order-success-reassure">
-              We&apos;ve received your order and will take care of the rest. You can track progress
-              from your orders anytime.
+              {isBankTransfer
+                ? 'Transfer the amount using the bank details below, then send your payment screenshot on WhatsApp. Your order stays pending until admin verifies the payment.'
+                : "We've received your order and will take care of the rest. You can track progress from your orders anytime."}
             </p>
 
             <ul className="order-success-trust" aria-label="What happens next">
@@ -179,11 +220,10 @@ export default function OrderSuccess() {
               ))}
             </ul>
 
-            {order.paymentMethod === 'bank_transfer' ? (
+            {isBankTransfer ? (
               <p className="order-success-text">
-                Transfer the total amount using the details below, then send your payment screenshot
-                with your order number on WhatsApp. Your order remains pending until payment is
-                verified.
+                WhatsApp will open with your order and bank details. Attach your transfer screenshot
+                there. After admin verification, your order will be confirmed.
               </p>
             ) : (
               <p className="order-success-text">
@@ -206,12 +246,18 @@ export default function OrderSuccess() {
                 <strong>{formatPaymentMethodLabel(order.paymentMethod)}</strong>
               </div>
               <div className="order-success-row">
+                <span>Payment status</span>
+                <strong>
+                  {formatPaymentStatusLabel(order.paymentStatus, order.paymentMethod)}
+                </strong>
+              </div>
+              <div className="order-success-row">
                 <span>Status</span>
                 <strong>{ORDER_STATUS_LABELS[order.orderStatus] || order.orderStatus}</strong>
               </div>
             </div>
 
-            {order.paymentMethod === 'bank_transfer' ? (
+            {isBankTransfer ? (
               <>
                 <div className="success-bank-card">
                   <h2 className="success-bank-title">Bank transfer details</h2>
@@ -247,16 +293,15 @@ export default function OrderSuccess() {
                 <div className="whatsapp-verification-box">
                   <p className="whatsapp-note-text">
                     After transferring, send your payment screenshot and order number via WhatsApp.
+                    Admin will verify and then confirm your order.
                   </p>
                   <a
-                    href={`https://wa.me/${BANK_TRANSFER_DETAILS.whatsappNumber}?text=${encodeURIComponent(
-                      `Hello Zivorah,\n\nI have completed my payment.\n\nOrder number:\n${order.orderNumber}\n\nName:\n${address?.name || ''}\n\nPlease find my payment screenshot attached.`
-                    )}`}
+                    href={whatsappHref}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="order-success-whatsapp-btn"
                   >
-                    Send payment screenshot
+                    Open WhatsApp &amp; send screenshot
                   </a>
                 </div>
               </>

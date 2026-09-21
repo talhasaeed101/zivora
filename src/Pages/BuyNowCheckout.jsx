@@ -3,7 +3,6 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal.jsx';
-import OrderThankYouModal from '../components/cart/OrderThankYouModal.jsx';
 import { BANK_TRANSFER_DETAILS } from '../constants/bankTransfer.js';
 import { addressApi, orderApi } from '../services/api.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
@@ -16,6 +15,7 @@ import {
 } from '../utils/buyNowCheckout.js';
 import { useCart } from '../context/CartContext.jsx';
 import { toast } from '../context/ToastContext.jsx';
+import { openBankTransferWhatsApp } from '../utils/whatsappPayment.js';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import './CartPage.css';
 import './BuyNowCheckout.css';
@@ -102,7 +102,6 @@ export default function BuyNowCheckout() {
   const [addressModalError, setAddressModalError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
-  const [thankYouOrderId, setThankYouOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
 
   usePrivatePageSeo({
@@ -233,7 +232,24 @@ export default function BuyNowCheckout() {
       if (isCartCheckout) {
         await refreshCart();
       }
-      setThankYouOrderId(response.data._id);
+
+      const placedOrder = response.data;
+      const orderId = placedOrder._id;
+
+      if (paymentMethod === 'bank_transfer') {
+        openBankTransferWhatsApp({
+          orderNumber: placedOrder.orderNumber,
+          customerName: selectedAddress?.name,
+          totalLabel: formatPrice(placedOrder.total),
+        });
+      }
+
+      navigate(`/order-success/${orderId}`, {
+        replace: true,
+        state: {
+          openWhatsApp: paymentMethod === 'bank_transfer',
+        },
+      });
     } catch (err) {
       setCheckoutError(err.message || 'Checkout failed. Please try again.');
       toast.error(err.message || 'Checkout failed. Please try again.');
@@ -243,7 +259,7 @@ export default function BuyNowCheckout() {
   };
 
   if (isCartCheckout) {
-    if (!cartItems.length && !thankYouOrderId) {
+    if (!cartItems.length) {
       return <Navigate to={ROUTES.cart} replace />;
     }
   } else if (!product?._id) {
@@ -311,8 +327,9 @@ export default function BuyNowCheckout() {
                 <div className="bn-bank-panel">
                   <h2 className="bn-panel-heading">Bank transfer details</h2>
                   <p className="bn-panel-text">
-                    Transfer the order total, then send your payment screenshot on WhatsApp after
-                    placing the order.
+                    Transfer the order total using the details below. After you place the order,
+                    WhatsApp will open with your order and bank details — send your payment
+                    screenshot there. Admin verifies payment, then your order is confirmed.
                   </p>
                   <div className="bn-bank-details">
                     <div className="bn-bank-row">
@@ -478,15 +495,6 @@ export default function BuyNowCheckout() {
         onSave={handleSaveAddress}
         saving={addressSaving}
         error={addressModalError}
-      />
-
-      <OrderThankYouModal
-        isOpen={Boolean(thankYouOrderId)}
-        orderId={thankYouOrderId}
-        onClose={() => {
-          setThankYouOrderId(null);
-          navigate(ROUTES.collection, { replace: true });
-        }}
       />
     </div>
   );
