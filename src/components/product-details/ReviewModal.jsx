@@ -4,7 +4,14 @@ import { uploadApi } from '../../services/api.js';
 
 const MAX_REVIEW_IMAGES = 5;
 
-function RatingSelector({ label, value, onChange, disabled = false, labelledBy }) {
+function RatingSelector({
+  label,
+  value,
+  onChange,
+  disabled = false,
+  labelledBy,
+  required = false,
+}) {
   const [hoverValue, setHoverValue] = useState(0);
   const displayValue = hoverValue || value;
 
@@ -12,6 +19,13 @@ function RatingSelector({ label, value, onChange, disabled = false, labelledBy }
     <div className="pd-review-field">
       <span className="pd-review-field-label" id={labelledBy}>
         {label}
+        {required ? (
+          <>
+            {' '}
+            <span aria-hidden="true">*</span>
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : null}
       </span>
       <div
         className="pd-review-rating-select"
@@ -19,34 +33,37 @@ function RatingSelector({ label, value, onChange, disabled = false, labelledBy }
         aria-labelledby={labelledBy}
         onMouseLeave={() => setHoverValue(0)}
       >
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            className={`pd-review-rating-btn ${star <= displayValue ? 'pd-review-rating-btn-active' : ''}`}
-            onClick={() => onChange(star)}
-            onMouseEnter={() => !disabled && setHoverValue(star)}
-            disabled={disabled}
-            aria-label={`${star} star${star > 1 ? 's' : ''}`}
-            aria-pressed={value === star}
-          >
-            <StarIcon
-              filled={star <= displayValue}
-              className={star <= displayValue ? 'pd-star-filled' : 'pd-star-empty'}
-            />
-          </button>
-        ))}
+        {[1, 2, 3, 4, 5].map((star) => {
+          const isFilled = displayValue > 0 && star <= displayValue;
+          return (
+            <button
+              key={star}
+              type="button"
+              className={`pd-review-rating-btn${isFilled ? ' pd-review-rating-btn-active' : ''}`}
+              onClick={() => onChange(star)}
+              onMouseEnter={() => !disabled && setHoverValue(star)}
+              disabled={disabled}
+              aria-label={`${star} star${star > 1 ? 's' : ''}`}
+              aria-pressed={value === star}
+            >
+              <StarIcon
+                filled={isFilled}
+                className={isFilled ? 'pd-star-filled' : 'pd-star-empty'}
+              />
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 const defaultForm = {
-  rating: 5,
+  rating: 0,
   title: '',
   comment: '',
-  sizingRating: 5,
-  qualityRating: 5,
+  sizingRating: 0,
+  qualityRating: 0,
   images: [],
 };
 
@@ -56,11 +73,11 @@ function formFromReview(review) {
   }
 
   return {
-    rating: review.rating || 5,
+    rating: Number(review.rating) >= 1 ? review.rating : 0,
     title: review.title || '',
     comment: review.comment || '',
-    sizingRating: review.sizingRating || 5,
-    qualityRating: review.qualityRating || 5,
+    sizingRating: Number(review.sizingRating) >= 1 ? review.sizingRating : 0,
+    qualityRating: Number(review.qualityRating) >= 1 ? review.qualityRating : 0,
     images: Array.isArray(review.images) ? review.images.filter(Boolean) : [],
   };
 }
@@ -86,6 +103,7 @@ function ReviewModalContent({
   error = '',
 }) {
   const [form, setForm] = useState(() => formFromReview(review));
+  const [formError, setFormError] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageError, setImageError] = useState('');
   const isEditing = Boolean(review?._id);
@@ -156,17 +174,24 @@ function ReviewModalContent({
       return;
     }
 
-    if (!form.comment.trim()) {
+    if (!form.rating || form.rating < 1) {
+      setFormError('Please select an overall rating.');
       return;
     }
 
+    if (!form.comment.trim()) {
+      setFormError('Please write a comment for your review.');
+      return;
+    }
+
+    setFormError('');
     onSubmit({
       productId,
       rating: form.rating,
       title: form.title.trim(),
       comment: form.comment.trim(),
-      sizingRating: form.sizingRating,
-      qualityRating: form.qualityRating,
+      ...(form.sizingRating >= 1 ? { sizingRating: form.sizingRating } : {}),
+      ...(form.qualityRating >= 1 ? { qualityRating: form.qualityRating } : {}),
       images: form.images,
     });
   };
@@ -247,9 +272,9 @@ function ReviewModalContent({
         </div>
 
         <form className="pd-review-modal-form" onSubmit={handleSubmit} noValidate>
-          {error ? (
+          {error || formError ? (
             <div className="pd-review-modal-error" role="alert">
-              {error}
+              {error || formError}
             </div>
           ) : null}
 
@@ -257,8 +282,12 @@ function ReviewModalContent({
             label="Overall rating"
             labelledBy={overallId}
             value={form.rating}
-            onChange={(rating) => setForm((prev) => ({ ...prev, rating }))}
+            onChange={(rating) => {
+              setFormError('');
+              setForm((prev) => ({ ...prev, rating }));
+            }}
             disabled={saving}
+            required
           />
 
           <div className="pd-review-field">
@@ -287,28 +316,33 @@ function ReviewModalContent({
               className="pd-review-textarea"
               rows={4}
               value={form.comment}
-              onChange={(event) => setForm((prev) => ({ ...prev, comment: event.target.value }))}
+              onChange={(event) => {
+                setFormError('');
+                setForm((prev) => ({ ...prev, comment: event.target.value }));
+              }}
               placeholder="Tell others what you liked about this product"
               disabled={saving}
               required
             />
           </div>
 
-          <RatingSelector
-            label="Sizing"
-            labelledBy={sizingId}
-            value={form.sizingRating}
-            onChange={(sizingRating) => setForm((prev) => ({ ...prev, sizingRating }))}
-            disabled={saving}
-          />
+          <div className="pd-review-rating-pair">
+            <RatingSelector
+              label="Sizing"
+              labelledBy={sizingId}
+              value={form.sizingRating}
+              onChange={(sizingRating) => setForm((prev) => ({ ...prev, sizingRating }))}
+              disabled={saving}
+            />
 
-          <RatingSelector
-            label="Quality"
-            labelledBy={qualityId}
-            value={form.qualityRating}
-            onChange={(qualityRating) => setForm((prev) => ({ ...prev, qualityRating }))}
-            disabled={saving || uploadingImage}
-          />
+            <RatingSelector
+              label="Quality"
+              labelledBy={qualityId}
+              value={form.qualityRating}
+              onChange={(qualityRating) => setForm((prev) => ({ ...prev, qualityRating }))}
+              disabled={saving || uploadingImage}
+            />
+          </div>
 
           <div className="pd-review-field">
             <span className="pd-review-field-label" id={photosId}>

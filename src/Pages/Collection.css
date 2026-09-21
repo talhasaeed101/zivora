@@ -182,6 +182,17 @@
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.catalog-toolbar-clear:hover,
+.catalog-toolbar-clear:active,
+.catalog-toolbar-clear:focus-visible {
+  color: var(--catalog-accent);
+  background: none;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .catalog-sort-wrap {
@@ -310,8 +321,7 @@
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.catalog-chip:hover,
-.catalog-chip-clear:hover {
+.catalog-chip:hover {
   border-color: var(--catalog-accent);
   background: #fff;
 }
@@ -323,6 +333,18 @@
   text-decoration: underline;
   text-underline-offset: 3px;
   padding-left: 4px;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.catalog-chip-clear:hover,
+.catalog-chip-clear:active,
+.catalog-chip-clear:focus-visible {
+  border-color: transparent;
+  background: transparent;
+  color: var(--catalog-accent);
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .catalog-content-row {
@@ -416,6 +438,17 @@
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.catalog-clear-filters:hover,
+.catalog-clear-filters:active,
+.catalog-clear-filters:focus-visible {
+  color: var(--catalog-accent);
+  background: none;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .catalog-grid-wrap {
@@ -647,16 +680,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.25s ease, transform 0.25s ease;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none;
 }
 
-.catalog-wishlist-btn:hover {
-  color: var(--catalog-accent);
-  transform: scale(1.06);
+.catalog-wishlist-btn:hover,
+.catalog-wishlist-btn:active,
+.catalog-wishlist-btn:focus-visible {
+  color: var(--catalog-gray);
+  background: none;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-.catalog-wishlist-btn-active {
+.catalog-wishlist-btn-active,
+.catalog-wishlist-btn-active:hover,
+.catalog-wishlist-btn-active:active,
+.catalog-wishlist-btn-active:focus-visible {
   color: var(--catalog-accent);
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .catalog-price-row {

@@ -111,20 +111,23 @@
 }
 
 .landing-page .trending-wishlist-btn,
-.landing-page .bundles-wishlist-btn,
-.catalog-wishlist-btn {
+.landing-page .bundles-wishlist-btn {
   transition: color 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .landing-page .trending-wishlist-btn:hover,
-.landing-page .bundles-wishlist-btn:hover,
-.catalog-wishlist-btn:hover {
+.landing-page .bundles-wishlist-btn:hover {
   transform: scale(1.08);
 }
 
-.landing-page .trending-wishlist-btn-active,
-.landing-page .bundles-wishlist-btn-active,
+.catalog-wishlist-btn:hover,
+.catalog-wishlist-btn:active,
 .catalog-wishlist-btn-active {
+  transform: none !important;
+}
+
+.landing-page .trending-wishlist-btn-active,
+.landing-page .bundles-wishlist-btn-active {
   animation: wishlist-soft-pop 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 

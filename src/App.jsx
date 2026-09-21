@@ -10,6 +10,7 @@ import { ToastProvider } from './context/ToastContext.jsx';
 import { CampaignProvider } from './context/CampaignContext.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx';
 import CompareBar from './components/CompareBar.jsx';
 import Login from './Pages/Login.jsx';
 import Register from './Pages/Register.jsx';
@@ -76,6 +77,7 @@ function App() {
             <WishlistProvider>
               <CompareProvider>
               <ToastProvider>
+              <ScrollToTop />
               <AnalyticsTracker />
               <CompareBar />
           <Suspense fallback={<RouteFallback />}>
