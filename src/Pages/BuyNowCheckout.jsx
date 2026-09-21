@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal.jsx';
+import OrderThankYouModal from '../components/cart/OrderThankYouModal.jsx';
 import { BANK_TRANSFER_DETAILS } from '../constants/bankTransfer.js';
 import { addressApi, orderApi } from '../services/api.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
@@ -102,6 +103,7 @@ export default function BuyNowCheckout() {
   const [addressModalError, setAddressModalError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [thankYouOrderId, setThankYouOrderId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
 
   usePrivatePageSeo({
@@ -242,14 +244,15 @@ export default function BuyNowCheckout() {
           customerName: selectedAddress?.name,
           totalLabel: formatPrice(placedOrder.total),
         });
+
+        navigate(`/order-success/${orderId}`, {
+          replace: true,
+          state: { openWhatsApp: true },
+        });
+        return;
       }
 
-      navigate(`/order-success/${orderId}`, {
-        replace: true,
-        state: {
-          openWhatsApp: paymentMethod === 'bank_transfer',
-        },
-      });
+      setThankYouOrderId(orderId);
     } catch (err) {
       setCheckoutError(err.message || 'Checkout failed. Please try again.');
       toast.error(err.message || 'Checkout failed. Please try again.');
@@ -259,10 +262,10 @@ export default function BuyNowCheckout() {
   };
 
   if (isCartCheckout) {
-    if (!cartItems.length) {
+    if (!cartItems.length && !thankYouOrderId) {
       return <Navigate to={ROUTES.cart} replace />;
     }
-  } else if (!product?._id) {
+  } else if (!product?._id && !thankYouOrderId) {
     return <Navigate to={ROUTES.collection} replace />;
   }
 
@@ -495,6 +498,15 @@ export default function BuyNowCheckout() {
         onSave={handleSaveAddress}
         saving={addressSaving}
         error={addressModalError}
+      />
+
+      <OrderThankYouModal
+        isOpen={Boolean(thankYouOrderId)}
+        orderId={thankYouOrderId}
+        onClose={() => {
+          setThankYouOrderId(null);
+          navigate(ROUTES.collection, { replace: true });
+        }}
       />
     </div>
   );
