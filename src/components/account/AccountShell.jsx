@@ -13,24 +13,27 @@ export default function AccountShell({
   countLabel,
   children,
   hideHeader = false,
+  hideSidebar = false,
 }) {
   return (
-    <div className="account-page">
+    <div className={`account-page${hideSidebar ? ' account-page-full' : ''}`}>
       <Navbar homeHref={ROUTES.home} />
 
       <main id="main-content" className="account-main">
-        <div className="account-container">
-          <Reveal className="account-sidebar" variant="fade-up">
-            <AccountNav active={active} />
-          </Reveal>
+        <div className={`account-container${hideSidebar ? ' account-container-full' : ''}`}>
+          {!hideSidebar ? (
+            <Reveal className="account-sidebar" variant="fade-up">
+              <AccountNav active={active} />
+            </Reveal>
+          ) : null}
 
           <div className="account-content">
             {!hideHeader && title ? (
               <Reveal className="account-content-header" variant="fade-up" delay={40}>
                 <nav className="account-breadcrumb" aria-label="Breadcrumb">
-                  <Link to={ROUTES.profile}>Account</Link>
-                  {active !== 'overview' ? (
+                  {hideSidebar ? (
                     <>
+                      <Link to={ROUTES.home}>Home</Link>
                       <span className="account-breadcrumb-sep" aria-hidden="true">
                         /
                       </span>
@@ -38,10 +41,22 @@ export default function AccountShell({
                     </>
                   ) : (
                     <>
-                      <span className="account-breadcrumb-sep" aria-hidden="true">
-                        /
-                      </span>
-                      <span className="account-breadcrumb-current">Overview</span>
+                      <Link to={ROUTES.profile}>Account</Link>
+                      {active !== 'overview' ? (
+                        <>
+                          <span className="account-breadcrumb-sep" aria-hidden="true">
+                            /
+                          </span>
+                          <span className="account-breadcrumb-current">{title}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="account-breadcrumb-sep" aria-hidden="true">
+                            /
+                          </span>
+                          <span className="account-breadcrumb-current">Overview</span>
+                        </>
+                      )}
                     </>
                   )}
                 </nav>

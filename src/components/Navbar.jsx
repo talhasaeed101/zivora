@@ -21,7 +21,7 @@ import './Navbar.css';
 const PRIMARY_NAV = [
   { label: 'Home', to: '/', end: true },
   { label: 'Collection', to: ROUTES.collection },
-  { label: 'About', to: ROUTES.about },
+  // { label: 'About', to: ROUTES.about },
   { label: 'Contact', to: ROUTES.contact },
 ];
 

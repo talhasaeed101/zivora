@@ -5,6 +5,7 @@ import Reveal from '../components/Reveal.jsx';
 import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import WishlistOptionsModal from '../components/wishlist/WishlistOptionsModal.jsx';
+import { ChevronDownIcon } from '../components/icons';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { toast } from '../context/ToastContext.jsx';
@@ -24,7 +25,6 @@ import {
   WISHLIST_SORT_OPTIONS,
 } from '../utils/wishlistShopping.js';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
-import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import {
   trackWishlistView,
   trackWishlistAddToCart,
@@ -32,6 +32,10 @@ import {
 } from '../utils/analytics.js';
 import '../Pages/Collection.css';
 import './Wishlist.css';
+
+function getWishlistSortLabel(value) {
+  return WISHLIST_SORT_OPTIONS.find((option) => option.value === value)?.label || 'Recently Added';
+}
 
 function resolveQuickAdd(product) {
   if (!product?._id || (product.status && product.status !== 'active')) {
@@ -169,6 +173,7 @@ export default function Wishlist() {
   const [actionMessage, setActionMessage] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [sort, setSort] = useState('recent');
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [filter, setFilter] = useState('all');
   const [optionsProduct, setOptionsProduct] = useState(null);
 
@@ -304,14 +309,9 @@ export default function Wishlist() {
       title="Wishlist"
       description="A curated collection of jewelry you love."
       countLabel={!loading && !error && totalItems > 0 ? countLabel : undefined}
+      hideSidebar
     >
       <div className="wishlist-page">
-        <PageBreadcrumbs
-          items={[
-            { name: 'Home', path: '/' },
-            { name: 'Wishlist' },
-          ]}
-        />
         <div className="wishlist-toolbar">
           <Link to={ROUTES.collection} className="wishlist-text-link">
             Continue Shopping
@@ -333,20 +333,40 @@ export default function Wishlist() {
                 </button>
               ))}
             </div>
-            <label className="wishlist-sort">
-              <span className="wishlist-sort-label">Sort</span>
-              <select
-                className="wishlist-sort-select"
-                value={sort}
-                onChange={(event) => setSort(event.target.value)}
+            <div className="catalog-sort-wrap wishlist-sort-wrap">
+              <button
+                type="button"
+                className="catalog-sort-btn"
+                onClick={() => setSortMenuOpen((open) => !open)}
+                aria-expanded={sortMenuOpen}
+                aria-haspopup="listbox"
+                aria-label="Sort wishlist"
               >
-                {WISHLIST_SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+                Sort by: <strong>{getWishlistSortLabel(sort)}</strong>
+                <ChevronDownIcon className="w-3.5 h-3.5" />
+              </button>
+              {sortMenuOpen ? (
+                <div className="catalog-sort-menu" role="listbox" aria-label="Sort wishlist">
+                  {WISHLIST_SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      role="option"
+                      aria-selected={sort === option.value}
+                      className={`catalog-sort-option${
+                        sort === option.value ? ' catalog-sort-option-active' : ''
+                      }`}
+                      onClick={() => {
+                        setSort(option.value);
+                        setSortMenuOpen(false);
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -424,7 +444,7 @@ export default function Wishlist() {
         ) : null}
 
         {!loading && !error && visibleProducts.length > 0 ? (
-          <div className="wishlist-grid catalog-results-fade">
+          <div className="catalog-product-grid wishlist-product-grid catalog-results-fade">
             {visibleProducts.map((product, index) => {
               const isBusy = busyProductId === product._id;
               const isRemoving = removingIds.includes(product._id);
@@ -432,11 +452,12 @@ export default function Wishlist() {
               return (
                 <Reveal
                   key={product._id}
-                  className="wishlist-card-reveal"
+                  className="catalog-card-reveal"
                   variant="fade-up"
                   delay={Math.min(index, 7) * 40}
                 >
                   <div
+                    className={isRemoving ? 'wishlist-card-removing' : undefined}
                     onClick={() =>
                       trackWishlistProductClick({
                         productId: product._id,
@@ -449,7 +470,6 @@ export default function Wishlist() {
                     <CatalogProductCard
                       product={product}
                       variant="desktop"
-                      removing={isRemoving}
                       showLowStock
                       showCompare={false}
                       footer={

@@ -41,6 +41,21 @@
   align-items: start;
 }
 
+.account-container-full {
+  max-width: 1440px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.account-page-full .account-main {
+  padding: 40px clamp(16px, 4vw, 80px) 80px;
+}
+
+.account-page-full .account-content {
+  width: 100%;
+  max-width: none;
+}
+
 .account-sidebar {
   position: sticky;
   top: 110px;

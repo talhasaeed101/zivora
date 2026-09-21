@@ -126,7 +126,7 @@ export default function CatalogProductCard({
             </h3>
             {actionButtons}
           </div>
-          {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
+          {/* {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null} */}
           <div className="catalog-price-row">
             <span className="catalog-price-current">{formatPrice(product.price)}</span>
             {product.oldPrice && product.oldPrice > product.price ? (
@@ -164,7 +164,7 @@ export default function CatalogProductCard({
                 </h3>
                 {actionButtons}
               </div>
-              {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
+              {/* {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null} */}
               <div className="catalog-price-row">
                 <span className="catalog-price-current">{formatPrice(product.price)}</span>
                 {product.oldPrice && product.oldPrice > product.price ? (
@@ -183,7 +183,7 @@ export default function CatalogProductCard({
               </h3>
               {actionButtons}
             </div>
-            {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null}
+            {/* {categoryName ? <p className="catalog-product-label">{categoryName}</p> : null} */}
             <div className="catalog-price-row">
               <span className="catalog-price-current">{formatPrice(product.price)}</span>
               {product.oldPrice && product.oldPrice > product.price ? (
