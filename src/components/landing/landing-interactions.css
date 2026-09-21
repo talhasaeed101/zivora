@@ -48,11 +48,11 @@
   transition: transform 0.3s ease;
 }
 
-.landing-page .offer-submit-btn:hover:not(:disabled),
+/* .landing-page .offer-submit-btn:hover:not(:disabled),
 .landing-page .footer-submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+} */
 
 .landing-page .featured-category-link:hover {
   opacity: 0.75;

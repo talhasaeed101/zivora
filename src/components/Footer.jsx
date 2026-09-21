@@ -126,7 +126,7 @@ export default function Footer() {
         <div className="footer-bottom-bar">
           <div className="footer-legal-group">
             <span className="footer-copyright">
-              ©2026 ZIVORA. ALL RIGHTS RESERVED
+              ©2026 ZIVORAH. ALL RIGHTS RESERVED
             </span>
             <Link to={ROUTES.privacyPolicy} className="footer-legal-link">
               PRIVACY POLICY

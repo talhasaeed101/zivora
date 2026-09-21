@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Testimonials from './components/Testimonials';
@@ -13,6 +14,7 @@ import BrandQuote from './components/BrandQuote';
 import CampaignHomeSection from './components/CampaignHomeSection';
 import GiftIdeasSection from './components/GiftIdeasSection';
 import SocialProofHomeSections from './components/SocialProofHomeSections.jsx';
+import { scrollToHomeSection } from './utils/navigation';
 import './components/landing/landing-tokens.css';
 import './components/landing/landing-interactions.css';
 import SearchResults from './search-results';
@@ -20,6 +22,7 @@ import ProductDetails from './Pages/ProductDetails.jsx';
 import CartPage from './Pages/CartPage.jsx';
 
 export default function LegacyPages() {
+  const location = useLocation();
   const [page, setPage] = useState('home');
   // const [timerActive, setTimerActive] = useState(isLaunchTimerActive);
 
@@ -41,6 +44,25 @@ export default function LegacyPages() {
     window.addEventListener('popstate', resolvePage);
     return () => window.removeEventListener('popstate', resolvePage);
   }, []);
+
+  useEffect(() => {
+    if (page !== 'home') {
+      return undefined;
+    }
+
+    const sectionId = location.hash?.replace(/^#/, '');
+    if (!sectionId) {
+      return undefined;
+    }
+
+    const run = () => scrollToHomeSection(sectionId);
+    const immediate = window.setTimeout(run, 50);
+    const delayed = window.setTimeout(run, 280);
+    return () => {
+      window.clearTimeout(immediate);
+      window.clearTimeout(delayed);
+    };
+  }, [page, location.hash, location.search]);
 
 
   if (page === 'cart') {

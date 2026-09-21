@@ -106,6 +106,20 @@ export function homeSection(hash) {
   return `/?home=true#${hash}`;
 }
 
+export function scrollToHomeSection(sectionId, { behavior = 'smooth' } = {}) {
+  if (!sectionId || typeof document === 'undefined') {
+    return false;
+  }
+
+  const el = document.getElementById(sectionId);
+  if (!el) {
+    return false;
+  }
+
+  el.scrollIntoView({ behavior, block: 'start' });
+  return true;
+}
+
 export const FOOTER_LINKS = {
   Home: ROUTES.home,
   Collection: ROUTES.collection,
@@ -119,6 +133,7 @@ export const NAV_ROUTES = {
   HOME: ROUTES.home,
   COLLECTION: ROUTES.collection,
   BUNDLES: homeSection('bundles'),
+  TESTIMONIALS: homeSection('testimonials'),
   CONTACT: ROUTES.contact,
   ABOUT: ROUTES.about,
 };

@@ -88,10 +88,10 @@
   transition: opacity 0.2s;
   white-space: nowrap;
 }
-
+/* 
 .footer-submit-btn:hover {
   opacity: 0.9;
-}
+} */
 
 .footer-submit-btn:disabled {
   opacity: 0.6;
@@ -189,7 +189,7 @@
 }
 
 .footer-legal-link:hover {
-  opacity: 0.7;
+  color: #fff
 }
 
 .footer-social-row {

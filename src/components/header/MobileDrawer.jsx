@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ROUTES, categoryPath } from '../../utils/navigation';
+import { ROUTES, categoryPath, scrollToHomeSection } from '../../utils/navigation';
+
+const SECTION_HASHES = new Set(['#bundles', '#testimonials']);
 
 export default function MobileDrawer({
   open,
@@ -11,6 +13,7 @@ export default function MobileDrawer({
   triggerRef,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, logout, customer } = useAuth();
   const [shopOpen, setShopOpen] = useState(false);
   const drawerRef = useRef(null);
@@ -99,10 +102,23 @@ export default function MobileDrawer({
               key={item.to}
               to={item.to}
               end={item.end}
-              className={({ isActive }) =>
-                `mobile-drawer-link${isActive ? ' is-active' : ''}`
-              }
-              onClick={onClose}
+              className={({ isActive }) => {
+                let active = isActive;
+                if (item.sectionId) {
+                  active =
+                    location.pathname === '/' &&
+                    location.hash === `#${item.sectionId}`;
+                } else if (item.end) {
+                  active = isActive && !SECTION_HASHES.has(location.hash);
+                }
+                return `mobile-drawer-link${active ? ' is-active' : ''}`;
+              }}
+              onClick={() => {
+                onClose();
+                if (item.sectionId && location.pathname === '/') {
+                  window.setTimeout(() => scrollToHomeSection(item.sectionId), 0);
+                }
+              }}
             >
               {item.label}
             </NavLink>

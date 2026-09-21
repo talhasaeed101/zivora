@@ -72,9 +72,9 @@ export default function PasswordInput({
           aria-pressed={visible}
         >
           {visible ? (
-            <EyeOffIcon className="auth-password-toggle-icon" />
-          ) : (
             <EyeIcon className="auth-password-toggle-icon" />
+          ) : (
+            <EyeOffIcon className="auth-password-toggle-icon" />
           )}
         </button>
       </div>

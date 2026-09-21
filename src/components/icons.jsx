@@ -177,7 +177,7 @@ export function CompareIcon({ className = 'w-4 h-4', filled = false }) {
   );
 }
 
-/** Open eye — password visible */
+/** Open eye — password currently visible */
 export function EyeIcon({ className = 'w-5 h-5' }) {
   return (
     <svg
@@ -198,7 +198,7 @@ export function EyeIcon({ className = 'w-5 h-5' }) {
   );
 }
 
-/** Crossed-out eye — password hidden */
+/** Crossed-out eye — password currently hidden */
 export function EyeOffIcon({ className = 'w-5 h-5' }) {
   return (
     <svg

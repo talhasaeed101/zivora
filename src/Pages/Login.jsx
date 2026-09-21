@@ -1,11 +1,11 @@
 import { useId, useRef, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import AuthShell from '../components/auth/AuthShell.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
 import SocialLoginButtons from '../components/SocialLoginButtons.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
-import { getSafeReturnPath, friendlyAuthError } from '../utils/authUi.js';
+import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
@@ -13,7 +13,6 @@ import './Auth.css';
 export default function Login() {
   usePrivatePageSeo({ title: 'Sign In', path: '/login' });
   const navigate = useNavigate();
-  const location = useLocation();
   const { login, isAuthenticated, loading: authLoading } = useAuth();
   const emailId = useId();
   const errorRef = useRef(null);
@@ -32,7 +31,7 @@ export default function Login() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={getSafeReturnPath(location.state?.from, ROUTES.profile)} replace />;
+    return <Navigate to={ROUTES.home} replace />;
   }
 
   const validate = () => {
@@ -74,8 +73,7 @@ export default function Login() {
 
     try {
       await login(email.trim(), password);
-      const redirectTo = getSafeReturnPath(location.state?.from, ROUTES.home);
-      navigate(redirectTo, { replace: true });
+      navigate(ROUTES.home, { replace: true });
     } catch (error) {
       if (error.data?.errorCode === 'EMAIL_NOT_VERIFIED' || error.message === 'Email not verified') {
         navigate(ROUTES.verifyEmail, {
@@ -103,8 +101,7 @@ export default function Login() {
 
       <SocialLoginButtons
         onSuccess={() => {
-          const redirectTo = getSafeReturnPath(location.state?.from, ROUTES.home);
-          navigate(redirectTo, { replace: true });
+          navigate(ROUTES.home, { replace: true });
         }}
         onError={(msg) => {
           toast.error(friendlyAuthError({ message: msg }, 'Social sign-in failed. Please try again.'));

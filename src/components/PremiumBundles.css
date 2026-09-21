@@ -1,6 +1,6 @@
 .bundles-section {
   width: 100%;
-  padding: 200px 0 80px 80px;
+  padding: 200px 80px 80px 80px;
 }
 
 .bundles-inner {
@@ -189,7 +189,7 @@
 
 @media (max-width: 1400px) {
   .bundles-section {
-    padding: 72px 0 80px 80px;
+    padding: 72px 80px 80px 80px;
   }
 }
 

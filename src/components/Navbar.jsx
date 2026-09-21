@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   SearchIcon,
   ShoppingCartIcon,
   UserIcon,
   HeartIcon,
 } from './icons';
-import { ROUTES } from '../utils/navigation';
+import { ROUTES, homeSection, scrollToHomeSection } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
@@ -14,13 +14,16 @@ import { loadPublicCategories } from '../services/catalogCache.js';
 // import { isLaunchTimerActive } from './LaunchTimer.jsx';
 import AnnouncementBar from './AnnouncementBar.jsx';
 import HeaderSearch from './header/HeaderSearch.jsx';
-import AccountMenu from './header/AccountMenu.jsx';
 import MobileDrawer from './header/MobileDrawer.jsx';
 import './Navbar.css';
+
+const SECTION_HASHES = new Set(['#bundles', '#testimonials']);
 
 const PRIMARY_NAV = [
   { label: 'Home', to: '/', end: true },
   { label: 'Collection', to: ROUTES.collection },
+  { label: 'Bundles', to: homeSection('bundles'), sectionId: 'bundles' },
+  { label: 'Testimonials', to: homeSection('testimonials'), sectionId: 'testimonials' },
   // { label: 'About', to: ROUTES.about },
   { label: 'Contact', to: ROUTES.contact },
 ];
@@ -34,7 +37,6 @@ function formatBadgeCount(count) {
 
 export default function Navbar({ homeHref = ROUTES.home }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
@@ -44,12 +46,10 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [categories, setCategories] = useState([]);
 
   const menuTriggerRef = useRef(null);
-  const accountTriggerRef = useRef(null);
   const shopTriggerRef = useRef(null);
   const shopMenuRef = useRef(null);
 
@@ -60,7 +60,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   const closeOverlays = useCallback(() => {
     setMenuOpen(false);
     setSearchOpen(false);
-    setAccountOpen(false);
     setShopOpen(false);
   }, []);
 
@@ -154,27 +153,33 @@ export default function Navbar({ homeHref = ROUTES.home }) {
     }
   };
 
+  const isNavItemActive = (item, isActive) => {
+    if (item.sectionId) {
+      return location.pathname === '/' && location.hash === `#${item.sectionId}`;
+    }
+    if (item.end) {
+      return isActive && !SECTION_HASHES.has(location.hash);
+    }
+    return isActive;
+  };
+
+  const handleNavClick = (event, item) => {
+    blockIfLocked(event);
+    if (locked || !item.sectionId) {
+      return;
+    }
+    if (location.pathname === '/') {
+      window.setTimeout(() => scrollToHomeSection(item.sectionId), 0);
+    }
+  };
+
   const openSearch = () => {
     if (locked) {
       return;
     }
-    setAccountOpen(false);
     setShopOpen(false);
     setMenuOpen(false);
     setSearchOpen(true);
-  };
-
-  const toggleAccount = () => {
-    if (locked) {
-      return;
-    }
-    if (!isAuthenticated) {
-      navigate(ROUTES.login, { state: { from: location.pathname } });
-      return;
-    }
-    setSearchOpen(false);
-    setShopOpen(false);
-    setAccountOpen((value) => !value);
   };
 
   const toggleMenu = () => {
@@ -182,7 +187,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
       return;
     }
     setSearchOpen(false);
-    setAccountOpen(false);
     setShopOpen(false);
     setMenuOpen((value) => !value);
   };
@@ -238,11 +242,11 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                   prefetch="intent"
                   end={Boolean(item.end)}
                   className={({ isActive }) =>
-                    `navbar-link${isActive ? ' is-active' : ''}`
+                    `navbar-link${isNavItemActive(item, isActive) ? ' is-active' : ''}`
                   }
                   aria-disabled={locked || undefined}
                   tabIndex={locked ? -1 : undefined}
-                  onClick={blockIfLocked}
+                  onClick={(event) => handleNavClick(event, item)}
                 >
                   {item.label}
                 </NavLink>
@@ -296,28 +300,17 @@ export default function Navbar({ homeHref = ROUTES.home }) {
                 ) : null}
               </Link>
 
-              <div className="navbar-account-wrap">
-                <button
-                  type="button"
-                  ref={accountTriggerRef}
-                  className="navbar-icon-btn navbar-icon-desktop"
-                  aria-label="Account"
-                  aria-expanded={accountOpen}
-                  aria-haspopup="menu"
-                  disabled={locked}
-                  aria-disabled={locked || undefined}
-                  onClick={toggleAccount}
-                >
-                  <UserIcon className="w-6 h-6" />
-                </button>
-                {!locked ? (
-                  <AccountMenu
-                    open={accountOpen}
-                    onClose={() => setAccountOpen(false)}
-                    triggerRef={accountTriggerRef}
-                  />
-                ) : null}
-              </div>
+              <Link
+                to={isAuthenticated ? ROUTES.profile : ROUTES.login}
+                state={isAuthenticated ? undefined : { from: ROUTES.profile }}
+                className="navbar-icon-btn navbar-icon-desktop"
+                aria-label={isAuthenticated ? 'Profile' : 'Sign in'}
+                aria-disabled={locked || undefined}
+                tabIndex={locked ? -1 : undefined}
+                onClick={blockIfLocked}
+              >
+                <UserIcon className="w-6 h-6" />
+              </Link>
             </div>
           </div>
         </div>
