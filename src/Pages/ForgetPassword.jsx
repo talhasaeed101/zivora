@@ -75,7 +75,7 @@ export default function ForgetPassword() {
           <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
             <label htmlFor={emailId}>
               Email <span className="auth-required" aria-hidden="true">
-                *
+               
               </span>
             </label>
             <input
