@@ -128,6 +128,7 @@ export default function ProductDetails() {
   const [error, setError] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
   const [selectedColor, setSelectedColor] = useState('gold');
+  const [galleryBadge, setGalleryBadge] = useState(null);
   const [reviewSummary, setReviewSummary] = useState(null);
 
   useEffect(() => {
@@ -384,6 +385,7 @@ export default function ProductDetails() {
                 images={galleryImages}
                 title={activeProduct.title}
                 productId={activeProduct._id}
+                badge={galleryBadge}
               />
             </Reveal>
             <Reveal variant="fade-up" delay={80} className="pd-info-reveal">
@@ -391,6 +393,7 @@ export default function ProductDetails() {
                 product={activeProduct}
                 reviewSummary={reviewSummary}
                 onColorChange={setSelectedColor}
+                onGalleryBadgeChange={setGalleryBadge}
               />
             </Reveal>
           </div>

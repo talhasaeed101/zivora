@@ -5,8 +5,8 @@ import { ROUTES } from '../../utils/navigation';
 
 const ACCOUNT_LINKS = [
   { label: 'Account Overview', to: ROUTES.profile },
-  { label: 'My Orders', to: ROUTES.orders },
-  { label: 'Notifications', to: ROUTES.notifications },
+  // { label: 'My Orders', to: ROUTES.orders },
+  // { label: 'Notifications', to: ROUTES.notifications },
 ];
 
 export default function AccountMenu({ open, onClose, triggerRef }) {

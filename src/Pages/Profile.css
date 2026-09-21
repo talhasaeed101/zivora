@@ -190,6 +190,16 @@
   text-decoration: underline;
 }
 
+.profile-subsection-title {
+  margin: 28px 0 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #000;
+}
+
 .profile-pending-banner {
   margin: 0 0 18px;
   padding: 14px 16px;

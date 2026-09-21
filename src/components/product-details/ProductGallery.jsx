@@ -3,7 +3,7 @@ import { ArrowLeftIcon, ArrowRightIcon, SearchIcon, ChevronLeftIcon, ChevronRigh
 import SafeImage from '../SafeImage.jsx';
 import { PLACEHOLDER_IMAGE } from '../../utils/products.js';
 
-export default function ProductGallery({ images, title = 'Product image', productId }) {
+export default function ProductGallery({ images, title = 'Product image', productId, badge }) {
   const imageKey = Array.isArray(images) ? images.join('|') : String(images || '');
   return (
     <ProductGalleryInner
@@ -11,11 +11,12 @@ export default function ProductGallery({ images, title = 'Product image', produc
       images={images}
       title={title}
       productId={productId}
+      badge={badge}
     />
   );
 }
 
-function ProductGalleryInner({ images, title = 'Product image', productId }) {
+function ProductGalleryInner({ images, title = 'Product image', productId, badge }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fadeKey, setFadeKey] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -84,6 +85,12 @@ function ProductGalleryInner({ images, title = 'Product image', productId }) {
             height={900}
           />
         </button>
+
+        {badge ? (
+          <span className="pd-gallery-sale-badge" aria-label={badge}>
+            {badge}
+          </span>
+        ) : null}
 
 
 

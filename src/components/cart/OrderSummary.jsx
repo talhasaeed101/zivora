@@ -87,7 +87,7 @@ export default function OrderSummary({
             ) : null}
           </ul>
         ) : null}
-
+{/* 
         <div className="cart-review-meta">
           <div className="cart-review-meta-row">
             <span>Deliver to</span>
@@ -102,7 +102,7 @@ export default function OrderSummary({
             <span>Payment</span>
             <strong>{paymentLabel}</strong>
           </div>
-        </div>
+        </div> */}
 
         {appliedPromo ? (
           <div className="cart-promo-applied-row">

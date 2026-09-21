@@ -13,6 +13,7 @@ import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
 import SavedCartItem from '../components/cart/SavedCartItem';
 import OrderThankYouModal from '../components/cart/OrderThankYouModal';
+import { ChevronDownIcon } from '../components/icons';
 import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -30,6 +31,17 @@ import {
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import './CartPage.css';
+
+const CART_SORT_OPTIONS = [
+  { value: 'latest', label: 'Latest added' },
+  { value: 'price-asc', label: 'Price: low to high' },
+  { value: 'price-desc', label: 'Price: high to low' },
+  { value: 'name', label: 'Name' },
+];
+
+function getCartSortLabel(value) {
+  return CART_SORT_OPTIONS.find((option) => option.value === value)?.label || 'Latest added';
+}
 
 function friendlyCartError(message, fallback) {
   const text = (message || '').trim();
@@ -173,6 +185,7 @@ export default function CartPage() {
   const [savingItemId, setSavingItemId] = useState(null);
   const [savedBusyId, setSavedBusyId] = useState(null);
   const [cartSort, setCartSort] = useState('latest');
+  const [cartSortMenuOpen, setCartSortMenuOpen] = useState(false);
 
   const items = useMemo(
     () =>
@@ -837,20 +850,40 @@ export default function CartPage() {
               </div>
 
               {showCartContent ? (
-                <label className="cart-sort">
-                  <span className="cart-sort-prefix">Sort by:</span>
-                  <select
-                    className="cart-sort-select"
-                    value={cartSort}
-                    onChange={(event) => setCartSort(event.target.value)}
+                <div className="cart-sort-wrap">
+                  <button
+                    type="button"
+                    className="cart-sort-btn"
+                    onClick={() => setCartSortMenuOpen((open) => !open)}
+                    aria-expanded={cartSortMenuOpen}
+                    aria-haspopup="listbox"
                     aria-label="Sort cart items"
                   >
-                    <option value="latest">Latest added</option>
-                    <option value="price-asc">Price: low to high</option>
-                    <option value="price-desc">Price: high to low</option>
-                    <option value="name">Name</option>
-                  </select>
-                </label>
+                    Sort by: <strong>{getCartSortLabel(cartSort)}</strong>
+                    <ChevronDownIcon className="w-3.5 h-3.5" />
+                  </button>
+                  {cartSortMenuOpen ? (
+                    <div className="cart-sort-menu" role="listbox" aria-label="Sort cart items">
+                      {CART_SORT_OPTIONS.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          role="option"
+                          aria-selected={cartSort === option.value}
+                          className={`cart-sort-option${
+                            cartSort === option.value ? ' cart-sort-option-active' : ''
+                          }`}
+                          onClick={() => {
+                            setCartSort(option.value);
+                            setCartSortMenuOpen(false);
+                          }}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
               ) : (
                 <Link to={ROUTES.collection} className="cart-continue-link">
                   Continue shopping

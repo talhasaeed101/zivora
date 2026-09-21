@@ -29,7 +29,6 @@ import { PDP_TRUST_ITEMS } from '../../constants/storefrontCopy.js';
 import { ROUTES } from '../../utils/navigation.js';
 import { storeBuyNowCheckout } from '../../utils/buyNowCheckout.js';
 import {
-  CampaignSaleBadge,
   useCampaignCountdown,
 } from '../campaign/campaignUi.jsx';
 
@@ -59,7 +58,7 @@ const resolveMetalColors = (metalColors = []) =>
     .filter(Boolean)
     .filter((metal, index, arr) => arr.findIndex((item) => item.value === metal.value) === index);
 
-export default function ProductInfo({ product, reviewSummary, onColorChange }) {
+export default function ProductInfo({ product, reviewSummary, onColorChange, onGalleryBadgeChange }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, customer } = useAuth();
@@ -150,6 +149,12 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
     Boolean(campaignForSelection?.merchandising?.showCountdown && campaignForSelection?.endAt),
     onCampaignExpire
   );
+
+  const galleryBadgeText = campaignBadge || (showSale ? 'Sale' : null);
+
+  useEffect(() => {
+    onGalleryBadgeChange?.(galleryBadgeText);
+  }, [galleryBadgeText, onGalleryBadgeChange]);
 
   const hasRealReviews =
     reviewSummary &&
@@ -626,8 +631,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange }) {
             <span className="pd-info-price-old">{formatPrice(product.oldPrice)}</span>
           ) : null}
         </p>
-        {campaignBadge ? <CampaignSaleBadge text={campaignBadge} className="pd-info-campaign-badge" /> : null}
-        {!campaignBadge && showSale ? <span className="pd-info-sale-badge">Sale</span> : null}
       </div>
 
       {(campaignPdpText || campaignCountdown) && (

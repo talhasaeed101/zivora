@@ -6,8 +6,8 @@ import './account.css';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Account Overview', to: ROUTES.profile, end: true },
-  { id: 'orders', label: 'My Orders', to: ROUTES.orders },
-  { id: 'notifications', label: 'Notifications', to: ROUTES.notifications },
+  // { id: 'orders', label: 'My Orders', to: ROUTES.orders },
+  // { id: 'notifications', label: 'Notifications', to: ROUTES.notifications },
 ];
 
 export default function AccountNav({ active }) {
@@ -67,7 +67,7 @@ export default function AccountNav({ active }) {
           </li>
         ))}
       </ul>
-
+{/* 
       <button
         type="button"
         className="account-nav-logout"
@@ -76,7 +76,7 @@ export default function AccountNav({ active }) {
         aria-busy={loggingOut || undefined}
       >
         {loggingOut ? 'Signing out…' : 'Log out'}
-      </button>
+      </button> */}
     </nav>
   );
 }

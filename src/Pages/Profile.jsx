@@ -317,51 +317,95 @@ export default function Profile() {
     return Object.keys(next).length === 0;
   };
 
-  const handleProfileSubmit = async (event) => {
+  const isProfileChanged = () => {
+    if (!customer) {
+      return false;
+    }
+    const baselineEmail = (customer.pendingEmail || customer.email || '').trim();
+    return (
+      profileForm.name.trim() !== (customer.name || '').trim() ||
+      profileForm.email.trim() !== baselineEmail ||
+      profileForm.phone.trim() !== (customer.phone || '').trim()
+    );
+  };
+
+  const isPasswordAttempted = () =>
+    Boolean(
+      passwordForm.currentPassword ||
+        passwordForm.newPassword ||
+        passwordForm.confirmPassword
+    );
+
+  const handleSaveProfile = async (event) => {
     event.preventDefault();
-    if (profileSaving || !validateProfile()) {
+    if (profileSaving || passwordSaving) {
+      return;
+    }
+
+    const profileChanged = isProfileChanged();
+    const passwordAttempted = isPasswordAttempted();
+
+    if (!profileChanged && !passwordAttempted) {
+      toast.error('No changes to save.');
+      return;
+    }
+
+    const profileOk = profileChanged ? validateProfile() : true;
+    if (!profileChanged) {
+      setProfileErrors({});
+    }
+    const passwordOk = passwordAttempted ? validatePassword() : true;
+    if (!passwordAttempted) {
+      setPasswordErrors({});
+    }
+
+    if (!profileOk || !passwordOk) {
       return;
     }
 
     setProfileSaving(true);
+    const messages = [];
+
     try {
-      const result = await updateProfile({
-        name: profileForm.name.trim(),
-        email: profileForm.email.trim(),
-        phone: profileForm.phone.trim(),
-      });
-      toast.success(result.message || 'Profile updated successfully.');
-      setStatusMessage(result.message || 'Profile updated successfully.');
-    } catch {
-      // Error toast handled automatically by api.js
+      if (profileChanged) {
+        try {
+          const result = await updateProfile({
+            name: profileForm.name.trim(),
+            email: profileForm.email.trim(),
+            phone: profileForm.phone.trim(),
+          });
+          messages.push(result.message || 'Profile updated successfully.');
+        } catch {
+          // Error toast handled automatically by api.js
+        }
+      }
+
+      if (passwordAttempted) {
+        setPasswordSaving(true);
+        try {
+          const result = await changePassword({
+            currentPassword: passwordForm.currentPassword || undefined,
+            newPassword: passwordForm.newPassword,
+            confirmPassword: passwordForm.confirmPassword,
+          });
+          setPasswordForm({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+          });
+          messages.push(result.message || 'Password updated successfully.');
+        } catch {
+          // Error toast handled automatically by api.js
+        }
+      }
+
+      if (messages.length) {
+        const combined = messages.join(' ');
+        toast.success(combined);
+        setStatusMessage(combined);
+      }
     } finally {
       setProfileSaving(false);
-    }
-  };
-
-  const handlePasswordSubmit = async (event) => {
-    event.preventDefault();
-    if (passwordSaving || !validatePassword()) {
-      return;
-    }
-
-    setPasswordSaving(true);
-    try {
-      const result = await changePassword({
-        currentPassword: passwordForm.currentPassword || undefined,
-        newPassword: passwordForm.newPassword,
-        confirmPassword: passwordForm.confirmPassword,
-      });
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-      toast.success(result.message || 'Password updated successfully.');
-      setStatusMessage(result.message || 'Password updated successfully.');
-    } catch {
-      // Error toast handled automatically by api.js
-    } finally {
       setPasswordSaving(false);
     }
   };
@@ -523,7 +567,7 @@ export default function Profile() {
               </div>
             ) : null}
 
-            <form className="profile-edit-form" onSubmit={handleProfileSubmit} noValidate>
+            <form className="profile-edit-form" onSubmit={handleSaveProfile} noValidate>
               <div className="profile-edit-grid">
                 <div className="profile-field">
                   <label htmlFor={nameId}>Name</label>
@@ -534,7 +578,7 @@ export default function Profile() {
                     autoComplete="name"
                     value={profileForm.name}
                     onChange={updateProfileField('name')}
-                    disabled={profileSaving}
+                    disabled={profileSaving || passwordSaving}
                     aria-invalid={Boolean(profileErrors.name)}
                     aria-describedby={profileErrors.name ? `${nameId}-error` : undefined}
                   />
@@ -555,7 +599,7 @@ export default function Profile() {
                     inputMode="email"
                     value={profileForm.email}
                     onChange={updateProfileField('email')}
-                    disabled={profileSaving}
+                    disabled={profileSaving || passwordSaving}
                     aria-invalid={Boolean(profileErrors.email)}
                     aria-describedby={
                       profileErrors.email
@@ -588,35 +632,19 @@ export default function Profile() {
                     autoComplete="tel"
                     value={profileForm.phone}
                     onChange={updateProfileField('phone')}
-                    disabled={profileSaving}
+                    disabled={profileSaving || passwordSaving}
                     placeholder="+923001234567"
                   />
                 </div>
               </div>
 
-              <div className="profile-edit-actions">
-                <button type="submit" className="profile-save-btn" disabled={profileSaving}>
-                  {profileSaving ? 'Saving…' : 'Save profile'}
-                </button>
-              </div>
-            </form>
-          </Reveal>
+              <h3 className="profile-subsection-title">Password</h3>
+              {/* <p className="profile-helper">
+                {customer?.hasPassword
+                  ? 'Leave blank to keep your current password. Fill these only if you want to change it.'
+                  : 'Optional — set a password to also sign in with email (for example after Google sign-in).'}
+              </p> */}
 
-          <Reveal
-            as="section"
-            className="profile-section"
-            variant="fade-up"
-            delay={90}
-            id="profile-security"
-          >
-            <h2 className="profile-section-title">Password &amp; security</h2>
-            <p className="profile-helper">
-              {customer?.hasPassword
-                ? 'Change your password below, or use the forgot-password email link if you cannot sign in.'
-                : 'Your account has no password yet (for example Google sign-in). Set one below to also sign in with email.'}
-            </p>
-
-            <form className="profile-edit-form" onSubmit={handlePasswordSubmit} noValidate>
               <div className="profile-edit-grid">
                 {customer?.hasPassword ? (
                   <PasswordInput
@@ -626,7 +654,7 @@ export default function Profile() {
                     autoComplete="current-password"
                     value={passwordForm.currentPassword}
                     onChange={updatePasswordField('currentPassword')}
-                    disabled={passwordSaving}
+                    disabled={profileSaving || passwordSaving}
                     error={passwordErrors.currentPassword}
                     fieldClassName="profile-field"
                     errorClassName="profile-field-error"
@@ -640,7 +668,7 @@ export default function Profile() {
                   autoComplete="new-password"
                   value={passwordForm.newPassword}
                   onChange={updatePasswordField('newPassword')}
-                  disabled={passwordSaving}
+                  disabled={profileSaving || passwordSaving}
                   error={passwordErrors.newPassword}
                   fieldClassName="profile-field"
                   errorClassName="profile-field-error"
@@ -653,7 +681,7 @@ export default function Profile() {
                   autoComplete="new-password"
                   value={passwordForm.confirmPassword}
                   onChange={updatePasswordField('confirmPassword')}
-                  disabled={passwordSaving}
+                  disabled={profileSaving || passwordSaving}
                   error={passwordErrors.confirmPassword}
                   fieldClassName="profile-field"
                   errorClassName="profile-field-error"
@@ -661,12 +689,16 @@ export default function Profile() {
               </div>
 
               <div className="profile-edit-actions profile-edit-actions-split">
-                <button type="submit" className="profile-save-btn" disabled={passwordSaving}>
-                  {passwordSaving ? 'Updating…' : 'Update password'}
+                <button
+                  type="submit"
+                  className="profile-save-btn"
+                  disabled={profileSaving || passwordSaving}
+                >
+                  {profileSaving || passwordSaving ? 'Updating Changes...' : 'Update Changes'}
                 </button>
-                <Link to={ROUTES.forgetPassword} className="profile-text-link">
+                {/* <Link to={ROUTES.forgetPassword} className="profile-text-link">
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
             </form>
           </Reveal>
@@ -762,7 +794,7 @@ export default function Profile() {
             ) : null}
           </Reveal>
 
-          <Reveal as="section" className="profile-section" variant="fade-up" delay={120}>
+          {/* <Reveal as="section" className="profile-section" variant="fade-up" delay={120}>
             <div className="profile-section-header">
               <h2 className="profile-section-title">Recent orders</h2>
               {orders.length > 0 ? (
@@ -809,7 +841,7 @@ export default function Profile() {
                 ))}
               </div>
             ) : null}
-          </Reveal>
+          </Reveal> */}
         </div>
       ) : null}
 
