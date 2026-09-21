@@ -6,10 +6,8 @@ import Reveal from '../components/Reveal.jsx';
 import CartItem from '../components/cart/CartItem';
 import OrderSummary from '../components/cart/OrderSummary';
 import RecommendedProducts from '../components/cart/RecommendedProducts';
-import DeliveryAddressSection from '../components/cart/DeliveryAddressSection';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
 import { toast } from '../context/ToastContext.jsx';
-import CheckoutPaymentSection from '../components/cart/CheckoutPaymentSection';
 import RemoveFromBagModal from '../components/cart/RemoveFromBagModal';
 import SavedCartItem from '../components/cart/SavedCartItem';
 import OrderThankYouModal from '../components/cart/OrderThankYouModal';
@@ -18,7 +16,7 @@ import { ROUTES } from '../utils/navigation';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
-import { addressApi, cartApi, orderApi, loyaltyApi } from '../services/api.js';
+import { addressApi, cartApi, loyaltyApi } from '../services/api.js';
 import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { trackCheckoutStart } from '../utils/analytics.js';
@@ -28,6 +26,7 @@ import {
   getLoyaltyRedeemValidationError,
   parseLoyaltyRedeemInput,
 } from '../utils/loyaltyDisplay.js';
+import { storeCartCheckout } from '../utils/buyNowCheckout.js';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import './CartPage.css';
@@ -86,13 +85,6 @@ function friendlyCartError(message, fallback) {
   }
 
   return text;
-}
-
-function scrollToCheckoutSection(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
 }
 
 function CartSkeleton() {
@@ -693,6 +685,7 @@ export default function CartPage() {
       setAddressModalOpen(false);
       setEditingAddress(null);
       setAddressSectionError('');
+      setCheckoutError('');
       setStatusMessage('Delivery address saved.');
     } catch (err) {
       // Error toast handled automatically by api.js
@@ -743,11 +736,7 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
-    if (checkingOut) {
-      return;
-    }
-
+  const handleCheckout = () => {
     setCheckoutError('');
     setActionError('');
     setAddressSectionError('');
@@ -760,53 +749,35 @@ export default function CartPage() {
 
     if (items.length === 0) {
       setCheckoutError('Your cart is empty.');
+      toast.error('Your cart is empty.');
       return;
     }
 
     if (!selectedAddress?.id) {
-      const message = 'Please add a delivery address before placing your order.';
+      const message = 'Add address please';
+      setCheckoutError(message);
       setAddressSectionError(message);
-      setCheckoutError(message);
-      scrollToCheckoutSection('checkout-delivery');
+      toast.error(message);
       return;
     }
 
-    if (!paymentMethod) {
-      const message = 'Please select a payment method.';
-      setPaymentSectionError(message);
-      setCheckoutError(message);
-      scrollToCheckoutSection('checkout-payment');
-      return;
-    }
+    const payload = {
+      mode: 'cart',
+      addressId: selectedAddress.id,
+      promoCode: appliedPromoCode || activePromo?.code || undefined,
+      loyaltyPoints: appliedLoyaltyPoints || undefined,
+      returnTo: ROUTES.cart,
+      summary: {
+        subtotal: quote?.subtotal ?? subtotal,
+        discount,
+        total: orderTotal,
+        itemCount: totalItems,
+      },
+    };
 
-    setCheckingOut(true);
+    storeCartCheckout(payload);
     trackCheckoutStart();
-
-    try {
-      const response = await orderApi.checkout({
-        addressId: selectedAddress.id,
-        paymentMethod,
-        promoCode: appliedPromoCode || activePromo?.code || undefined,
-        loyaltyPoints: appliedLoyaltyPoints || undefined,
-      });
-
-      resetPromo();
-      resetLoyalty();
-      await refreshCart();
-      setThankYouOrderId(response.data._id);
-    } catch (err) {
-      const message = friendlyCartError(
-        err.message,
-        'Unable to place your order. Please try again.'
-      );
-      setCheckoutError(message);
-
-      if (message.toLowerCase().includes('sign in')) {
-        navigate('/login', { state: { from: ROUTES.cart } });
-      }
-    } finally {
-      setCheckingOut(false);
-    }
+    navigate(ROUTES.buyNow, { state: payload });
   };
 
   const handleRetryCart = async () => {
@@ -1041,7 +1012,14 @@ export default function CartPage() {
                   onCheckout={handleCheckout}
                   checkingOut={checkingOut}
                   checkoutError={checkoutError}
-                  canCheckout={isAuthenticated && Boolean(selectedAddress?.id) && items.length > 0}
+                  canCheckout={isAuthenticated && items.length > 0}
+                  onAddAddress={() => {
+                    if (selectedAddress?.id) {
+                      openEditAddress(selectedAddress);
+                    } else {
+                      openAddAddress();
+                    }
+                  }}
                   promoCode={promoInput}
                   onPromoCodeChange={setPromoInput}
                   onApplyPromo={handleApplyPromo}

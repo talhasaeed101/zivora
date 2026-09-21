@@ -44,6 +44,7 @@ export default function OrderSummary({
   paymentMethod = null,
   reviewItems = [],
   showLoyalty = false,
+  onAddAddress,
 }) {
   const handleApply = (event) => {
     event.preventDefault();
@@ -291,14 +292,35 @@ export default function OrderSummary({
           disabled={!canCheckout || checkingOut}
           aria-busy={checkingOut || undefined}
         >
-          {checkingOut ? 'Placing your order…' : 'Continue to checkout'}
+          {checkingOut ? 'Continuing…' : 'Continue to checkout'}
         </button>
 
-        {!reviewAddress?.id ? (
-          <p className="cart-checkout-helper">Add a delivery address to place your order.</p>
-        ) : (
-          <p className="cart-checkout-helper">Secure checkout · Carefully packaged delivery</p>
-        )}
+        <div className="cart-checkout-address-actions">
+          {reviewAddress?.id ? (
+            <div className="cart-checkout-address-preview">
+              {/* <span className="cart-checkout-address-label">Deliver to</span>
+              <strong className="cart-checkout-address-name">{reviewAddress.name}</strong> */}
+              {/* {addressLine ? (
+                <span className="cart-checkout-address-line">{addressLine}</span>
+              ) : null} */}
+              <button
+                type="button"
+                className="cart-add-address-link"
+                onClick={() => onAddAddress?.()}
+              >
+                Change address
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="cart-add-address-link"
+              onClick={() => onAddAddress?.()}
+            >
+              Add address
+            </button>
+          )}
+        </div>
 
         <Link to={ROUTES.collection} className="cart-summary-continue">
           Continue shopping

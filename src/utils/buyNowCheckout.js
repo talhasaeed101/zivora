@@ -8,8 +8,15 @@ export function storeBuyNowCheckout(payload) {
   }
 }
 
+export function storeCartCheckout(payload) {
+  storeBuyNowCheckout({
+    mode: 'cart',
+    ...payload,
+  });
+}
+
 export function readBuyNowCheckout(locationState) {
-  if (locationState?.product?._id) {
+  if (locationState?.mode === 'cart' || locationState?.product?._id) {
     return locationState;
   }
 

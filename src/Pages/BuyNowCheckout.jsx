@@ -14,6 +14,8 @@ import {
   clearBuyNowCheckout,
   readBuyNowCheckout,
 } from '../utils/buyNowCheckout.js';
+import { useCart } from '../context/CartContext.jsx';
+import { toast } from '../context/ToastContext.jsx';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import './CartPage.css';
 import './BuyNowCheckout.css';
@@ -64,14 +66,33 @@ function CopyField({ label, value }) {
 export default function BuyNowCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { cart, refreshCart } = useCart();
   const checkout = useMemo(() => readBuyNowCheckout(location.state), [location.state]);
 
+  const isCartCheckout = checkout?.mode === 'cart';
   const product = checkout?.product || null;
   const quantity = Number(checkout?.quantity) || 1;
   const ringSize = checkout?.ringSize || undefined;
   const metalColor = checkout?.metalColor || undefined;
   const variantId = checkout?.variantId || undefined;
-  const returnTo = checkout?.returnTo || (product?.slug ? productPath(product.slug) : ROUTES.collection);
+  const preferredAddressId = checkout?.addressId || null;
+  const promoCode = checkout?.promoCode || undefined;
+  const loyaltyPoints = checkout?.loyaltyPoints || undefined;
+  const checkoutSummary = checkout?.summary || null;
+  const returnTo = isCartCheckout
+    ? ROUTES.cart
+    : checkout?.returnTo || (product?.slug ? productPath(product.slug) : ROUTES.collection);
+
+  const cartItems = useMemo(() => cart?.items || [], [cart?.items]);
+  const cartSubtotal = Number(checkoutSummary?.subtotal ?? cart?.subtotal) || 0;
+  const cartDiscount = Number(checkoutSummary?.discount ?? cart?.discountAmount ?? cart?.discount) || 0;
+  const cartTotal =
+    Number(checkoutSummary?.total) ||
+    Number(cart?.total) ||
+    Math.max(0, cartSubtotal - cartDiscount);
+  const cartItemCount =
+    Number(checkoutSummary?.itemCount) ||
+    cartItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
 
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -95,8 +116,14 @@ export default function BuyNowCheckout() {
     [addresses, selectedAddressId]
   );
 
-  const lineTotal = (product?.price || 0) * quantity;
-  const itemLabel = quantity === 1 ? '1 item' : `${quantity} items`;
+  const lineTotal = isCartCheckout ? cartTotal : (product?.price || 0) * quantity;
+  const itemLabel = isCartCheckout
+    ? cartItemCount === 1
+      ? '1 item'
+      : `${cartItemCount} items`
+    : quantity === 1
+      ? '1 item'
+      : `${quantity} items`;
 
   const loadAddresses = useCallback(async () => {
     setAddressLoading(true);
@@ -106,27 +133,31 @@ export default function BuyNowCheckout() {
       const list = (response.data || []).map(mapAddressForUi);
       setAddresses(list);
 
-      const defaultAddress = list.find((address) => address.isDefault) || list[0];
-      setSelectedAddressId(defaultAddress?.id || null);
+      const preferred =
+        (preferredAddressId && list.find((address) => address.id === preferredAddressId)) ||
+        list.find((address) => address.isDefault) ||
+        list[0];
+      setSelectedAddressId(preferred?.id || null);
     } catch {
       setAddresses([]);
       setSelectedAddressId(null);
     } finally {
       setAddressLoading(false);
     }
-  }, []);
+  }, [preferredAddressId]);
 
   useEffect(() => {
-    if (!product?._id) {
+    if (isCartCheckout) {
+      if (!cartItems.length) {
+        return undefined;
+      }
+    } else if (!product?._id) {
       return undefined;
     }
 
-    setCheckoutError('');
-    setAddressModalError('');
-    setPaymentMethod('cod');
     loadAddresses();
     return undefined;
-  }, [product?._id, loadAddresses]);
+  }, [isCartCheckout, cartItems.length, product?._id, loadAddresses]);
 
   const handleSaveAddress = async (form) => {
     setAddressModalError('');
@@ -144,6 +175,7 @@ export default function BuyNowCheckout() {
 
       await loadAddresses();
       setAddressModalOpen(false);
+      toast.success('Delivery address saved.');
     } catch (err) {
       setAddressModalError(err.message || 'Failed to save address.');
     } finally {
@@ -155,11 +187,19 @@ export default function BuyNowCheckout() {
     setCheckoutError('');
 
     if (!selectedAddress?.id) {
-      setCheckoutError('Please add a delivery address to continue.');
+      const message = 'Add address please';
+      setCheckoutError(message);
+      toast.error(message);
       return;
     }
 
-    if (!product?._id) {
+    if (isCartCheckout) {
+      if (!cartItems.length) {
+        setCheckoutError('Your cart is empty.');
+        toast.error('Your cart is empty.');
+        return;
+      }
+    } else if (!product?._id) {
       setCheckoutError('This product cannot be purchased yet.');
       return;
     }
@@ -168,28 +208,45 @@ export default function BuyNowCheckout() {
     trackCheckoutStart();
 
     try {
-      const response = await orderApi.checkout({
-        addressId: selectedAddress.id,
-        paymentMethod,
-        buyNowItem: {
-          productId: product._id,
-          quantity,
-          ringSize: ringSize || undefined,
-          metalColor: metalColor || undefined,
-          ...(variantId ? { variantId } : {}),
-        },
-      });
+      const response = await orderApi.checkout(
+        isCartCheckout
+          ? {
+              addressId: selectedAddress.id,
+              paymentMethod,
+              promoCode: promoCode || undefined,
+              loyaltyPoints: loyaltyPoints || undefined,
+            }
+          : {
+              addressId: selectedAddress.id,
+              paymentMethod,
+              buyNowItem: {
+                productId: product._id,
+                quantity,
+                ringSize: ringSize || undefined,
+                metalColor: metalColor || undefined,
+                ...(variantId ? { variantId } : {}),
+              },
+            }
+      );
 
       clearBuyNowCheckout();
+      if (isCartCheckout) {
+        await refreshCart();
+      }
       setThankYouOrderId(response.data._id);
     } catch (err) {
       setCheckoutError(err.message || 'Checkout failed. Please try again.');
+      toast.error(err.message || 'Checkout failed. Please try again.');
     } finally {
       setCheckingOut(false);
     }
   };
 
-  if (!product?._id) {
+  if (isCartCheckout) {
+    if (!cartItems.length && !thankYouOrderId) {
+      return <Navigate to={ROUTES.cart} replace />;
+    }
+  } else if (!product?._id) {
     return <Navigate to={ROUTES.collection} replace />;
   }
 
@@ -203,7 +260,7 @@ export default function BuyNowCheckout() {
       <main id="main-content" className="bn-main">
         <div className="bn-page-header">
           <Link to={returnTo} className="bn-back-link">
-            ← Back to product
+            {isCartCheckout ? '← Back to cart' : '← Back to product'}
           </Link>
           <h1 className="bn-page-title">Select Payment Method</h1>
         </div>
@@ -326,30 +383,60 @@ export default function BuyNowCheckout() {
               <span className="bn-summary-count">({itemLabel})</span>
             </div>
 
-            <div className="bn-summary-product">
-              <img
-                src={getProductImage(product)}
-                alt={product?.title || 'Product'}
-                className="bn-summary-image"
-              />
-              <div className="bn-summary-product-meta">
-                <p className="bn-summary-product-title">{product?.title}</p>
-                <p className="bn-summary-product-line">
-                  Qty: {quantity}
-                  {ringSize ? ` · Size: ${ringSize}` : ''}
-                  {metalColor ? ` · ${metalColor}` : ''}
-                </p>
+            {isCartCheckout ? (
+              <ul className="bn-summary-cart-list">
+                {cartItems.slice(0, 4).map((item) => {
+                  const title =
+                    item?.product?.title || item?.title || 'Product';
+                  const qty = Number(item.quantity) || 1;
+                  return (
+                    <li key={item._id || item.id || `${title}-${qty}`} className="bn-summary-cart-item">
+                      <img
+                        src={getProductImage(item.product || item)}
+                        alt={title}
+                        className="bn-summary-image"
+                      />
+                      <div className="bn-summary-product-meta">
+                        <p className="bn-summary-product-title">{title}</p>
+                        <p className="bn-summary-product-line">Qty: {qty}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+                {cartItems.length > 4 ? (
+                  <li className="bn-summary-cart-more">+{cartItems.length - 4} more</li>
+                ) : null}
+              </ul>
+            ) : (
+              <div className="bn-summary-product">
+                <img
+                  src={getProductImage(product)}
+                  alt={product?.title || 'Product'}
+                  className="bn-summary-image"
+                />
+                <div className="bn-summary-product-meta">
+                  <p className="bn-summary-product-title">{product?.title}</p>
+                  <p className="bn-summary-product-line">
+                    Qty: {quantity}
+                    {ringSize ? ` · Size: ${ringSize}` : ''}
+                    {metalColor ? ` · ${metalColor}` : ''}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="bn-summary-prices">
               <div className="bn-price-row">
                 <span>Subtotal</span>
-                <span className="bn-price-value">{formatPrice(lineTotal)}</span>
+                <span className="bn-price-value">
+                  {formatPrice(isCartCheckout ? cartSubtotal : lineTotal)}
+                </span>
               </div>
               <div className="bn-price-row">
                 <span>Discount</span>
-                <span className="bn-price-muted">—</span>
+                <span className={isCartCheckout && cartDiscount > 0 ? 'bn-price-value' : 'bn-price-muted'}>
+                  {isCartCheckout && cartDiscount > 0 ? `−${formatPrice(cartDiscount)}` : '—'}
+                </span>
               </div>
               <div className="bn-price-row">
                 <span>Tax &amp; fee</span>
@@ -374,7 +461,7 @@ export default function BuyNowCheckout() {
               type="button"
               className="bn-place-order-btn"
               onClick={handlePlaceOrder}
-              disabled={checkingOut || addressLoading || !selectedAddress?.id}
+              disabled={checkingOut || addressLoading}
             >
               {checkingOut ? 'Placing order...' : 'Place Order'}
             </button>
