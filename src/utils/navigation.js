@@ -13,6 +13,7 @@ export const ROUTES = {
   register: '/register',
   forgetPassword: '/forget-password',
   resetPassword: '/reset-password',
+  createNewPassword: '/create-new-password',
   verifyEmail: '/verify-email',
   profile: '/profile',
   wishlist: '/wishlist',

@@ -78,7 +78,9 @@ export default function Login() {
       navigate(redirectTo, { replace: true });
     } catch (error) {
       if (error.data?.errorCode === 'EMAIL_NOT_VERIFIED' || error.message === 'Email not verified') {
-        navigate(ROUTES.verifyEmail, { state: { email: email.trim() } });
+        navigate(ROUTES.verifyEmail, {
+          state: { email: email.trim(), purpose: 'signup' },
+        });
       } else {
         // Error toast is automatically handled by api.js
         focusError();

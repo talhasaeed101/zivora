@@ -57,9 +57,13 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async (payload) => {
     const response = await customerAuthApi.register(payload);
-    const { customer: customerData } = response.data;
+    const { customer: customerData, emailVerification } = response.data || {};
     // We intentionally do not persist the session here so the user has to log in
-    return customerData;
+    return {
+      customer: customerData,
+      emailVerification: emailVerification || null,
+      message: response.message,
+    };
   }, []);
 
   const refreshCustomer = useCallback(async () => {

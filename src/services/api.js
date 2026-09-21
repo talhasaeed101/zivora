@@ -176,6 +176,12 @@ export const customerAuthApi = {
       body: JSON.stringify({ email }),
     }),
 
+  verifyResetCode: (email, code) =>
+    request('/auth/verify-reset-code', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    }),
+
   resetPassword: (token, password, confirmPassword) =>
     request(`/auth/reset-password/${encodeURIComponent(token)}`, {
       method: 'POST',
@@ -185,6 +191,12 @@ export const customerAuthApi = {
   verifyEmail: (token) =>
     request(`/auth/verify-email/${encodeURIComponent(token)}`, {
       method: 'POST',
+    }),
+
+  verifyEmailCode: (email, code) =>
+    request('/auth/verify-email-code', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
     }),
 
   resendVerificationEmail: (email) =>

@@ -106,15 +106,26 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await register({
+      const result = await register({
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
         password: form.password,
       });
+
+      if (result?.emailVerification?.sent === false) {
+        const providerHint = result.emailVerification?.providerMessages?.[0];
+        toast.error(
+          providerHint ||
+            'Account created, but the verification email could not be sent. Please use Resend on the next screen, or try again later.'
+        );
+      } else {
+        toast.success('We sent a 6-digit verification code to your email.');
+      }
+
       navigate(ROUTES.verifyEmail, {
         replace: true,
-        state: { email: form.email.trim() },
+        state: { email: form.email.trim(), purpose: 'signup' },
       });
     } catch (error) {
       // Error toast is automatically handled by api.js

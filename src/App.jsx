@@ -84,6 +84,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/create-new-password" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/verify-email/:token" element={<VerifyEmail />} />
             <Route
@@ -93,10 +94,6 @@ function App() {
             <Route
               path="/forget-password/email"
               element={<ForgetPassword />}
-            />
-            <Route
-              path="/create-new-password"
-              element={<Navigate to="/forget-password" replace />}
             />
 
             <Route element={<ProtectedRoute />}>

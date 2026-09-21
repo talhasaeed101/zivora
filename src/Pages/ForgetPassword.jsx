@@ -1,25 +1,21 @@
 import { useId, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthShell from '../components/auth/AuthShell.jsx';
 import GuestRoute from '../components/GuestRoute.jsx';
 import { customerAuthApi } from '../services/api.js';
-import { friendlyAuthError } from '../utils/authUi.js';
 import { ROUTES } from '../utils/navigation';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
 import { toast } from '../context/ToastContext.jsx';
 import './Auth.css';
 
-const GENERIC_SUCCESS_MESSAGE =
-  'If an account exists for this email, password reset instructions have been sent.';
-
 export default function ForgetPassword() {
   usePrivatePageSeo({ title: 'Forgot Password', path: '/forget-password' });
+  const navigate = useNavigate();
   const emailId = useId();
   const errorRef = useRef(null);
 
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState({});
-  const [isSent, setIsSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
@@ -49,9 +45,13 @@ export default function ForgetPassword() {
     setLoading(true);
 
     try {
-      await customerAuthApi.forgotPassword(email.trim());
-      setIsSent(true);
-      toast.success(GENERIC_SUCCESS_MESSAGE);
+      const trimmed = email.trim();
+      await customerAuthApi.forgotPassword(trimmed);
+      toast.success('If an account exists for this email, a verification code has been sent.');
+      navigate(ROUTES.verifyEmail, {
+        replace: true,
+        state: { email: trimmed, purpose: 'reset' },
+      });
     } catch (error) {
       window.requestAnimationFrame(() => errorRef.current?.focus?.());
     } finally {
@@ -64,18 +64,19 @@ export default function ForgetPassword() {
       <AuthShell>
         <h1 className="auth-heading">Forgot Password</h1>
         <p className="auth-subheading">
-          Enter your email and we&apos;ll send a secure link to reset your password if an account
-          exists.
+          Provide your account&apos;s email for which you want to reset your password.
         </p>
 
         <div className="sr-only" aria-live="polite" aria-atomic="true">
-          {loading ? 'Sending reset link' : ''}
+          {loading ? 'Sending verification code' : ''}
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={`auth-field${errors.email ? ' is-invalid' : ''}`}>
             <label htmlFor={emailId}>
-              Email <span className="auth-required" aria-hidden="true"></span>
+              Email <span className="auth-required" aria-hidden="true">
+                *
+              </span>
             </label>
             <input
               id={emailId}
@@ -102,7 +103,7 @@ export default function ForgetPassword() {
             disabled={loading}
             aria-busy={loading || undefined}
           >
-            {loading ? 'Sending link…' : isSent ? 'Send again' : 'Send reset link'}
+            {loading ? 'Sending code…' : 'Continue'}
           </button>
         </form>
 
