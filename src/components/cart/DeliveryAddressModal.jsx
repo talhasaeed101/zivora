@@ -41,8 +41,10 @@ export default function DeliveryAddressModal({
   saving = false,
 }) {
   const [form, setForm] = useState(EMPTY_ADDRESS_FORM);
+  const [provinceOpen, setProvinceOpen] = useState(false);
   const firstFieldRef = useRef(null);
   const previouslyFocused = useRef(null);
+  const provinceWrapRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -50,18 +52,20 @@ export default function DeliveryAddressModal({
       setForm({
         name: address?.name || '',
         email: address?.email || '',
-        phone: address?.phone || '',
+        phone: String(address?.phone || '').replace(/\D/g, ''),
         province: address?.province || '',
         city: address?.city || '',
         street: address?.street || '',
         postalCode: address?.postalCode || '',
       });
+      setProvinceOpen(false);
       document.body.style.overflow = 'hidden';
       window.requestAnimationFrame(() => {
         firstFieldRef.current?.focus?.();
       });
     } else {
       document.body.style.overflow = '';
+      setProvinceOpen(false);
       if (previouslyFocused.current && typeof previouslyFocused.current.focus === 'function') {
         previouslyFocused.current.focus();
       }
@@ -79,13 +83,32 @@ export default function DeliveryAddressModal({
 
     const onKeyDown = (event) => {
       if (event.key === 'Escape' && !saving) {
+        if (provinceOpen) {
+          setProvinceOpen(false);
+          return;
+        }
         onClose();
       }
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, onClose, saving]);
+  }, [isOpen, onClose, saving, provinceOpen]);
+
+  useEffect(() => {
+    if (!provinceOpen) {
+      return undefined;
+    }
+
+    const onPointerDown = (event) => {
+      if (!provinceWrapRef.current?.contains(event.target)) {
+        setProvinceOpen(false);
+      }
+    };
+
+    window.addEventListener('mousedown', onPointerDown);
+    return () => window.removeEventListener('mousedown', onPointerDown);
+  }, [provinceOpen]);
 
   if (!isOpen || typeof document === 'undefined') {
     return null;
@@ -95,16 +118,31 @@ export default function DeliveryAddressModal({
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
+  const handlePhoneChange = (e) => {
+    const digits = String(e.target.value || '').replace(/\D/g, '');
+    setForm((prev) => ({ ...prev, phone: digits }));
+  };
+
+  const handleProvinceSelect = (province) => {
+    setForm((prev) => ({ ...prev, province }));
+    setProvinceOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (saving) {
       return;
     }
 
+    if (!form.province) {
+      setProvinceOpen(true);
+      return;
+    }
+
     await onSave({
       name: form.name.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      phone: String(form.phone || '').replace(/\D/g, ''),
       province: form.province,
       city: form.city.trim(),
       street: form.street.trim(),
@@ -145,14 +183,14 @@ export default function DeliveryAddressModal({
         <form className="cart-address-form" onSubmit={handleSubmit} noValidate={false}>
           <div className="cart-form-group">
             <label htmlFor="addr-name" className="cart-form-label">
-              Name <span aria-hidden="true">*</span>
+              Name
             </label>
             <input
               id="addr-name"
               ref={firstFieldRef}
               type="text"
               className="cart-form-input"
-              placeholder="Enter your Name"
+              placeholder="Enter your name"
               value={form.name}
               onChange={handleChange('name')}
               autoComplete="name"
@@ -164,13 +202,13 @@ export default function DeliveryAddressModal({
           <div className="cart-form-row">
             <div className="cart-form-group">
               <label htmlFor="addr-email" className="cart-form-label">
-                Email <span aria-hidden="true">*</span>
+                Email
               </label>
               <input
                 id="addr-email"
                 type="email"
                 className="cart-form-input"
-                placeholder="Enter your Email"
+                placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange('email')}
                 autoComplete="email"
@@ -180,7 +218,7 @@ export default function DeliveryAddressModal({
             </div>
             <div className="cart-form-group">
               <label htmlFor="addr-phone" className="cart-form-label">
-                Phone Number <span aria-hidden="true">*</span>
+                Phone Number
               </label>
               <div className="cart-phone-input-wrap">
                 <span className="cart-phone-prefix">
@@ -191,10 +229,18 @@ export default function DeliveryAddressModal({
                 <input
                   id="addr-phone"
                   type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   className="cart-form-input cart-phone-input"
-                  placeholder="Phone Number"
+                  placeholder="Phone number"
                   value={form.phone}
-                  onChange={handleChange('phone')}
+                  onChange={handlePhoneChange}
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pasted = e.clipboardData?.getData('text') || '';
+                    const digits = pasted.replace(/\D/g, '');
+                    setForm((prev) => ({ ...prev, phone: digits }));
+                  }}
                   autoComplete="tel-national"
                   required
                   disabled={saving}
@@ -205,40 +251,56 @@ export default function DeliveryAddressModal({
 
           <div className="cart-form-row">
             <div className="cart-form-group">
-              <label htmlFor="addr-province" className="cart-form-label">
-                Province <span aria-hidden="true">*</span>
-              </label>
-              <div className="cart-select-wrap">
-                <select
+              <span className="cart-form-label" id="addr-province-label">
+                Province
+              </span>
+              <div className="cart-dropdown-wrap" ref={provinceWrapRef}>
+                <button
+                  type="button"
                   id="addr-province"
-                  className="cart-form-input cart-form-select"
-                  value={form.province}
-                  onChange={handleChange('province')}
-                  autoComplete="address-level1"
-                  required
+                  className={`cart-dropdown-btn${!form.province ? ' is-placeholder' : ''}`}
+                  onClick={() => !saving && setProvinceOpen((open) => !open)}
+                  aria-expanded={provinceOpen}
+                  aria-haspopup="listbox"
+                  aria-labelledby="addr-province-label"
                   disabled={saving}
                 >
-                  <option value="" disabled>
-                    Select Province
-                  </option>
-                  {PROVINCES.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDownIcon className="cart-select-chevron w-3.5 h-3.5" />
+                  <span>{form.province || 'Select province'}</span>
+                  <ChevronDownIcon className="cart-dropdown-chevron w-3.5 h-3.5" />
+                </button>
+                {provinceOpen ? (
+                  <div
+                    className="cart-dropdown-menu"
+                    role="listbox"
+                    aria-label="Select province"
+                  >
+                    {PROVINCES.map((province) => (
+                      <button
+                        key={province}
+                        type="button"
+                        role="option"
+                        aria-selected={form.province === province}
+                        className={`cart-dropdown-option${
+                          form.province === province ? ' is-active' : ''
+                        }`}
+                        onClick={() => handleProvinceSelect(province)}
+                      >
+                        {province}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
             <div className="cart-form-group">
               <label htmlFor="addr-city" className="cart-form-label">
-                City <span aria-hidden="true">*</span>
+                City
               </label>
               <input
                 id="addr-city"
                 type="text"
                 className="cart-form-input"
-                placeholder="Enter your City"
+                placeholder="Enter your city"
                 value={form.city}
                 onChange={handleChange('city')}
                 autoComplete="address-level2"
@@ -250,13 +312,13 @@ export default function DeliveryAddressModal({
 
           <div className="cart-form-group">
             <label htmlFor="addr-street" className="cart-form-label">
-              Address <span aria-hidden="true">*</span>
+              Address
             </label>
             <input
               id="addr-street"
               type="text"
               className="cart-form-input"
-              placeholder="Enter your Address"
+              placeholder="Enter your address"
               value={form.street}
               onChange={handleChange('street')}
               autoComplete="street-address"
@@ -267,15 +329,19 @@ export default function DeliveryAddressModal({
 
           <div className="cart-form-group">
             <label htmlFor="addr-postal" className="cart-form-label">
-              Postal Code <span aria-hidden="true">*</span>
+              Postal Code
             </label>
             <input
               id="addr-postal"
               type="text"
+              inputMode="numeric"
               className="cart-form-input"
-              placeholder="Enter your Postal Code"
+              placeholder="Enter postal code"
               value={form.postalCode}
-              onChange={handleChange('postalCode')}
+              onChange={(e) => {
+                const digits = String(e.target.value || '').replace(/\D/g, '');
+                setForm((prev) => ({ ...prev, postalCode: digits }));
+              }}
               autoComplete="postal-code"
               required
               disabled={saving}

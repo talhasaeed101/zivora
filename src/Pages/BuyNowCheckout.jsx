@@ -330,10 +330,15 @@ export default function BuyNowCheckout() {
                 <div className="bn-bank-panel">
                   <h2 className="bn-panel-heading">Bank transfer details</h2>
                   <p className="bn-panel-text">
-                    Transfer the order total using the details below. After you place the order,
-                    WhatsApp will open with your order and bank details — send your payment
-                    screenshot there. Admin verifies payment, then your order is confirmed.
+                    Transfer the order total using the details below, then share your payment
+                    screenshot on WhatsApp after placing the order.
                   </p>
+                  <ul className="bn-bank-steps">
+                    <li>Transfer the full amount to the account below</li>
+                    <li>Place your order — WhatsApp opens with order and bank details</li>
+                    <li>Send your payment screenshot on WhatsApp</li>
+                    <li>Admin verifies payment, then your order is confirmed</li>
+                  </ul>
                   <div className="bn-bank-details">
                     <div className="bn-bank-row">
                       <span className="bn-bank-label">Bank name</span>

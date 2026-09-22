@@ -91,6 +91,11 @@ export default function CheckoutPaymentSection({
             You will pay <strong>{formatPrice(orderTotal)}</strong> when your order is delivered.
             This order is not marked as paid until delivery.
           </p>
+          <ul className="checkout-cod-points">
+            <li>Pay at your doorstep</li>
+            <li>Order confirmed after address review</li>
+            <li>Inspect items before paying</li>
+          </ul>
         </div>
       ) : null}
 

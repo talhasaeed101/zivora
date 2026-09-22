@@ -164,16 +164,53 @@
 }
 
 .bn-cod-points {
-  margin: 0;
-  padding: 0 0 0 18px;
+  margin: 12px 0 0;
+  padding: 0 0 0 1.25rem;
+  list-style: disc;
+  list-style-position: outside;
   font-family: Cabin, sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: var(--bn-black);
 }
 
+.bn-cod-points li {
+  display: list-item;
+  list-style: disc;
+  padding-left: 0.15rem;
+}
+
 .bn-cod-points li + li {
-  margin-top: 4px;
+  margin-top: 6px;
+}
+
+.bn-cod-points li::marker {
+  color: var(--bn-primary);
+}
+
+.bn-bank-steps {
+  margin: 12px 0 16px;
+  padding: 0 0 0 1.25rem;
+  list-style: disc;
+  list-style-position: outside;
+  font-family: Cabin, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--bn-black);
+}
+
+.bn-bank-steps li {
+  display: list-item;
+  list-style: disc;
+  padding-left: 0.15rem;
+}
+
+.bn-bank-steps li + li {
+  margin-top: 6px;
+}
+
+.bn-bank-steps li::marker {
+  color: var(--bn-primary);
 }
 
 .bn-bank-details {

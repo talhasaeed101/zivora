@@ -36,10 +36,6 @@
   cursor: pointer;
 }
 
-.order-thankyou-close:hover {
-  color: #000;
-}
-
 .order-thankyou-image {
   display: block;
   width: 195px;
