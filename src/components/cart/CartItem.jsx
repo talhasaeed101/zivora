@@ -131,7 +131,7 @@ export default function CartItem({
             </span> */}
             {/* <span className="cart-item-meta-divider" aria-hidden="true" /> */}
             <span className="cart-item-meta-row">
-              <ReturnIcon />
+              {/* <ReturnIcon /> */}
               <span>
                 <strong>7 days</strong> return available
               </span>

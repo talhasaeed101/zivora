@@ -285,24 +285,9 @@ export default function OrderSummary({
           </p>
         ) : null}
 
-        <button
-          type="button"
-          className="cart-checkout-btn"
-          onClick={onCheckout}
-          disabled={!canCheckout || checkingOut}
-          aria-busy={checkingOut || undefined}
-        >
-          {checkingOut ? 'Continuing…' : 'Continue to checkout'}
-        </button>
-
         <div className="cart-checkout-address-actions">
           {reviewAddress?.id ? (
             <div className="cart-checkout-address-preview">
-              {/* <span className="cart-checkout-address-label">Deliver to</span>
-              <strong className="cart-checkout-address-name">{reviewAddress.name}</strong> */}
-              {/* {addressLine ? (
-                <span className="cart-checkout-address-line">{addressLine}</span>
-              ) : null} */}
               <button
                 type="button"
                 className="cart-add-address-link"
@@ -321,6 +306,16 @@ export default function OrderSummary({
             </button>
           )}
         </div>
+
+        <button
+          type="button"
+          className="cart-checkout-btn"
+          onClick={onCheckout}
+          disabled={!canCheckout || checkingOut}
+          aria-busy={checkingOut || undefined}
+        >
+          {checkingOut ? 'Continuing…' : 'Continue to checkout'}
+        </button>
 
         <Link to={ROUTES.collection} className="cart-summary-continue">
           Continue shopping

@@ -411,43 +411,69 @@
 .pd-size-chart-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1100;
-  background: rgba(0, 0, 0, 0.55);
+  z-index: 1200;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  box-shadow: none;
+  filter: none;
+  backdrop-filter: none;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .pd-size-chart-modal {
   position: relative;
-  max-width: min(720px, 100%);
+  width: min(720px, 100%);
   max-height: calc(100vh - 48px);
+  margin: 0 auto;
   background: #fff;
-  border-radius: 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
   overflow: auto;
-  padding: 16px;
+  padding: 20px;
+  box-shadow: none;
+  filter: none;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .pd-size-chart-modal img {
   display: block;
   width: 100%;
   height: auto;
+  border-radius: 8px;
 }
 
 .pd-size-chart-close {
   position: absolute;
   top: 10px;
   right: 10px;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--pd-border-input);
   background: #fff;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   cursor: pointer;
   z-index: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: none;
+}
+
+.pd-size-chart-close:hover,
+.pd-size-chart-close:active,
+.pd-size-chart-close:focus-visible {
+  background: #fff;
+  border-color: var(--pd-border-input);
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .pd-info-quantity {
@@ -2464,18 +2490,32 @@
 .pd-info-option-btn {
   min-width: 44px;
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1px solid var(--pd-border-input);
   background: #fff;
+  color: var(--pd-black);
   font-family: inherit;
   font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: border-color 0.25s ease, background-color 0.25s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.pd-info-option-btn:hover:not(:disabled):not(.is-unavailable) {
+  border-color: #111;
+  background: #fff;
+  box-shadow: none !important;
+  transform: none !important;
+  color: #000;
 }
 
 .pd-info-option-btn.is-selected {
   border-color: var(--pd-black);
-  background: #fafafa;
+  background: var(--pd-black);
+  color: #fff;
 }
 
 .pd-info-option-btn:disabled,

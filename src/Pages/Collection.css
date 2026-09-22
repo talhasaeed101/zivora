@@ -962,6 +962,16 @@
   }
 }
 
+@media(min-width: 1600px)
+{
+  .catalog-sale-badge,
+.catalog-oos-badge,
+.catalog-low-stock-badge {
+  top: 40px;
+  right: 30px;
+}
+}
+
 @media (max-width: 1200px) {
   .catalog-main {
     padding-right: 40px;

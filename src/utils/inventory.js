@@ -25,6 +25,74 @@ const resolveVariantAttribute = (attributes = {}, keys = []) => {
 };
 
 /**
+ * Color options for PDP when `metalColors` is empty but variants / variationGroups
+ * define a Color axis (e.g. "Ruby Duet", "Lilac Duet").
+ */
+export const getVariantColorOptions = (product) => {
+  if (!product) {
+    return [];
+  }
+
+  if (Array.isArray(product.metalColors) && product.metalColors.length > 0) {
+    return product.metalColors.map((color) => String(color).trim()).filter(Boolean);
+  }
+
+  const groups = Array.isArray(product.variationGroups) ? product.variationGroups : [];
+  const colorGroup = groups.find((group) => {
+    const name = normalizeInventoryOption(group?.name);
+    return name === 'color' || name === 'colour' || name.includes('color');
+  });
+
+  if (Array.isArray(colorGroup?.options) && colorGroup.options.length > 0) {
+    return colorGroup.options.map((option) => String(option).trim()).filter(Boolean);
+  }
+
+  const seen = new Set();
+  const fromVariants = [];
+
+  (Array.isArray(product.variants) ? product.variants : []).forEach((variant) => {
+    const color = resolveVariantAttribute(variant?.attributes, METAL_COLOR_ATTR_KEYS);
+    const key = normalizeInventoryOption(color);
+    if (!key || seen.has(key)) {
+      return;
+    }
+    seen.add(key);
+    fromVariants.push(color);
+  });
+
+  return fromVariants;
+};
+
+/**
+ * Quantity for the current selection. When the PDP has no size/color UI but
+ * inventory rows are keyed by variant attributes, fall back to total available
+ * stock (or product.stock) instead of a false empty-empty miss.
+ */
+export const getSelectionQuantity = (
+  product,
+  { ringSize = EMPTY_OPTION, metalColor = EMPTY_OPTION, requireExactCell = true } = {}
+) => {
+  const inventory = getProductInventory(product);
+  const exact = getCellQuantity(inventory, ringSize, metalColor);
+
+  if (requireExactCell) {
+    return exact;
+  }
+
+  if (findInventoryCell(inventory, ringSize, metalColor)) {
+    return exact;
+  }
+
+  const total = inventory.reduce((sum, row) => sum + (Math.max(0, Number(row.quantity) || 0)), 0);
+  if (total > 0) {
+    return total;
+  }
+
+  const stock = Number(product?.stock);
+  return Number.isFinite(stock) ? Math.max(0, stock) : 0;
+};
+
+/**
  * Backend stores stock on `stock` + `variants[]`, while the storefront
  * historically expected an `inventory[]` matrix. Derive a compatible matrix.
  */

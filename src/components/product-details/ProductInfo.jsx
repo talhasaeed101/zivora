@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { StarIcon } from '../icons';
 import WishlistButton from '../WishlistButton.jsx';
@@ -15,6 +16,7 @@ import {
   findUniqueVariantId,
   getCellQuantity,
   getProductInventory,
+  getVariantColorOptions,
   inventoryCellKey,
   optionHasAnyStock,
   syncSelection,
@@ -27,7 +29,6 @@ import { toast } from '../../context/ToastContext.jsx';
 import { pickEligibleCampaign } from '../../utils/campaignEligibility.js';
 import { PDP_TRUST_ITEMS } from '../../constants/storefrontCopy.js';
 import { ROUTES } from '../../utils/navigation.js';
-import { storeBuyNowCheckout } from '../../utils/buyNowCheckout.js';
 import {
   useCampaignCountdown,
 } from '../campaign/campaignUi.jsx';
@@ -37,22 +38,36 @@ const METAL_COLOR_MAP = {
   gold: { id: 'gold', label: 'Gold', color: '#c8815f' },
 };
 
+const FALLBACK_SWATCH = '#967259';
+
 const resolveMetalColors = (metalColors = []) =>
   (metalColors || [])
     .map((color) => {
       const value = String(color).trim();
-      const normalized = value.toLowerCase();
-      const mapped = METAL_COLOR_MAP[normalized];
-      if (!mapped) {
+      if (!value) {
         return null;
       }
 
+      const normalized = value.toLowerCase();
+      const mapped = METAL_COLOR_MAP[normalized];
+      if (mapped) {
+        return {
+          id: mapped.id,
+          // Canonical labels so cart/inventory keys stay Gold/Silver
+          value: mapped.label,
+          label: mapped.label,
+          color: mapped.color,
+          isMetal: true,
+        };
+      }
+
+      // Variant Color options (e.g. Ruby Duet) — keep exact value for inventory keys
       return {
-        id: mapped.id,
-        // Canonical labels so cart/inventory keys stay Gold/Silver
-        value: mapped.label,
-        label: mapped.label,
-        color: mapped.color,
+        id: normalized.replace(/\s+/g, '-'),
+        value,
+        label: value,
+        color: FALLBACK_SWATCH,
+        isMetal: false,
       };
     })
     .filter(Boolean)
@@ -70,19 +85,20 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
     () => (Array.isArray(product?.ringSizes) ? product.ringSizes.filter(Boolean) : []),
     [product?.ringSizes]
   );
-  const metalColors = useMemo(
-    () => resolveMetalColors(product?.metalColors),
-    [product?.metalColors]
-  );
+  const rawColorOptions = useMemo(() => getVariantColorOptions(product), [product]);
+  const metalColors = useMemo(() => resolveMetalColors(rawColorOptions), [rawColorOptions]);
   const metalColorValues = useMemo(
     () => metalColors.map((metal) => metal.value),
     [metalColors]
   );
+  const usesMetalSwatches = metalColors.length > 0 && metalColors.every((metal) => metal.isMetal);
+  const colorFieldLabel = usesMetalSwatches ? 'Metal Color' : 'Color';
 
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
+  const [buying, setBuying] = useState(false);
   const [cartMessage, setCartMessage] = useState(null);
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
@@ -106,7 +122,35 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
   const selectedRingSize = showRingSize ? size : '';
   const selectedMetalColor = showMetalColors ? color : '';
   const selectedCell = findInventoryCell(inventory, selectedRingSize, selectedMetalColor);
-  const cellQuantity = getCellQuantity(inventory, selectedRingSize, selectedMetalColor);
+  const cellQuantity = useMemo(() => {
+    if (showRingSize || showMetalColors) {
+      return getCellQuantity(inventory, selectedRingSize, selectedMetalColor);
+    }
+
+    // No size/color UI, but variants may still key inventory by Color attributes.
+    const exact = findInventoryCell(inventory, '', '');
+    if (exact) {
+      return Math.max(0, Number(exact.quantity) || 0);
+    }
+
+    const total = inventory.reduce(
+      (sum, row) => sum + Math.max(0, Number(row.quantity) || 0),
+      0
+    );
+    if (total > 0) {
+      return total;
+    }
+
+    const stock = Number(product?.stock);
+    return Number.isFinite(stock) ? Math.max(0, stock) : 0;
+  }, [
+    inventory,
+    product?.stock,
+    selectedMetalColor,
+    selectedRingSize,
+    showMetalColors,
+    showRingSize,
+  ]);
   const inStock = cellQuantity > 0;
   const maxQuantity = inStock ? cellQuantity : 1;
   const selectionComplete = (!showRingSize || Boolean(size)) && (!showMetalColors || Boolean(color));
@@ -209,6 +253,45 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
   }, [cellQuantity, inStock, selectedRingSize, selectedMetalColor]);
 
   useEffect(() => {
+    if (!sizeChartOpen) {
+      return undefined;
+    }
+
+    const scrollY = window.scrollY;
+    const { body, documentElement } = document;
+    const previous = {
+      bodyOverflow: body.style.overflow,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      htmlOverflow: documentElement.style.overflow,
+    };
+
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    documentElement.style.overflow = 'hidden';
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setSizeChartOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      body.style.overflow = previous.bodyOverflow;
+      body.style.position = previous.bodyPosition;
+      body.style.top = previous.bodyTop;
+      body.style.width = previous.bodyWidth;
+      documentElement.style.overflow = previous.htmlOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+      window.scrollTo(0, scrollY);
+    };
+  }, [sizeChartOpen]);
+
+  useEffect(() => {
     const slug = String(product?.slug || '').trim();
     if (!slug) {
       setPurchaseActivity(null);
@@ -288,7 +371,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
     }
 
     if (showMetalColors && !color) {
-      setColorError('Please select a metal color.');
+      setColorError(`Please select a ${colorFieldLabel.toLowerCase()}.`);
       return false;
     }
 
@@ -324,6 +407,10 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
 
     if (!product?._id) {
       setCartMessage({ type: 'error', text: 'This product cannot be added to cart yet.' });
+      return;
+    }
+
+    if (adding || buying) {
       return;
     }
 
@@ -381,8 +468,13 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
     trackAddToCart(product._id);
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     setCartMessage(null);
+
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: ROUTES.cart } });
+      return;
+    }
 
     if (!validateSelection()) {
       return;
@@ -393,35 +485,32 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
       return;
     }
 
-    const payload = {
-      product: {
-        _id: product._id,
-        title: product.title,
-        price: product.price,
-        slug: product.slug,
-        images: product.images,
-        thumbnail: product.thumbnail,
-        image: product.image,
-      },
-      quantity,
-      ringSize: showRingSize ? size : undefined,
-      metalColor: showMetalColors ? color : undefined,
-      variantId:
-        findUniqueVariantId(product, {
-          ringSize: showRingSize ? size : '',
-          metalColor: showMetalColors ? color : '',
-        }) || undefined,
-      returnTo: `${location.pathname}${location.search}`,
-    };
-
-    storeBuyNowCheckout(payload);
-
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: ROUTES.buyNow } });
+    if (adding || buying) {
       return;
     }
 
-    navigate(ROUTES.buyNow, { state: payload });
+    setBuying(true);
+
+    try {
+      const variantId = findUniqueVariantId(product, {
+        ringSize: showRingSize ? size : '',
+        metalColor: showMetalColors ? color : '',
+      });
+
+      await addToCart({
+        productId: product._id,
+        quantity,
+        ringSize: showRingSize ? size : undefined,
+        metalColor: showMetalColors ? color : undefined,
+        ...(variantId ? { variantId } : {}),
+      });
+      trackAddToCart(product._id);
+      navigate(ROUTES.cart);
+    } catch (error) {
+      setCartMessage({ type: 'error', text: error.message || 'Failed to add item to cart.' });
+    } finally {
+      setBuying(false);
+    }
   };
 
   const markCellSubscribed = useCallback((ringSize, metalColor) => {
@@ -703,37 +792,70 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
       {showMetalColors ? (
         <div className="pd-info-field">
           <span className="pd-info-label" id="metal-color-label">
-            Metal Color
+            {colorFieldLabel}
           </span>
-          <div className="pd-info-swatches" role="group" aria-labelledby="metal-color-label">
-            {metalColors.map((metal) => {
-              const hasStock = optionHasAnyStock(inventory, {
-                metalColor: metal.value,
-                ringSizes,
-                metalColors: metalColorValues,
-              });
-              const pairingAvailable = getCellQuantity(inventory, selectedRingSize, metal.value) > 0;
-              return (
-                <button
-                  key={metal.value}
-                  type="button"
-                  className={`pd-info-swatch${color === metal.value ? ' pd-info-swatch-active' : ''}${
-                    pairingAvailable ? '' : ' is-unavailable'
-                  }`}
-                  style={{ '--swatch-color': metal.color }}
-                  onClick={() => handleColorSelect(metal.value)}
-                  disabled={!hasStock}
-                  aria-label={metal.label}
-                  aria-pressed={color === metal.value}
-                  aria-disabled={!hasStock}
-                  title={hasStock ? metal.label : `${metal.label} (out of stock)`}
-                />
-              );
-            })}
-          </div>
-          <span className="pd-info-swatch-label">
-            {metalColors.find((metal) => metal.value === color)?.label}
-          </span>
+          {usesMetalSwatches ? (
+            <>
+              <div className="pd-info-swatches" role="group" aria-labelledby="metal-color-label">
+                {metalColors.map((metal) => {
+                  const hasStock = optionHasAnyStock(inventory, {
+                    metalColor: metal.value,
+                    ringSizes,
+                    metalColors: metalColorValues,
+                  });
+                  const pairingAvailable =
+                    getCellQuantity(inventory, selectedRingSize, metal.value) > 0;
+                  return (
+                    <button
+                      key={metal.value}
+                      type="button"
+                      className={`pd-info-swatch${color === metal.value ? ' pd-info-swatch-active' : ''}${
+                        pairingAvailable ? '' : ' is-unavailable'
+                      }`}
+                      style={{ '--swatch-color': metal.color }}
+                      onClick={() => handleColorSelect(metal.value)}
+                      disabled={!hasStock}
+                      aria-label={metal.label}
+                      aria-pressed={color === metal.value}
+                      aria-disabled={!hasStock}
+                      title={hasStock ? metal.label : `${metal.label} (out of stock)`}
+                    />
+                  );
+                })}
+              </div>
+              <span className="pd-info-swatch-label">
+                {metalColors.find((metal) => metal.value === color)?.label}
+              </span>
+            </>
+          ) : (
+            <div className="pd-info-option-row" role="group" aria-labelledby="metal-color-label">
+              {metalColors.map((metal) => {
+                const hasStock = optionHasAnyStock(inventory, {
+                  metalColor: metal.value,
+                  ringSizes,
+                  metalColors: metalColorValues,
+                });
+                const pairingAvailable =
+                  getCellQuantity(inventory, selectedRingSize, metal.value) > 0;
+                return (
+                  <button
+                    key={metal.value}
+                    type="button"
+                    className={`pd-info-option-btn${color === metal.value ? ' is-selected' : ''}${
+                      pairingAvailable ? '' : ' is-unavailable'
+                    }`}
+                    onClick={() => handleColorSelect(metal.value)}
+                    disabled={!hasStock}
+                    aria-pressed={color === metal.value}
+                    aria-disabled={!hasStock}
+                    title={hasStock ? metal.label : `${metal.label} (out of stock)`}
+                  >
+                    {metal.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {colorError ? (
             <p className="pd-info-field-error" role="alert">
               {colorError}
@@ -751,38 +873,41 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
         </div>
       )}
 
-      {sizeChartOpen && product?.sizeChart?.imageUrl && (
-        <div
-          className="pd-size-chart-overlay"
-          onClick={() => setSizeChartOpen(false)}
-          role="presentation"
-        >
-          <div
-            className="pd-size-chart-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Size chart"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="pd-size-chart-close"
+      {sizeChartOpen && product?.sizeChart?.imageUrl
+        ? createPortal(
+            <div
+              className="pd-size-chart-overlay"
               onClick={() => setSizeChartOpen(false)}
-              aria-label="Close size chart"
+              role="presentation"
             >
-              ×
-            </button>
-            <img
-              src={product.sizeChart.imageUrl}
-              alt={`${product.title || 'Product'} size chart`}
-              width={800}
-              height={800}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        </div>
-      )}
+              <div
+                className="pd-size-chart-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Size chart"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="pd-size-chart-close"
+                  onClick={() => setSizeChartOpen(false)}
+                  aria-label="Close size chart"
+                >
+                  ×
+                </button>
+                <img
+                  src={product.sizeChart.imageUrl}
+                  alt={`${product.title || 'Product'} size chart`}
+                  width={800}
+                  height={800}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
 
       {!isCustomizable && (
         <div className="pd-info-field">
@@ -839,7 +964,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
           className="pd-btn pd-btn-primary pd-btn-add-to-cart"
           style={{ flex: 1, padding: '16px 12px' }}
           onClick={handleAddToCart}
-          disabled={!inStock || adding}
+          disabled={!inStock || adding || buying}
         >
           {adding ? 'Adding…' : 'Add to cart'}
         </button>
@@ -849,9 +974,9 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
           className="pd-btn pd-btn-accent pd-btn-buy-now"
           style={{ flex: 1, padding: '16px 12px' }}
           onClick={handleBuyNow}
-          disabled={!inStock}
+          disabled={!inStock || adding || buying}
         >
-          Buy it now
+          {buying ? 'Buying…' : 'Buy it now'}
         </button>
 
         {/* <CompareButton
