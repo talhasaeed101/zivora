@@ -42,13 +42,20 @@
 }
 
 .account-container-full {
-  max-width: 1440px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
 }
 
+.account-page-full {
+  --account-bg: #ffffff;
+  background: #ffffff;
+}
+
 .account-page-full .account-main {
-  padding: 40px clamp(16px, 4vw, 80px) 80px;
+  padding: 40px clamp(16px, 5vw, 80px) 80px;
 }
 
 .account-page-full .account-content {

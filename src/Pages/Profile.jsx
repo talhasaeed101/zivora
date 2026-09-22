@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AccountShell from '../components/account/AccountShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import DeliveryAddressModal from '../components/cart/DeliveryAddressModal';
@@ -64,6 +64,7 @@ export default function Profile() {
   usePrivatePageSeo({ title: 'My Account', path: '/profile' });
 
   const formId = useId();
+  const navigate = useNavigate();
   const {
     customer,
     loading: authLoading,
@@ -72,6 +73,7 @@ export default function Profile() {
     cancelEmailChange,
     resendEmailChange,
     refreshCustomer,
+    logout,
   } = useAuth();
   const { totalItems: wishlistCount } = useWishlist();
 
@@ -89,6 +91,7 @@ export default function Profile() {
   const [statusMessage, setStatusMessage] = useState('');
   const [loyalty, setLoyalty] = useState(null);
   const [loyaltyLoading, setLoyaltyLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     name: '',
@@ -458,11 +461,21 @@ export default function Profile() {
   const newPasswordId = `${formId}-new-password`;
   const confirmPasswordId = `${formId}-confirm-password`;
 
+  const handleLogout = () => {
+    if (loggingOut) {
+      return;
+    }
+    setLoggingOut(true);
+    logout();
+    navigate(ROUTES.login, { replace: true });
+  };
+
   return (
     <AccountShell
       active="overview"
       title="Account Overview"
       description="Manage your profile details, delivery addresses, and recent activity."
+      hideSidebar
     >
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {statusMessage}
@@ -842,6 +855,20 @@ export default function Profile() {
               </div>
             ) : null}
           </Reveal> */}
+        </div>
+      ) : null}
+
+      {!pageLoading && profileInitialized ? (
+        <div className="profile-logout-wrap">
+          <button
+            type="button"
+            className="profile-logout-btn"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            aria-busy={loggingOut || undefined}
+          >
+            {loggingOut ? 'Signing out…' : 'Log out'}
+          </button>
         </div>
       ) : null}
 

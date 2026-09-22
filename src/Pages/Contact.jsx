@@ -109,7 +109,7 @@ export default function Contact() {
             <form className="contact-form" onSubmit={handleSubmit} noValidate>
               <div className="contact-field">
                 <label htmlFor={nameId}>
-                  Name <span className="contact-required" aria-hidden="true">*</span>
+                  Name <span className="contact-required" aria-hidden="true"></span>
                   <span className="visually-hidden"> (required)</span>
                 </label>
                 <input
@@ -133,7 +133,7 @@ export default function Contact() {
 
               <div className="contact-field">
                 <label htmlFor={emailId}>
-                  Email <span className="contact-required" aria-hidden="true">*</span>
+                  Email <span className="contact-required" aria-hidden="true"></span>
                   <span className="visually-hidden"> (required)</span>
                 </label>
                 <input
@@ -158,7 +158,7 @@ export default function Contact() {
 
               <div className="contact-field">
                 <label htmlFor={messageId}>
-                  Message <span className="contact-required" aria-hidden="true">*</span>
+                  Message <span className="contact-required" aria-hidden="true"></span>
                   <span className="visually-hidden"> (required)</span>
                 </label>
                 <textarea

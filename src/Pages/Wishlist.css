@@ -1,5 +1,5 @@
 .wishlist-page {
-  --wl-bg: transparent;
+  --wl-bg: #ffffff;
   --wl-white: #ffffff;
   --wl-black: #000000;
   --wl-gray: #767676;
@@ -18,6 +18,7 @@
   --catalog-soft: #f7f5f2;
 
   color: var(--wl-black);
+  background: var(--wl-bg);
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 

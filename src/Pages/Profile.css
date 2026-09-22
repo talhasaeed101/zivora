@@ -601,6 +601,44 @@
   height: 160px;
 }
 
+.profile-logout-wrap {
+  margin-top: 12px;
+  padding-top: 28px;
+  border-top: 1px solid var(--account-border, #e8e4df);
+}
+
+.profile-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 28px;
+  border: 1px solid #c3c3c3;
+  background: #ffffff;
+  color: #8f4a45;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.profile-logout-btn:hover:not(:disabled),
+.profile-logout-btn:active:not(:disabled),
+.profile-logout-btn:focus-visible {
+  color: #6f3531;
+  border-color: #8f4a45;
+  background: #ffffff;
+  transform: none;
+  box-shadow: none;
+}
+
+.profile-logout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 @keyframes profile-shimmer {
   0% {
     background-position: 100% 0;
@@ -628,7 +666,8 @@
   }
 
   .profile-add-btn,
-  .profile-save-btn {
+  .profile-save-btn,
+  .profile-logout-btn {
     width: 100%;
   }
 
