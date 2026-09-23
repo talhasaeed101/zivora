@@ -10,6 +10,7 @@ export default function WishlistButton({
   activeClassName = '',
   iconClassName = 'w-4 h-4',
   showLabel = false,
+  label = 'Wishlist',
   stopPropagation = true,
   loginRedirectPath,
   icon: Icon = HeartIcon,
@@ -56,7 +57,7 @@ export default function WishlistButton({
       disabled={loading}
     >
       <Icon className={iconClassName} filled={active} />
-      {showLabel && <span>Wishlist</span>}
+      {showLabel && <span>{label}</span>}
     </button>
   );
 }

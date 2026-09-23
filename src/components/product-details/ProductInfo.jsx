@@ -33,6 +33,12 @@ import {
   useCampaignCountdown,
 } from '../campaign/campaignUi.jsx';
 
+const TRUST_FULL_ROW_MIN_CHARS = 28;
+
+function getTrustItemClassName(text) {
+  return String(text || '').trim().length >= TRUST_FULL_ROW_MIN_CHARS ? 'is-full-row' : undefined;
+}
+
 const METAL_COLOR_MAP = {
   silver: { id: 'silver', label: 'Silver', color: '#c8c8c8' },
   gold: { id: 'gold', label: 'Gold', color: '#c8815f' },
@@ -991,7 +997,8 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
           productId={product?._id}
           className="pd-btn pd-btn-wishlist-icon"
           activeClassName="pd-btn-wishlist-icon-active"
-          showLabel={false}
+          showLabel
+          label="Add to wishlist"
           stopPropagation={false}
         />
 
@@ -1029,14 +1036,24 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
       </div>
 
       <ul className="pd-trust-list" aria-label="Purchase reassurance">
-        {isCustomizable ? <li>Personalized options available</li> : null}
+        {isCustomizable ? (
+          <li className={getTrustItemClassName('Personalized options available')}>
+            Personalized options available
+          </li>
+        ) : null}
         {showMetalColors ? (
-          <li>
+          <li
+            className={getTrustItemClassName(
+              `Available finishes: ${metalColors.map((metal) => metal.label).join(', ')}`
+            )}
+          >
             Available finishes: {metalColors.map((metal) => metal.label).join(', ')}
           </li>
         ) : null}
         {PDP_TRUST_ITEMS.map((item) => (
-          <li key={item}>{item}</li>
+          <li key={item} className={getTrustItemClassName(item)}>
+            {item}
+          </li>
         ))}
       </ul>
 

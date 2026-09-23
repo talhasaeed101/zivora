@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import RatingSummary from './RatingSummary.jsx';
 import ReviewCard from './ReviewCard.jsx';
@@ -6,7 +7,7 @@ import ReviewModal from './ReviewModal.jsx';
 import ReviewSocialProof from './ReviewSocialProof.jsx';
 import { reviewApi } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { StarIcon } from '../icons';
+import { ChevronDownIcon, StarIcon } from '../icons';
 import { formatReviewDate, getReviewerName } from '../../utils/reviews.js';
 
 const REVIEWS_PER_PAGE = 4;
@@ -89,6 +90,11 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
   const [pagination, setPagination] = useState(null);
   const [ratingFilter, setRatingFilter] = useState('');
   const [sort, setSort] = useState('newest');
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const sortWrapRef = useRef(null);
+  const sortButtonRef = useRef(null);
+  const sortMenuRef = useRef(null);
+  const [sortMenuStyle, setSortMenuStyle] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [savingReview, setSavingReview] = useState(false);
   const [modalError, setModalError] = useState('');
@@ -274,15 +280,112 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
     }
   };
 
+  useLayoutEffect(() => {
+    if (!sortMenuOpen) {
+      setSortMenuStyle(null);
+      return undefined;
+    }
+
+    const updatePosition = () => {
+      const button = sortButtonRef.current;
+      if (!button) {
+        return;
+      }
+
+      const rect = button.getBoundingClientRect();
+      const menuWidth = Math.min(220, Math.max(180, rect.width));
+      const left = Math.min(
+        Math.max(12, rect.left),
+        window.innerWidth - menuWidth - 12
+      );
+
+      setSortMenuStyle({
+        position: 'fixed',
+        top: rect.bottom + 6,
+        left,
+        width: menuWidth,
+        zIndex: 4000,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [sortMenuOpen]);
+
+  useEffect(() => {
+    if (!sortMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      const target = event.target;
+      if (
+        sortWrapRef.current?.contains(target) ||
+        sortMenuRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setSortMenuOpen(false);
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setSortMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [sortMenuOpen]);
+
   const handleRatingFilterChange = (next) => {
     setCurrentPage(1);
     setRatingFilter(next);
   };
 
-  const handleSortChange = (event) => {
+  const handleSortChange = (value) => {
     setCurrentPage(1);
-    setSort(event.target.value);
+    setSort(value);
+    setSortMenuOpen(false);
   };
+
+  const currentSortLabel = SORT_OPTIONS.find((option) => option.value === sort)?.label || 'Newest';
+
+  const sortMenu =
+    sortMenuOpen && sortMenuStyle
+      ? createPortal(
+          <div
+            ref={sortMenuRef}
+            className="pd-review-sort-menu"
+            role="listbox"
+            aria-label="Sort reviews"
+            style={sortMenuStyle}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={sort === option.value}
+                className={`pd-review-sort-option${sort === option.value ? ' is-active' : ''}`}
+                onClick={() => handleSortChange(option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>,
+          document.body
+        )
+      : null;
 
   const totalPages = pagination?.totalPages || 1;
   const usingFallback = !resolvedProductId;
@@ -380,16 +483,20 @@ export default function ProductReviewsSection({ productId, onSummaryChange }) {
                 </button>
               ))}
             </div>
-            <label className="pd-review-sort">
-              <span className="sr-only">Sort reviews</span>
-              <select value={sort} onChange={handleSortChange}>
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="pd-review-sort" ref={sortWrapRef}>
+              <button
+                ref={sortButtonRef}
+                type="button"
+                className="pd-review-sort-btn"
+                onClick={() => setSortMenuOpen((open) => !open)}
+                aria-expanded={sortMenuOpen}
+                aria-haspopup="listbox"
+              >
+                Sort by: <strong>{currentSortLabel}</strong>
+                <ChevronDownIcon className="w-3.5 h-3.5" />
+              </button>
+              {sortMenu}
+            </div>
           </div>
         ) : null}
 
