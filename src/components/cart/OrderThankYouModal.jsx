@@ -63,9 +63,9 @@ export default function OrderThankYouModal({
         </p>
 
         <div className="order-thankyou-actions">
-          <Link to={viewOrderHref} className="order-thankyou-btn order-thankyou-btn-secondary" onClick={onClose}>
+          {/* <Link to={viewOrderHref} className="order-thankyou-btn order-thankyou-btn-secondary" onClick={onClose}>
             View Order
-          </Link>
+          </Link> */}
           <Link to={continueHref} className="order-thankyou-btn order-thankyou-btn-primary" onClick={onClose}>
             Continue Shopping
           </Link>

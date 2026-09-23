@@ -264,7 +264,7 @@
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: #767676;
 }
 
@@ -367,8 +367,8 @@
   justify-content: center;
   min-height: 44px;
   padding: 10px 22px;
-  border: 1px solid #967259;
-  background: #967259;
+  border: none;
+  background:#9A4A00;
   color: #fff;
   font-family: inherit;
   font-size: 12px;
@@ -380,8 +380,8 @@
 }
 
 .profile-save-btn:hover:not(:disabled) {
-  background: #c8815f;
-  border-color: #c8815f;
+  background:#9A4A00;
+  border-color: #9A4A00;
 }
 
 .profile-save-btn:disabled {
@@ -401,18 +401,18 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   text-decoration: none;
-  border: 1px solid #967259;
-  background: #967259;
+  border:none;
+  background:#9A4A00;
   color: #fff;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.profile-add-btn:hover,
+/* .profile-add-btn:hover,
 .profile-retry-btn:hover {
   background: #c8815f;
   border-color: #c8815f;
-}
+} */
 
 .profile-text-link {
   font-size: 13px;
@@ -536,7 +536,7 @@
 }
 
 .profile-address-action-danger {
-  color: #8f4a45;
+  color: red;
 }
 
 .profile-order-meta {
@@ -555,7 +555,7 @@
 .profile-order-card:focus-visible,
 .profile-save-btn:focus-visible,
 .profile-text-btn:focus-visible {
-  outline: 2px solid #967259;
+  outline: 2px solid #9A4A00;
   outline-offset: 3px;
 }
 
@@ -613,9 +613,9 @@
   justify-content: center;
   min-height: 48px;
   padding: 12px 28px;
-  border: 1px solid #c3c3c3;
-  background: #ffffff;
-  color: #8f4a45;
+  border: none;
+  background: #000;
+  color: #fff;
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
@@ -627,9 +627,8 @@
 .profile-logout-btn:hover:not(:disabled),
 .profile-logout-btn:active:not(:disabled),
 .profile-logout-btn:focus-visible {
-  color: #6f3531;
-  border-color: #8f4a45;
-  background: #ffffff;
+  color: #fff;
+  background: #000;
   transform: none;
   box-shadow: none;
 }
@@ -674,6 +673,10 @@
   .profile-address-action {
     flex: 1;
     min-width: calc(50% - 4px);
+  }
+  .profile-subsection-title
+  {
+        margin: 8px 0 8px;
   }
 }
 

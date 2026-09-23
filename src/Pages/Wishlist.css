@@ -435,14 +435,13 @@
 }
 
 .wishlist-action-btn-primary {
-  background: var(--wl-accent);
+  background: #9A4A00;
   color: var(--wl-white);
-  border-color: var(--wl-accent);
 }
 
 .wishlist-action-btn-primary:hover:not(:disabled) {
-  background: var(--wl-accent-hover);
-  border-color: var(--wl-accent-hover);
+   background: #9A4A00;
+  color: var(--wl-white);
 }
 
 .wishlist-action-btn-secondary {

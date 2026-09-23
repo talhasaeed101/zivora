@@ -496,6 +496,9 @@
   text-align: center;
   cursor: pointer;
   transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bn-place-order-btn:hover:not(:disabled) {
@@ -527,9 +530,13 @@
     gap: 28px;
   }
 
+  .bn-main-col {
+    order: 1;
+  }
+
   .bn-summary {
     position: static;
-    order: -1;
+    order: 2;
     padding: 24px;
   }
 
@@ -551,5 +558,15 @@
 
   .bn-payment-tile {
     width: 100%;
+  }
+  .bn-place-order-btn
+  {
+    font-size: 15px;
+    height: 49px;
+
+  }
+  .bn-page-header
+  {
+    margin-bottom: 20px;
   }
 }

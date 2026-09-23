@@ -4,6 +4,17 @@ import { PLACEHOLDER_IMAGE, formatPrice } from '../../utils/products.js';
 import { buildCustomizationSummaryLines } from '../../utils/customizationSummary.js';
 import SafeImage from '../SafeImage.jsx';
 
+function TruckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M1 3h15v13H1z" strokeLinejoin="round" />
+      <path d="M16 8h4l3 3v5h-7V8z" strokeLinejoin="round" />
+      <circle cx="5.5" cy="18.5" r="2.5" />
+      <circle cx="18.5" cy="18.5" r="2.5" />
+    </svg>
+  );
+}
+
 function CloseIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -12,22 +23,24 @@ function CloseIcon() {
   );
 }
 
-function ClockIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 function ReturnIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
       <path d="M9 14L4 9l5-5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M4 9h10a6 6 0 010 12h-3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+function formatShippingLabel(value) {
+  if (!value) return 'Nationwide delivery';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 function formatMetalLabel(value) {
@@ -126,15 +139,12 @@ export default function CartItem({
 
           <div className="cart-item-meta">
             {/* <span className="cart-item-meta-row">
-              <ClockIcon />
-              <span>{shippingNote || 'Nationwide delivery'}</span>
+              <TruckIcon />
+              <span>{formatShippingLabel(shippingNote)}</span>
             </span> */}
-            {/* <span className="cart-item-meta-divider" aria-hidden="true" /> */}
             <span className="cart-item-meta-row">
               {/* <ReturnIcon /> */}
-              <span>
-                <strong>7 days</strong> return available
-              </span>
+              <span>7 days return available</span>
             </span>
           </div>
 
