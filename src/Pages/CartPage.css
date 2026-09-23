@@ -448,8 +448,9 @@
 .cart-form-input:-webkit-autofill:focus {
   -webkit-text-fill-color: #000;
   caret-color: #000;
-  box-shadow: 0 0 0 1000px #fff inset;
-  border: 1px solid #dddddd;
+  box-shadow: 0 0 0 1000px #f7f5f2 inset;
+  -webkit-box-shadow: 0 0 0 1000px #f7f5f2 inset;
+  border: 1px solid #e8e4df;
   transition: background-color 99999s ease-out 0s;
 }
 

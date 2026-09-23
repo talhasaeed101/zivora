@@ -6,7 +6,7 @@ import CatalogProductCard from '../components/catalog/CatalogProductCard.jsx';
 import CatalogPagination from '../components/catalog/CatalogPagination.jsx';
 import Reveal from '../components/Reveal.jsx';
 import PageBreadcrumbs from '../components/seo/PageBreadcrumbs.jsx';
-import { ChevronDownIcon, FilterIcon } from '../components/icons';
+import { ChevronDownIcon } from '../components/icons';
 import { loadPublicCategories, loadPublicProducts } from '../services/catalogCache.js';
 import {
   SORT_OPTIONS,
@@ -204,11 +204,6 @@ export default function Collection() {
     setPage(1);
   };
 
-  const handleFlagChange = (flagKey) => {
-    setProductFlag((current) => (current === flagKey ? '' : flagKey));
-    setPage(1);
-  };
-
   const handleSortChange = (value) => {
     setSort(value);
     setSortMenuOpen(false);
@@ -370,25 +365,6 @@ export default function Collection() {
         </ul>
       </div>
 
-      <div className="catalog-filter-section">
-        <h2 className="catalog-filter-heading" id="catalog-filter-collection">Collection</h2>
-        <ul className="catalog-filter-list" aria-labelledby="catalog-filter-collection">
-          {PRODUCT_FLAG_FILTERS.map((filter) => (
-            <li key={filter.key}>
-              <button
-                type="button"
-                className={`catalog-filter-item${productFlag === filter.key ? ' is-active' : ''}`}
-                onClick={() => handleFlagChange(filter.key)}
-                aria-pressed={productFlag === filter.key}
-              >
-                <Checkbox checked={productFlag === filter.key} />
-                {filter.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
       {hasActiveFilters && (
         <button type="button" className="catalog-clear-filters" onClick={handleClearFilters}>
           Clear all filters
@@ -482,11 +458,20 @@ export default function Collection() {
             aria-haspopup="dialog"
             aria-expanded={mobileFiltersOpen}
           >
-            Filters
-            {activeChips.length > 0 && (
-              <span className="catalog-mobile-filter-count">{activeChips.length}</span>
-            )}
-            <FilterIcon className="w-4 h-4" />
+            <span className="catalog-mobile-filter-label">
+              Filters
+              {activeChips.length > 0 ? (
+                <span className="catalog-mobile-filter-count">{activeChips.length}</span>
+              ) : null}
+            </span>
+            <img
+              src="/images/filterIcon.svg"
+              alt=""
+              className="catalog-mobile-filter-icon"
+              width={16}
+              height={16}
+              aria-hidden="true"
+            />
           </button>
           <div className="catalog-sort-wrap catalog-mobile-sort-wrap">
             <button
@@ -554,7 +539,14 @@ export default function Collection() {
                 onClick={() => setMobileFiltersOpen(false)}
                 aria-label="Close filters"
               >
-                ×
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path
+                    d="M1 1L13 13M13 1L1 13"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </button>
             </div>
             {filterSidebar}

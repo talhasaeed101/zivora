@@ -139,7 +139,7 @@ export default function Register() {
     <AuthShell imageSrc="/images/signup.png">
       <h1 className="auth-heading">Create Account</h1>
       <p className="auth-subheading">
-        Join Zivorah to save favorites, track orders, and manage your account.
+       Join our world of timeless elegance, made just for you.
       </p>
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">

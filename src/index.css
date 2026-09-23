@@ -71,6 +71,27 @@ textarea:focus-visible {
   outline: none;
 }
 
+/* Autofill: replace browser bluish fill with site soft gray */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus,
+select:-webkit-autofill:active {
+  -webkit-text-fill-color: #000;
+  caret-color: #000;
+  box-shadow: 0 0 0 1000px #f7f5f2 inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #f7f5f2 inset !important;
+  border-color: #e8e4df;
+  transition: background-color 99999s ease-out 0s;
+}
+
 img {
   max-width: 100%;
   height: auto;

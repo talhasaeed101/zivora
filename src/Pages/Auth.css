@@ -265,7 +265,7 @@
 .auth-field input:focus,
 .auth-password-wrap:focus-within {
   border-color: var(--auth-accent);
-  box-shadow: 0 0 0 3px rgba(150, 114, 89, 0.12);
+  /* box-shadow: 0 0 0 3px rgba(150, 114, 89, 0.12); */
 }
 
 .auth-field.is-invalid input,
@@ -637,11 +637,11 @@
 
   .auth-logo {
     margin-bottom: 20px;
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .auth-heading {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .auth-subheading {

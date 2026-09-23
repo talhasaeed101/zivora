@@ -11,7 +11,6 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { loadPublicCategories } from '../services/catalogCache.js';
-// import { isLaunchTimerActive } from './LaunchTimer.jsx';
 import AnnouncementBar from './AnnouncementBar.jsx';
 import HeaderSearch from './header/HeaderSearch.jsx';
 import MobileDrawer from './header/MobileDrawer.jsx';
@@ -24,7 +23,6 @@ const PRIMARY_NAV = [
   { label: 'Collection', to: ROUTES.collection },
   { label: 'Bundles', to: homeSection('bundles'), sectionId: 'bundles' },
   { label: 'Testimonials', to: homeSection('testimonials'), sectionId: 'testimonials' },
-  // { label: 'About', to: ROUTES.about },
   { label: 'Contact', to: ROUTES.contact },
 ];
 
@@ -41,7 +39,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
 
-  // Launch timer lock disabled — was: useState(isLaunchTimerActive)
   const [locked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -62,28 +59,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
     setSearchOpen(false);
     setShopOpen(false);
   }, []);
-
-  // useEffect(() => {
-  //   if (!locked) {
-  //     return undefined;
-  //   }
-  //
-  //   const unlock = () => {
-  //     if (!isLaunchTimerActive()) {
-  //       setLocked(false);
-  //     }
-  //   };
-  //
-  //   unlock();
-  //   const timer = window.setInterval(unlock, 1000);
-  //   return () => window.clearInterval(timer);
-  // }, [locked]);
-  //
-  // useEffect(() => {
-  //   if (locked) {
-  //     closeOverlays();
-  //   }
-  // }, [locked, closeOverlays]);
 
   useEffect(() => {
     closeOverlays();
@@ -207,22 +182,6 @@ export default function Navbar({ homeHref = ROUTES.home }) {
           onKeyDownCapture={locked ? blockIfLocked : undefined}
         >
           <div className="navbar-inner">
-            <button
-              type="button"
-              ref={menuTriggerRef}
-              className="navbar-mobile-toggle"
-              onClick={toggleMenu}
-              disabled={locked}
-              aria-disabled={locked || undefined}
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={menuOpen}
-              aria-controls="mobile-navigation"
-            >
-              <span className="navbar-mobile-bar" />
-              <span className="navbar-mobile-bar" />
-              <span className="navbar-mobile-bar" />
-            </button>
-
             <Link
               to={homeHref}
               className="navbar-logo"
@@ -256,7 +215,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
             <div className="navbar-actions">
               <button
                 type="button"
-                className="navbar-icon-btn"
+                className="navbar-icon-btn navbar-search-btn"
                 onClick={openSearch}
                 disabled={locked}
                 aria-disabled={locked || undefined}
@@ -286,7 +245,7 @@ export default function Navbar({ homeHref = ROUTES.home }) {
 
               <Link
                 to={ROUTES.cart}
-                className="navbar-icon-btn navbar-cart-btn"
+                className="navbar-icon-btn navbar-cart-btn navbar-icon-desktop"
                 aria-label={cartBadge ? `Cart, ${cartBadge} items` : 'Cart'}
                 aria-disabled={locked || undefined}
                 tabIndex={locked ? -1 : undefined}
@@ -311,6 +270,22 @@ export default function Navbar({ homeHref = ROUTES.home }) {
               >
                 <UserIcon className="w-6 h-6" />
               </Link>
+
+              <button
+                type="button"
+                ref={menuTriggerRef}
+                className="navbar-mobile-toggle"
+                onClick={toggleMenu}
+                disabled={locked}
+                aria-disabled={locked || undefined}
+                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-navigation"
+              >
+                <span className="navbar-mobile-bar" />
+                <span className="navbar-mobile-bar" />
+                <span className="navbar-mobile-bar" />
+              </button>
             </div>
           </div>
         </div>
@@ -328,8 +303,9 @@ export default function Navbar({ homeHref = ROUTES.home }) {
           <MobileDrawer
             open={menuOpen}
             onClose={() => setMenuOpen(false)}
-            categories={categories}
             navItems={PRIMARY_NAV}
+            cartBadge={cartBadge}
+            wishlistBadge={wishlistBadge}
             triggerRef={menuTriggerRef}
           />
         </>

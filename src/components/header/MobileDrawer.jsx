@@ -1,28 +1,27 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ROUTES, categoryPath, scrollToHomeSection } from '../../utils/navigation';
+import { ROUTES, scrollToHomeSection } from '../../utils/navigation';
 
 const SECTION_HASHES = new Set(['#bundles', '#testimonials']);
 
 export default function MobileDrawer({
   open,
   onClose,
-  categories = [],
   navItems = [],
+  cartBadge = null,
+  wishlistBadge = null,
   triggerRef,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, logout, customer } = useAuth();
-  const [shopOpen, setShopOpen] = useState(false);
   const drawerRef = useRef(null);
   const closeId = useId();
   const firstName = customer?.name?.trim().split(/\s+/)[0] || '';
 
   useEffect(() => {
     if (!open) {
-      setShopOpen(false);
       return undefined;
     }
 
@@ -87,7 +86,13 @@ export default function MobileDrawer({
             aria-label="Close navigation menu"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M18 6L6 18M6 6L18 18"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         </div>
@@ -106,8 +111,7 @@ export default function MobileDrawer({
                 let active = isActive;
                 if (item.sectionId) {
                   active =
-                    location.pathname === '/' &&
-                    location.hash === `#${item.sectionId}`;
+                    location.pathname === '/' && location.hash === `#${item.sectionId}`;
                 } else if (item.end) {
                   active = isActive && !SECTION_HASHES.has(location.hash);
                 }
@@ -124,67 +128,36 @@ export default function MobileDrawer({
             </NavLink>
           ))}
 
-          {categories.length > 0 ? (
-            <div className="mobile-drawer-accordion">
-              <button
-                type="button"
-                className="mobile-drawer-accordion-trigger"
-                aria-expanded={shopOpen}
-                onClick={() => setShopOpen((value) => !value)}
-              >
-                Categories
-                <span aria-hidden="true">{shopOpen ? '−' : '+'}</span>
-              </button>
-              {shopOpen ? (
-                <div className="mobile-drawer-accordion-panel">
-                  {categories.map((category) => (
-                    <Link
-                      key={category._id || category.slug}
-                      to={categoryPath(category.slug)}
-                      className="mobile-drawer-sublink"
-                      onClick={onClose}
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-
-          <Link to={ROUTES.collection} className="mobile-drawer-link" onClick={onClose}>
-            Shop Collection
-          </Link>
           <Link
             to={isAuthenticated ? ROUTES.wishlist : ROUTES.login}
             state={isAuthenticated ? undefined : { from: ROUTES.wishlist }}
             className="mobile-drawer-link"
             onClick={onClose}
           >
-            Wishlist
+            <span>Wishlist</span>
+            {wishlistBadge ? (
+              <span className="mobile-drawer-count" aria-hidden="true">
+                {wishlistBadge}
+              </span>
+            ) : null}
           </Link>
-          {isAuthenticated ? (
-            <>
-              <Link to={ROUTES.orders} className="mobile-drawer-link" onClick={onClose}>
-                My Orders
-              </Link>
-              <Link to={ROUTES.profile} className="mobile-drawer-link" onClick={onClose}>
-                Account
-              </Link>
-              <Link to={ROUTES.notifications} className="mobile-drawer-link" onClick={onClose}>
-                Notifications
-              </Link>
-              <Link to={ROUTES.supportTickets} className="mobile-drawer-link" onClick={onClose}>
-                Support
-              </Link>
-            </>
-          ) : (
-            <Link to={ROUTES.login} className="mobile-drawer-link" onClick={onClose}>
-              Sign In
-            </Link>
-          )}
-          <Link to={ROUTES.contact} className="mobile-drawer-link" onClick={onClose}>
-            Contact
+
+          <Link to={ROUTES.cart} className="mobile-drawer-link" onClick={onClose}>
+            <span>Cart</span>
+            {cartBadge ? (
+              <span className="mobile-drawer-count" aria-hidden="true">
+                {cartBadge}
+              </span>
+            ) : null}
+          </Link>
+
+          <Link
+            to={isAuthenticated ? ROUTES.profile : ROUTES.login}
+            state={isAuthenticated ? undefined : { from: ROUTES.profile }}
+            className="mobile-drawer-link"
+            onClick={onClose}
+          >
+            Account
           </Link>
         </nav>
 
