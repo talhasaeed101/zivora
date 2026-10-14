@@ -33,13 +33,12 @@ function formatBadgeCount(count) {
   return count > 99 ? '99+' : String(count);
 }
 
-export default function Navbar({ homeHref = ROUTES.home }) {
+export default function Navbar({ homeHref = ROUTES.home, locked = false }) {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
   const { totalItems } = useCart();
   const { totalItems: wishlistCount } = useWishlist();
 
-  const [locked] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);

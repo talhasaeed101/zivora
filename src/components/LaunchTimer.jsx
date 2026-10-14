@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import './LaunchTimer.css';
 
-const LAUNCH_DATE = new Date(2026, 8, 18, 0, 0, 0);
+// October 19, 2026 (Month index 9 is October in JavaScript Date)
+const LAUNCH_DATE = new Date(2026, 9, 19, 0, 0, 0);
 
 function getTimeLeft() {
   const diff = LAUNCH_DATE.getTime() - Date.now();

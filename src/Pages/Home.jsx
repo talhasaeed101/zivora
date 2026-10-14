@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import TrendingProducts from '../components/TrendingProducts';
@@ -9,6 +10,7 @@ import Testimonials from '../components/Testimonials';
 import Footer from '../components/Footer';
 import BrandQuote from '../components/BrandQuote';
 import CampaignHomeSection from '../components/CampaignHomeSection';
+import LaunchTimer, { isLaunchTimerActive } from '../components/LaunchTimer';
 import '../components/landing/landing-tokens.css';
 import '../components/landing/landing-interactions.css';
 import '../components/landing/landing-motion.css';
@@ -25,6 +27,8 @@ import { organizationJsonLd, websiteJsonLd } from '../utils/structuredData.js';
  * (including CampaignHomeSection). Keep in sync when changing homepage sections.
  */
 const Home = () => {
+  const [timerActive, setTimerActive] = useState(isLaunchTimerActive);
+
   useSeo({
     title: SEO_DEFAULT_TITLE,
     description: SEO_DEFAULT_DESCRIPTION,
@@ -32,12 +36,25 @@ const Home = () => {
     prefetch: ['/collection', '/about', '/contact'],
   });
 
+  if (timerActive) {
+    return (
+      <div className="landing-page landing-page--timer-only">
+        <Navbar homeHref="/?home=true" locked={true} />
+        <main id="main-content">
+          <Hero />
+          <LaunchTimer onTimerEnd={() => setTimerActive(false)} />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="landing-page">
       <Navbar homeHref="/?home=true" />
       <main id="main-content">
         <Hero />
         <CampaignHomeSection />
+        <LaunchTimer />
         <BrandQuote />
         <TrendingProducts />
         <SocialProofHomeSections />

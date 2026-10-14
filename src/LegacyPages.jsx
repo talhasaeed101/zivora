@@ -10,8 +10,8 @@ import PremiumBundles from './components/PremiumBundles';
 import NewsletterOffer from './components/NewsletterOffer';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
-// import LaunchTimer, { isLaunchTimerActive } from './components/LaunchTimer';
 import CampaignHomeSection from './components/CampaignHomeSection';
+import LaunchTimer, { isLaunchTimerActive } from './components/LaunchTimer';
 import GiftIdeasSection from './components/GiftIdeasSection';
 import SocialProofHomeSections from './components/SocialProofHomeSections.jsx';
 import { scrollToHomeSection } from './utils/navigation';
@@ -24,7 +24,7 @@ import CartPage from './Pages/CartPage.jsx';
 export default function LegacyPages() {
   const location = useLocation();
   const [page, setPage] = useState('home');
-  // const [timerActive, setTimerActive] = useState(isLaunchTimerActive);
+  const [timerActive, setTimerActive] = useState(isLaunchTimerActive);
 
   useEffect(() => {
     const resolvePage = () => {
@@ -77,17 +77,17 @@ export default function LegacyPages() {
     return <SearchResults />;
   }
 
-  // if (timerActive) {
-  //   return (
-  //     <div className="landing-page landing-page--timer-only">
-  //       <Navbar homeHref="/?home=true" />
-  //       <main>
-  //         <Hero />
-  //         <LaunchTimer onTimerEnd={() => setTimerActive(false)} />
-  //       </main>
-  //     </div>
-  //   );
-  // }
+  if (timerActive) {
+    return (
+      <div className="landing-page landing-page--timer-only">
+        <Navbar homeHref="/?home=true" locked={true} />
+        <main>
+          <Hero />
+          <LaunchTimer onTimerEnd={() => setTimerActive(false)} />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="landing-page">
@@ -95,7 +95,7 @@ export default function LegacyPages() {
       <main>
         <Hero />
         <CampaignHomeSection />
-        {/* <LaunchTimer /> */}
+        <LaunchTimer />
         <BrandQuote />
         <TrendingProducts />
         <SocialProofHomeSections />
