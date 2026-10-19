@@ -41,15 +41,7 @@ export default function LaunchTimer({ onTimerEnd }) {
   }, [onTimerEnd]);
 
   if (!timeLeft) {
-    return (
-      <section className="launch-timer-section">
-        <div className="launch-timer-inner">
-          <p className="timer-ended-text">
-            &ldquo;Don&apos;t just follow trends. Let your jewelry reflect your story, your style, and the elegance that makes you unique.&rdquo;
-          </p>
-        </div>
-      </section>
-    );
+    return null;
   }
 
   const formatNumber = (num) => num.toString().padStart(2, '0');
