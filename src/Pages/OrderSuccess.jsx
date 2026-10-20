@@ -21,6 +21,7 @@ import {
 } from '../utils/whatsappPayment.js';
 import { formatPaymentStatusLabel } from '../utils/orderDisplay.js';
 import { trackPurchase } from '../utils/analytics.js';
+import { pushPurchase, isPurchaseTracked, markPurchaseTracked } from '../utils/dataLayer.js';
 import { PDP_TRUST_ITEMS } from '../constants/storefrontCopy.js';
 import './Collection.css';
 import './OrderSuccess.css';
@@ -101,6 +102,17 @@ export default function OrderSuccess() {
     trackPurchase({
       productId: productId || undefined,
     });
+
+    const transactionId = order.orderNumber || order._id;
+    if (!isPurchaseTracked(transactionId)) {
+      pushPurchase({
+        orderId: transactionId,
+        value: order.total,
+        currency: order.currency,
+        items: order.items,
+      });
+      markPurchaseTracked(transactionId);
+    }
   }, [order]);
 
   useEffect(() => {

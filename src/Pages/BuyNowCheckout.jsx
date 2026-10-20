@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -9,6 +9,7 @@ import { addressApi, orderApi } from '../services/api.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { formatPrice, getProductImage } from '../utils/products.js';
 import { trackCheckoutStart } from '../utils/analytics.js';
+import { pushBeginCheckout, pushPurchase, markPurchaseTracked } from '../utils/dataLayer.js';
 import { ROUTES, productPath } from '../utils/navigation.js';
 import {
   clearBuyNowCheckout,
@@ -184,6 +185,24 @@ export default function BuyNowCheckout() {
     }
   };
 
+  const beginCheckoutTrackedRef = useRef(false);
+  useEffect(() => {
+    if (beginCheckoutTrackedRef.current || isCartCheckout) return;
+    if (product?._id) {
+      beginCheckoutTrackedRef.current = true;
+      pushBeginCheckout({
+        items: [{
+          product,
+          quantity,
+          ringSize,
+          metalColor,
+          variantId,
+        }],
+        value: lineTotal,
+      });
+    }
+  }, [isCartCheckout, product, lineTotal, quantity, ringSize, metalColor, variantId]);
+
   const handlePlaceOrder = async () => {
     setCheckoutError('');
 
@@ -251,6 +270,15 @@ export default function BuyNowCheckout() {
         });
         return;
       }
+
+      const transactionId = placedOrder.orderNumber || placedOrder._id;
+      pushPurchase({
+        orderId: transactionId,
+        value: placedOrder.total,
+        currency: placedOrder.currency,
+        items: placedOrder.items,
+      });
+      markPurchaseTracked(transactionId);
 
       setThankYouOrderId(orderId);
     } catch (err) {

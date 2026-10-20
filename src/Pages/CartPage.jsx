@@ -20,6 +20,7 @@ import { addressApi, cartApi, loyaltyApi } from '../services/api.js';
 import { mapCartItemForUi } from '../utils/products.js';
 import { mapAddressForApi, mapAddressForUi } from '../utils/addresses.js';
 import { trackCheckoutStart } from '../utils/analytics.js';
+import { pushAddToCart, pushBeginCheckout } from '../utils/dataLayer.js';
 import { getCellQuantity, getProductInventory } from '../utils/inventory.js';
 import { loadPublicProductBySlug } from '../services/catalogCache.js';
 import {
@@ -620,6 +621,12 @@ export default function CartPage() {
     try {
       await moveSavedToCart(item.id);
       resetPromo();
+      pushAddToCart({
+        items: [{
+          ...item,
+          price: item.unitPrice ?? item.price,
+        }],
+      });
       toast.success('Moved to cart.');
       setStatusMessage(`${item.title || 'Item'} moved to cart.`);
     } catch (err) {
@@ -777,6 +784,10 @@ export default function CartPage() {
 
     storeCartCheckout(payload);
     trackCheckoutStart();
+    pushBeginCheckout({
+      items,
+      value: orderTotal,
+    });
     navigate(ROUTES.buyNow, { state: payload });
   };
 

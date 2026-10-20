@@ -10,6 +10,7 @@ import '../CompareButton.css';
 import { formatPrice, hasSale, getCategoryName } from '../../utils/products.js';
 import { getFilledStars } from '../../utils/reviews.js';
 import { trackAddToCart, trackPersonalizationStart } from '../../utils/analytics.js';
+import { pushAddToCart } from '../../utils/dataLayer.js';
 import {
   findInventoryCell,
   firstAvailableSelection,
@@ -437,6 +438,15 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
       });
       setCartMessage({ type: 'success', text: 'Added to cart successfully.' });
       trackAddToCart(product._id);
+      pushAddToCart({
+        items: [{
+          product,
+          quantity,
+          ringSize: showRingSize ? size : undefined,
+          metalColor: showMetalColors ? color : undefined,
+          variantId,
+        }],
+      });
     } catch (error) {
       setCartMessage({ type: 'error', text: error.message || 'Failed to add item to cart.' });
     } finally {
@@ -472,6 +482,16 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
     await addToCart(payload);
     setCartMessage({ type: 'success', text: 'Customized item added to cart successfully.' });
     trackAddToCart(product._id);
+    pushAddToCart({
+      items: [{
+        product,
+        quantity: payload?.quantity || 1,
+        price: payload?.price,
+        ringSize: payload?.ringSize,
+        metalColor: payload?.metalColor,
+        variantId: payload?.variantId,
+      }],
+    });
   };
 
   const handleBuyNow = async () => {
@@ -511,6 +531,15 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
         ...(variantId ? { variantId } : {}),
       });
       trackAddToCart(product._id);
+      pushAddToCart({
+        items: [{
+          product,
+          quantity,
+          ringSize: showRingSize ? size : undefined,
+          metalColor: showMetalColors ? color : undefined,
+          variantId,
+        }],
+      });
       navigate(ROUTES.cart);
     } catch (error) {
       setCartMessage({ type: 'error', text: error.message || 'Failed to add item to cart.' });

@@ -30,6 +30,7 @@ import {
   trackRelatedProductClick,
   trackRecentlyViewedClick,
 } from '../utils/analytics.js';
+import { pushViewItem } from '../utils/dataLayer.js';
 import {
   recordRecentlyViewed,
   getRecentlyViewedIds,
@@ -158,6 +159,7 @@ export default function ProductDetails() {
         setProduct(data);
         setError('');
         trackProductView(data);
+        pushViewItem({ product: data });
         if (data._id) {
           recordRecentlyViewed(data._id);
         }

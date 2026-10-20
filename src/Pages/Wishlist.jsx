@@ -30,6 +30,7 @@ import {
   trackWishlistAddToCart,
   trackWishlistProductClick,
 } from '../utils/analytics.js';
+import { pushAddToCart } from '../utils/dataLayer.js';
 import '../Pages/Collection.css';
 import './Wishlist.css';
 
@@ -240,6 +241,15 @@ export default function Wishlist() {
           ...(variantId ? { variantId } : {}),
         });
         trackWishlistAddToCart({ productId: product._id, productSlug: product.slug });
+        pushAddToCart({
+          items: [{
+            product,
+            quantity: 1,
+            ringSize: selection?.ringSize,
+            metalColor: selection?.metalColor,
+            variantId,
+          }],
+        });
         setOptionsProduct(null);
         setActionMessage({
           type: 'success',
