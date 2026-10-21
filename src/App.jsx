@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AnalyticsTracker from './components/AnalyticsTracker.jsx';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import CompareBar from './components/CompareBar.jsx';
+import WhatsAppButton from './components/WhatsAppButton.jsx';
 import Login from './Pages/Login.jsx';
 import Register from './Pages/Register.jsx';
 import ForgetPassword from './Pages/ForgetPassword.jsx';
@@ -80,6 +81,7 @@ function App() {
               <ScrollToTop />
               <AnalyticsTracker />
               <CompareBar />
+              <WhatsAppButton />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/login" element={<Login />} />

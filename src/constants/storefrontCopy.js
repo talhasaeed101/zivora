@@ -12,8 +12,9 @@ export const STORE_ANNOUNCEMENTS = [
 export const PDP_TRUST_ITEMS = [
   'Secure checkout',
   'Carefully packaged',
-  'Nationwide delivery',
+  'Allow to open',
   'Customer support',
+  '24/7 delivery'
 ];
 
 /** Soft delivery note — no guaranteed dates (system has no ETA engine). */
