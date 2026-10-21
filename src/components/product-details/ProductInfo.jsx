@@ -447,6 +447,7 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
           variantId,
         }],
       });
+      navigate(ROUTES.cart);
     } catch (error) {
       setCartMessage({ type: 'error', text: error.message || 'Failed to add item to cart.' });
     } finally {
