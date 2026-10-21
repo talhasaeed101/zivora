@@ -2530,6 +2530,7 @@
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  margin-bottom: 22px;
 }
 
 /* Subtle shine sweep */
