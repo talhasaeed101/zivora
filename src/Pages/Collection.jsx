@@ -17,6 +17,7 @@ import {
 import { ShimmerProductGrid } from '../components/Shimmer.jsx';
 import { ROUTES, categoryPath } from '../utils/navigation';
 import { useSeo } from '../hooks/useSEO.js';
+import CollectionFAQ from '../components/catalog/CollectionFAQ.jsx';
 import './Collection.css';
 
 const PAGE_SIZE = 12;
@@ -635,6 +636,8 @@ export default function Collection() {
           </div>
         </div>
       </main>
+
+      <CollectionFAQ />
 
       <Footer />
     </div>

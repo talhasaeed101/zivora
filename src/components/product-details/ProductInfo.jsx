@@ -756,6 +756,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
             <span className="pd-info-price-old">{formatPrice(product.oldPrice)}</span>
           ) : null}
         </p>
+        {product?.oldPrice && product?.price && product.oldPrice > product.price ? (
+          <span className="pd-info-discount-badge">
+            {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% OFF
+          </span>
+        ) : null}
       </div>
 
       {(campaignPdpText || campaignCountdown) && (

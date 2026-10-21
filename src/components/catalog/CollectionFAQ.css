@@ -1,0 +1,344 @@
+/* =====================================================
+   Collection FAQ — Premium Redesign
+   Tokens: Teneka serif · Inter sans · #967259 gold
+   ===================================================== */
+
+.cfaq-section {
+  --cfaq-accent: #967259;
+  --cfaq-black: #000000;
+  --cfaq-white: #ffffff;
+  --cfaq-bg: #ffffff;
+  --cfaq-border: #e8e4df;
+  --cfaq-border-open: rgba(150, 114, 89, 0.5);
+  --cfaq-muted: #767676;
+  --cfaq-text: #1a1612;
+  --cfaq-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  width: 100%;
+  background: var(--cfaq-bg);
+  border-top: 1px solid #f0ebe5;
+  padding: 96px 80px 104px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle decorative warm tint top-right */
+.cfaq-section::after {
+  content: '';
+  position: absolute;
+  top: -160px;
+  right: -160px;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(150, 114, 89, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cfaq-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── Two-column layout on large screens ── */
+.cfaq-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 72px;
+  align-items: start;
+}
+
+/* ── Sticky Left Column ── */
+.cfaq-sidebar {
+  position: sticky;
+  top: 100px;
+}
+
+.cfaq-eyebrow {
+  display: block;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cfaq-accent);
+  margin-bottom: 16px;
+}
+
+.cfaq-title {
+  font-family: Teneka, serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--cfaq-black);
+  margin: 0 0 20px;
+  letter-spacing: -0.01em;
+}
+
+.cfaq-title em {
+  font-style: italic;
+  color: var(--cfaq-accent);
+}
+
+.cfaq-subtitle {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #6b5e52;
+  margin: 0 0 32px;
+}
+
+/* Gold divider line */
+.cfaq-divider {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cfaq-accent), transparent);
+  margin-bottom: 32px;
+}
+
+/* Sidebar CTA */
+.cfaq-sidebar-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cfaq-sidebar-cta-label {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  color: #8a7d73;
+  letter-spacing: 0.02em;
+}
+
+.cfaq-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(150, 114, 89, 0.5);
+  color: var(--cfaq-accent);
+  text-decoration: none;
+  padding: 11px 18px;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s var(--cfaq-ease),
+    border-color 0.25s var(--cfaq-ease),
+    color 0.25s var(--cfaq-ease);
+  width: fit-content;
+}
+
+.cfaq-cta-btn:hover {
+  background: var(--cfaq-accent);
+  border-color: var(--cfaq-accent);
+  color: #fff;
+}
+
+.cfaq-wa-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ── Right Column — Accordion List ── */
+.cfaq-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Single FAQ Item ── */
+.cfaq-item {
+  border-bottom: 1px solid var(--cfaq-border);
+  transition: border-color 0.25s var(--cfaq-ease);
+}
+
+.cfaq-item:first-child {
+  border-top: 1px solid var(--cfaq-border);
+}
+
+.cfaq-item--open {
+  border-bottom-color: var(--cfaq-border-open);
+}
+
+/* ── Question Button ── */
+.cfaq-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 24px 0;
+  text-align: left;
+  color: inherit;
+}
+
+.cfaq-question:focus-visible {
+  outline: 2px solid var(--cfaq-accent);
+  outline-offset: 3px;
+}
+
+.cfaq-question-text {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1612;
+  line-height: 1.45;
+  flex: 1;
+  transition: color 0.2s var(--cfaq-ease);
+}
+
+.cfaq-item--open .cfaq-question-text,
+.cfaq-question:hover .cfaq-question-text {
+  color: var(--cfaq-accent);
+}
+
+/* Number badge */
+.cfaq-num {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--cfaq-accent);
+  flex-shrink: 0;
+  width: 24px;
+  line-height: 1;
+}
+
+/* ── Chevron ── */
+.cfaq-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d1c9;
+  border-radius: 50%;
+  color: #b0a49a;
+  transition: transform 0.35s var(--cfaq-ease),
+    border-color 0.25s var(--cfaq-ease),
+    color 0.25s var(--cfaq-ease),
+    background 0.25s var(--cfaq-ease);
+}
+
+.cfaq-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cfaq-item--open .cfaq-chevron {
+  transform: rotate(180deg);
+  border-color: var(--cfaq-accent);
+  color: var(--cfaq-accent);
+  background: rgba(150, 114, 89, 0.12);
+}
+
+.cfaq-question:hover .cfaq-chevron {
+  border-color: rgba(150, 114, 89, 0.5);
+  color: var(--cfaq-accent);
+}
+
+/* ── Answer Panel ── */
+.cfaq-answer {
+  overflow: hidden;
+}
+
+.cfaq-answer[hidden] {
+  display: none;
+}
+
+.cfaq-answer-body {
+  display: flex;
+  gap: 24px;
+  padding: 0 40px 28px 0;
+  align-items: flex-start;
+}
+
+/* Gold accent bar on answer */
+.cfaq-answer-bar {
+  flex-shrink: 0;
+  width: 2px;
+  height: auto;
+  align-self: stretch;
+  background: linear-gradient(180deg, var(--cfaq-accent) 0%, transparent 100%);
+  border-radius: 2px;
+  min-height: 40px;
+  margin-left: 4px;
+}
+
+.cfaq-answer-text {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 14.5px;
+  color: #5a5048;
+  line-height: 1.8;
+  margin: 0;
+  flex: 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .cfaq-section {
+    padding: 72px 48px 80px;
+  }
+
+  .cfaq-layout {
+    grid-template-columns: 220px 1fr;
+    gap: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cfaq-section {
+    padding: 56px 24px 64px;
+  }
+
+  /* Stack sidebar above accordion on mobile */
+  .cfaq-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .cfaq-sidebar {
+    position: static;
+    text-align: center;
+  }
+
+  .cfaq-divider {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cfaq-sidebar-cta {
+    align-items: center;
+  }
+
+  .cfaq-title {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cfaq-section {
+    padding: 44px 16px 52px;
+  }
+
+  .cfaq-question {
+    padding: 20px 0;
+  }
+
+  .cfaq-question-text {
+    font-size: 14px;
+  }
+
+  .cfaq-answer-body {
+    padding: 0 0 22px 0;
+  }
+}
