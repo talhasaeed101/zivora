@@ -22,6 +22,7 @@ import {
 import { formatPaymentStatusLabel } from '../utils/orderDisplay.js';
 import { trackPurchase } from '../utils/analytics.js';
 import { pushPurchase, isPurchaseTracked, markPurchaseTracked } from '../utils/dataLayer.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import { PDP_TRUST_ITEMS } from '../constants/storefrontCopy.js';
 import './Collection.css';
 import './OrderSuccess.css';
@@ -53,6 +54,7 @@ export default function OrderSuccess() {
   usePrivatePageSeo({ title: 'Order Confirmed', path: '/order-success' });
   const { id } = useParams();
   const location = useLocation();
+  const { customer } = useAuth();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -105,15 +107,40 @@ export default function OrderSuccess() {
 
     const transactionId = order.orderNumber || order._id;
     if (!isPurchaseTracked(transactionId)) {
+      const orderCustomer = order.customer;
+      const customerEmail =
+        order.deliveryAddress?.email ||
+        (typeof orderCustomer === 'object' ? orderCustomer?.email : undefined) ||
+        customer?.email ||
+        undefined;
+      const customerPhone =
+        order.deliveryAddress?.phone ||
+        (typeof orderCustomer === 'object' ? orderCustomer?.phone : undefined) ||
+        customer?.phone ||
+        undefined;
+      const customerExternalId =
+        (typeof orderCustomer === 'object' ? orderCustomer?._id : orderCustomer) ||
+        customer?._id ||
+        customer?.id ||
+        undefined;
+
       pushPurchase({
         orderId: transactionId,
+        eventId: transactionId,
         value: order.total,
         currency: order.currency,
+        shipping: typeof order.shippingFee === 'number' ? order.shippingFee : undefined,
+        tax: typeof order.taxFee === 'number' ? order.taxFee : undefined,
         items: order.items,
+        userData: {
+          email: customerEmail,
+          phone_number: customerPhone,
+          external_id: customerExternalId,
+        },
       });
       markPurchaseTracked(transactionId);
     }
-  }, [order]);
+  }, [order, customer]);
 
   useEffect(() => {
     const seedProductId = order?.items?.[0]?.product;

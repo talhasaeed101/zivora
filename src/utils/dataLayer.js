@@ -204,8 +204,20 @@ export function pushBeginCheckout({ items, value, currency }) {
 /**
  * 4. Successful Purchase (purchase)
  */
-export function pushPurchase({ orderId, value, currency, items }) {
-  if (!orderId) return;
+export function pushPurchase({
+  orderId,
+  eventId,
+  value,
+  currency,
+  items,
+  shipping,
+  tax,
+  userData,
+}) {
+  const transactionId = orderId ? String(orderId) : (eventId ? String(eventId) : '');
+  if (!transactionId) return;
+
+  const stableEventId = eventId ? String(eventId) : transactionId;
 
   const itemList = (Array.isArray(items) ? items : [items])
     .map((it) => (it && it.item_id ? it : mapItem(it, it?.quantity || 1)))
@@ -214,14 +226,52 @@ export function pushPurchase({ orderId, value, currency, items }) {
   const actualCurrency = currency || resolveCurrency(items?.[0] || items);
   const actualValue = Number(value) || 0;
 
-  pushToDataLayer({ ecommerce: null });
-  pushToDataLayer({
+  const ecommercePayload = {
+    transaction_id: transactionId,
+    currency: actualCurrency,
+    value: actualValue,
+    items: itemList,
+  };
+
+  if (typeof shipping === 'number') {
+    ecommercePayload.shipping = shipping;
+  }
+  if (typeof tax === 'number') {
+    ecommercePayload.tax = tax;
+  }
+
+  const payload = {
     event: 'purchase',
-    ecommerce: {
-      transaction_id: String(orderId),
-      currency: actualCurrency,
-      value: actualValue,
-      items: itemList,
-    },
-  });
+    event_id: stableEventId,
+    ecommerce: ecommercePayload,
+  };
+
+  if (userData && typeof userData === 'object') {
+    const rawEmail = typeof userData.email === 'string' ? userData.email.trim() : '';
+    const rawPhone = typeof userData.phone_number === 'string'
+      ? userData.phone_number.trim()
+      : (typeof userData.phone === 'string' ? userData.phone.trim() : '');
+    const rawExternalId = userData.external_id != null
+      ? String(userData.external_id).trim()
+      : (userData.customerId != null ? String(userData.customerId).trim() : '');
+
+    const formattedUserData = {};
+    if (rawEmail) {
+      formattedUserData.email = rawEmail;
+    }
+    if (rawPhone) {
+      formattedUserData.phone_number = rawPhone;
+    }
+    if (rawExternalId) {
+      formattedUserData.external_id = rawExternalId;
+    }
+
+    if (Object.keys(formattedUserData).length > 0) {
+      payload.user_data = formattedUserData;
+    }
+  }
+
+  pushToDataLayer({ ecommerce: null });
+  pushToDataLayer(payload);
 }
+

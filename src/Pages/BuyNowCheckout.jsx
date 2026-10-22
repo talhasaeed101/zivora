@@ -16,6 +16,7 @@ import {
   readBuyNowCheckout,
 } from '../utils/buyNowCheckout.js';
 import { useCart } from '../context/CartContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { toast } from '../context/ToastContext.jsx';
 import { openBankTransferWhatsApp } from '../utils/whatsappPayment.js';
 import { usePrivatePageSeo } from '../hooks/useSEO.js';
@@ -68,6 +69,7 @@ function CopyField({ label, value }) {
 export default function BuyNowCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { customer } = useAuth();
   const { cart, refreshCart } = useCart();
   const checkout = useMemo(() => readBuyNowCheckout(location.state), [location.state]);
 
@@ -272,11 +274,38 @@ export default function BuyNowCheckout() {
       }
 
       const transactionId = placedOrder.orderNumber || placedOrder._id;
+      const orderCustomer = placedOrder.customer;
+      const customerEmail =
+        placedOrder.deliveryAddress?.email ||
+        (typeof orderCustomer === 'object' ? orderCustomer?.email : undefined) ||
+        customer?.email ||
+        selectedAddress?.email ||
+        undefined;
+      const customerPhone =
+        placedOrder.deliveryAddress?.phone ||
+        (typeof orderCustomer === 'object' ? orderCustomer?.phone : undefined) ||
+        customer?.phone ||
+        selectedAddress?.phone ||
+        undefined;
+      const customerExternalId =
+        (typeof orderCustomer === 'object' ? orderCustomer?._id : orderCustomer) ||
+        customer?._id ||
+        customer?.id ||
+        undefined;
+
       pushPurchase({
         orderId: transactionId,
+        eventId: transactionId,
         value: placedOrder.total,
         currency: placedOrder.currency,
+        shipping: typeof placedOrder.shippingFee === 'number' ? placedOrder.shippingFee : undefined,
+        tax: typeof placedOrder.taxFee === 'number' ? placedOrder.taxFee : undefined,
         items: placedOrder.items,
+        userData: {
+          email: customerEmail,
+          phone_number: customerPhone,
+          external_id: customerExternalId,
+        },
       });
       markPurchaseTracked(transactionId);
 
