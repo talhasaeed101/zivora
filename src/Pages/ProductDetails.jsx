@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState,useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -92,20 +92,90 @@ function ProductAccordion({ title, children, defaultOpen = false }) {
   );
 }
 
-const DESCRIPTION_PREVIEW_LENGTH = 220;
+const DESCRIPTION_PREVIEW_LENGTH = 320;
+
+function isHtmlContent(str) {
+  if (!str || typeof str !== 'string') return false;
+  return /<\/?[a-z][\s\S]*>/i.test(str);
+}
+
+function parseMarkdownToHtml(md) {
+  if (!md || typeof md !== 'string') return '';
+  let html = md
+    // Headings
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    // Bullet points (lines starting with - or •)
+    .replace(/(?:^|\n)[-•]\s+(.*)/gim, '<li>$1</li>');
+
+  // Wrap lists
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/gim, '<ul>$1</ul>');
+  // Clean adjacent </ul><ul>
+  html = html.replace(/<\/ul>\s*<ul>/gim, '');
+
+  // Paragraphs for remaining text lines
+  const lines = html.split('\n\n').map((block) => {
+    const trimmed = block.trim();
+    if (!trimmed) return '';
+    if (/^<(h[1-6]|ul|ol|li|blockquote|div)/i.test(trimmed)) {
+      return trimmed;
+    }
+    return `<p>${trimmed.replace(/\n/g, '<br/>')}</p>`;
+  });
+
+  return lines.filter(Boolean).join('');
+}
 
 function ProductDescription({ text }) {
   const [expanded, setExpanded] = useState(false);
-  const fullText = text?.trim() || 'No description available for this product.';
-  const needsToggle = fullText.length > DESCRIPTION_PREVIEW_LENGTH;
-  const displayText =
-    !needsToggle || expanded
-      ? fullText
-      : `${fullText.slice(0, DESCRIPTION_PREVIEW_LENGTH).replace(/\s+\S*$/, '').trimEnd()}…`;
+  const [contentTooLong, setContentTooLong] = useState(false);
+  const contentRef = useRef(null);
+  const rawText = text?.trim() || 'No description available for this product.';
+
+  const formattedHtml = useMemo(() => {
+    if (isHtmlContent(rawText)) {
+      return rawText;
+    }
+    return parseMarkdownToHtml(rawText);
+  }, [rawText]);
+
+  // Check if content exceeds preview threshold by both text length and rendered element height
+  const plainLength = useMemo(() => {
+    return rawText.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().length;
+  }, [rawText]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const scrollH = contentRef.current.scrollHeight;
+      // If height is greater than 160px or plain text is more than 220 chars
+      if (scrollH > 160 || plainLength > 220) {
+        setContentTooLong(true);
+      } else {
+        setContentTooLong(false);
+      }
+    } else if (plainLength > 220) {
+      setContentTooLong(true);
+    }
+  }, [formattedHtml, plainLength]);
+
+  const needsToggle = contentTooLong;
 
   return (
-    <div className="pd-description-body">
-      <p className="pd-description-text">{displayText}</p>
+    <div className="pd-description-wrapper">
+      <div
+        ref={contentRef}
+        className={`pd-description-body${!expanded && needsToggle ? ' is-collapsed' : ' is-expanded'}`}
+      >
+        <div
+          className="pd-description-content ql-snow"
+          dangerouslySetInnerHTML={{ __html: formattedHtml }}
+        />
+      </div>
       {needsToggle ? (
         <button
           type="button"
