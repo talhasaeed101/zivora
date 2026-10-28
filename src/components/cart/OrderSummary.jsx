@@ -45,6 +45,7 @@ export default function OrderSummary({
   reviewItems = [],
   showLoyalty = false,
   onAddAddress,
+  isAuthenticated = true,
 }) {
   const handleApply = (event) => {
     event.preventDefault();
@@ -285,27 +286,29 @@ export default function OrderSummary({
           </p>
         ) : null}
 
-        <div className="cart-checkout-address-actions">
-          {reviewAddress?.id ? (
-            <div className="cart-checkout-address-preview">
+        {isAuthenticated ? (
+          <div className="cart-checkout-address-actions">
+            {reviewAddress?.id ? (
+              <div className="cart-checkout-address-preview">
+                <button
+                  type="button"
+                  className="cart-add-address-link"
+                  onClick={() => onAddAddress?.()}
+                >
+                  Change address
+                </button>
+              </div>
+            ) : (
               <button
                 type="button"
                 className="cart-add-address-link"
                 onClick={() => onAddAddress?.()}
               >
-                Change address
+                Add address
               </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="cart-add-address-link"
-              onClick={() => onAddAddress?.()}
-            >
-              Add address
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        ) : null}
 
         <button
           type="button"

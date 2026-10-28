@@ -239,6 +239,11 @@ export default function Wishlist() {
           ringSize: selection?.ringSize || undefined,
           metalColor: selection?.metalColor || undefined,
           ...(variantId ? { variantId } : {}),
+          product,
+          title: product.title,
+          price: product.price,
+          image: product.images?.[0] || '',
+          slug: product.slug,
         });
         trackWishlistAddToCart({ productId: product._id, productSlug: product.slug });
         pushAddToCart({

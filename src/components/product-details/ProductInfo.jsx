@@ -403,11 +403,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
   const handleAddToCart = async () => {
     setCartMessage(null);
 
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: location.pathname } });
-      return;
-    }
-
     if (!validateSelection()) {
       return;
     }
@@ -435,6 +430,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
         ringSize: showRingSize ? size : undefined,
         metalColor: showMetalColors ? color : undefined,
         ...(variantId ? { variantId } : {}),
+        product,
+        title: product.title,
+        price: product.price,
+        image: product.images?.[0] || '',
+        slug: product.slug,
       });
       setCartMessage({ type: 'success', text: 'Added to cart successfully.' });
       trackAddToCart(product._id);
@@ -480,7 +480,14 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
   };
 
   const handleCustomizedAddToCart = async (payload) => {
-    await addToCart(payload);
+    await addToCart({
+      ...payload,
+      product,
+      title: product.title,
+      price: payload?.price ?? product.price,
+      image: product.images?.[0] || '',
+      slug: product.slug,
+    });
     setCartMessage({ type: 'success', text: 'Customized item added to cart successfully.' });
     trackAddToCart(product._id);
     pushAddToCart({
@@ -497,11 +504,6 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
 
   const handleBuyNow = async () => {
     setCartMessage(null);
-
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: ROUTES.cart } });
-      return;
-    }
 
     if (!validateSelection()) {
       return;
@@ -530,6 +532,11 @@ export default function ProductInfo({ product, reviewSummary, onColorChange, onG
         ringSize: showRingSize ? size : undefined,
         metalColor: showMetalColors ? color : undefined,
         ...(variantId ? { variantId } : {}),
+        product,
+        title: product.title,
+        price: product.price,
+        image: product.images?.[0] || '',
+        slug: product.slug,
       });
       trackAddToCart(product._id);
       pushAddToCart({

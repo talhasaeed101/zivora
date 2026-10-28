@@ -69,8 +69,8 @@ function CopyField({ label, value }) {
 export default function BuyNowCheckout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { customer } = useAuth();
-  const { cart, refreshCart } = useCart();
+  const { customer, isAuthenticated } = useAuth();
+  const { cart, refreshCart, clearCart } = useCart();
   const checkout = useMemo(() => readBuyNowCheckout(location.state), [location.state]);
 
   const isCartCheckout = checkout?.mode === 'cart';
@@ -130,6 +130,10 @@ export default function BuyNowCheckout() {
       : `${quantity} items`;
 
   const loadAddresses = useCallback(async () => {
+    if (!isAuthenticated) {
+      setAddressLoading(false);
+      return;
+    }
     setAddressLoading(true);
 
     try {
@@ -148,7 +152,7 @@ export default function BuyNowCheckout() {
     } finally {
       setAddressLoading(false);
     }
-  }, [preferredAddressId]);
+  }, [isAuthenticated, preferredAddressId]);
 
   useEffect(() => {
     if (isCartCheckout) {
@@ -159,9 +163,22 @@ export default function BuyNowCheckout() {
       return undefined;
     }
 
-    loadAddresses();
+    if (isAuthenticated) {
+      loadAddresses();
+    } else if (checkout?.guestAddress) {
+      const guestAddr = {
+        id: 'guest_addr',
+        ...checkout.guestAddress,
+        street: checkout.guestAddress.street || checkout.guestAddress.address || '',
+      };
+      setAddresses([guestAddr]);
+      setSelectedAddressId('guest_addr');
+    } else {
+      // Guest with no address provided yet -> open address modal
+      setAddressModalOpen(true);
+    }
     return undefined;
-  }, [isCartCheckout, cartItems.length, product?._id, loadAddresses]);
+  }, [isAuthenticated, isCartCheckout, cartItems.length, product?._id, loadAddresses, checkout?.guestAddress]);
 
   const handleSaveAddress = async (form) => {
     setAddressModalError('');
@@ -170,7 +187,21 @@ export default function BuyNowCheckout() {
     try {
       const payload = mapAddressForApi(form);
 
-      if (selectedAddress?.id) {
+      if (!isAuthenticated) {
+        // For guest user, keep address in local state
+        const guestAddress = {
+          id: 'guest_addr',
+          ...form,
+          street: form.street,
+        };
+        setAddresses([guestAddress]);
+        setSelectedAddressId('guest_addr');
+        setAddressModalOpen(false);
+        toast.success('Delivery address saved.');
+        return;
+      }
+
+      if (selectedAddress?.id && selectedAddress.id !== 'guest_addr') {
         await addressApi.updateAddress(selectedAddress.id, payload);
       } else {
         const response = await addressApi.createAddress(payload);
@@ -230,29 +261,66 @@ export default function BuyNowCheckout() {
     trackCheckoutStart();
 
     try {
-      const response = await orderApi.checkout(
-        isCartCheckout
-          ? {
-              addressId: selectedAddress.id,
-              paymentMethod,
-              promoCode: promoCode || undefined,
-              loyaltyPoints: loyaltyPoints || undefined,
-            }
-          : {
-              addressId: selectedAddress.id,
-              paymentMethod,
-              buyNowItem: {
-                productId: product._id,
-                quantity,
-                ringSize: ringSize || undefined,
-                metalColor: metalColor || undefined,
-                ...(variantId ? { variantId } : {}),
-              },
-            }
-      );
+      let response;
+      if (!isAuthenticated) {
+        // Guest checkout
+        const guestPayload = {
+          name: selectedAddress.name,
+          email: selectedAddress.email,
+          phone: selectedAddress.phone,
+          province: selectedAddress.province,
+          city: selectedAddress.city,
+          address: selectedAddress.street || selectedAddress.address,
+          postalCode: selectedAddress.postalCode,
+          paymentMethod,
+          ...(isCartCheckout
+            ? {
+                cartItems: cartItems.map((it) => ({
+                  productId: it.productId || it.product?._id || it.product,
+                  quantity: Number(it.quantity) || 1,
+                  ringSize: it.ringSize || undefined,
+                  metalColor: it.metalColor || undefined,
+                  variantId: it.variantId || undefined,
+                  customization: it.customization || undefined,
+                })),
+              }
+            : {
+                buyNowItem: {
+                  productId: product._id,
+                  quantity,
+                  ringSize: ringSize || undefined,
+                  metalColor: metalColor || undefined,
+                  ...(variantId ? { variantId } : {}),
+                },
+              }),
+        };
+        response = await orderApi.guestCheckout(guestPayload);
+      } else {
+        response = await orderApi.checkout(
+          isCartCheckout
+            ? {
+                addressId: selectedAddress.id,
+                paymentMethod,
+                promoCode: promoCode || undefined,
+                loyaltyPoints: loyaltyPoints || undefined,
+              }
+            : {
+                addressId: selectedAddress.id,
+                paymentMethod,
+                buyNowItem: {
+                  productId: product._id,
+                  quantity,
+                  ringSize: ringSize || undefined,
+                  metalColor: metalColor || undefined,
+                  ...(variantId ? { variantId } : {}),
+                },
+              }
+        );
+      }
 
       clearBuyNowCheckout();
       if (isCartCheckout) {
+        await clearCart();
         await refreshCart();
       }
 

@@ -327,6 +327,12 @@ export const orderApi = {
       body: JSON.stringify(payload),
     }),
 
+  guestCheckout: (payload) =>
+    request('/guest-checkout', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
   getOrders: () => request('/orders'),
 
   getOrder: (id) => request(`/orders/${id}`),

@@ -106,14 +106,14 @@ function App() {
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/support/tickets" element={<Tickets />} />
               <Route path="/support/tickets/:id" element={<TicketDetail />} />
-              <Route path="/order-success/:id" element={<OrderSuccess />} />
               <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/account/loyalty" element={<DashboardLoyalty />} />
               <Route path="/account/price-alerts" element={<PriceAlerts />} />
               <Route path="/account/saved" element={<SaveForLater />} />
-              <Route path="/checkout/buy-now" element={<BuyNowCheckout />} />
             </Route>
+            <Route path="/checkout/buy-now" element={<BuyNowCheckout />} />
+            <Route path="/order-success/:id" element={<OrderSuccess />} />
             <Route path="/price-alerts/unsubscribe/:token" element={<PriceAlertUnsubscribe />} />
             <Route path="/product/:slug" element={<ProductDetails />} />
             <Route path="/collection" element={<Collection />} />

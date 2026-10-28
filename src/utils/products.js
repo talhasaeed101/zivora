@@ -55,21 +55,29 @@ export const mapCartItemForUi = (item) => {
   const metalColor = item.metalColor || null;
   const material = item.material || metalColor || null;
   const oldPrice = typeof item.oldPrice === 'number' ? item.oldPrice : null;
+  const unitPrice =
+    typeof item.price === 'number' && item.price > 0
+      ? item.price
+      : typeof item.unitPrice === 'number' && item.unitPrice > 0
+        ? item.unitPrice
+        : typeof product === 'object' && typeof product?.price === 'number'
+          ? product.price
+          : Number(item.price) || 0;
 
   return {
-    id: item._id,
-    productId: typeof product === 'object' ? product?._id : product,
-    slug: typeof product === 'object' ? product?.slug : undefined,
+    id: item._id || item.id,
+    productId: typeof product === 'object' ? product?._id : (product || item.productId),
+    slug: typeof product === 'object' ? product?.slug : (item.slug || undefined),
     product: typeof product === 'object' ? product : null,
-    image: item.image || PLACEHOLDER_IMAGE,
-    title: item.title,
+    image: item.image || (Array.isArray(product?.images) && product.images[0]) || PLACEHOLDER_IMAGE,
+    title: item.title || (typeof product === 'object' ? product?.title : '') || 'Product',
     material,
     ringSize,
     metalColor,
     quantity: item.quantity,
-    unitPrice: item.price,
-    oldPrice: oldPrice && oldPrice > item.price ? oldPrice : null,
-    basePrice: item.basePrice ?? item.price,
+    unitPrice,
+    oldPrice: oldPrice && oldPrice > unitPrice ? oldPrice : null,
+    basePrice: item.basePrice ?? unitPrice,
     extraPrice: item.extraPrice || 0,
     isCustomized: Boolean(item.isCustomized),
     customization: item.customization || null,

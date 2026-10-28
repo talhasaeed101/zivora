@@ -500,7 +500,7 @@ export default function CartPage() {
   };
 
   const handleQuantityChange = async (id, newQty) => {
-    if (newQty < 1 || !isAuthenticated || updatingItemId || exitingIds.includes(id)) {
+    if (newQty < 1 || updatingItemId || exitingIds.includes(id)) {
       return;
     }
 
@@ -676,6 +676,48 @@ export default function CartPage() {
     setAddressSaving(true);
 
     try {
+      if (!isAuthenticated) {
+        // Guest user: save guest address and proceed to checkout page with address pre-filled
+        const guestAddr = {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: String(form.phone || '').replace(/\D/g, ''),
+          province: form.province,
+          city: form.city.trim(),
+          street: form.street.trim(),
+          postalCode: form.postalCode.trim(),
+        };
+
+        setAddressModalOpen(false);
+        setEditingAddress(null);
+        setAddressSectionError('');
+        setCheckoutError('');
+        toast.success('Delivery address saved.');
+
+        const payload = {
+          mode: 'cart',
+          guestAddress: guestAddr,
+          promoCode: appliedPromoCode || activePromo?.code || undefined,
+          loyaltyPoints: appliedLoyaltyPoints || undefined,
+          returnTo: ROUTES.cart,
+          summary: {
+            subtotal: quote?.subtotal ?? subtotal,
+            discount,
+            total: orderTotal,
+            itemCount: totalItems,
+          },
+        };
+
+        storeCartCheckout(payload);
+        trackCheckoutStart();
+        pushBeginCheckout({
+          items,
+          value: orderTotal,
+        });
+        navigate(ROUTES.buyNow, { state: payload });
+        return;
+      }
+
       const payload = mapAddressForApi(form);
 
       if (editingAddress?.id) {
@@ -749,18 +791,20 @@ export default function CartPage() {
     setAddressSectionError('');
     setPaymentSectionError('');
 
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: ROUTES.cart } });
-      return;
-    }
-
     if (items.length === 0) {
       setCheckoutError('Your cart is empty.');
       toast.error('Your cart is empty.');
       return;
     }
 
-    if (!selectedAddress?.id) {
+    if (!isAuthenticated) {
+      // For guest users, open the delivery address modal right here on the cart page!
+      setEditingAddress(null);
+      setAddressModalOpen(true);
+      return;
+    }
+
+    if (isAuthenticated && !selectedAddress?.id) {
       const message = 'Add address please';
       setCheckoutError(message);
       setAddressSectionError(message);
@@ -770,7 +814,7 @@ export default function CartPage() {
 
     const payload = {
       mode: 'cart',
-      addressId: selectedAddress.id,
+      addressId: selectedAddress?.id || undefined,
       promoCode: appliedPromoCode || activePromo?.code || undefined,
       loyaltyPoints: appliedLoyaltyPoints || undefined,
       returnTo: ROUTES.cart,
@@ -877,13 +921,12 @@ export default function CartPage() {
           <div className="sr-only" aria-live="polite" aria-atomic="true">
             {statusMessage}
           </div>
-
-          {!isAuthenticated ? (
+{/* 
+          {!isAuthenticated && items.length === 0 ? (
             <p className="cart-auth-message" role="status">
-              Please <Link to={ROUTES.login} state={{ from: ROUTES.cart }}>sign in</Link> to view
-              and manage your cart.
+              Have an account? <Link to={ROUTES.login} state={{ from: ROUTES.cart }}>Sign in</Link> to view your saved items, or continue shopping as guest.
             </p>
-          ) : null}
+          ) : null} */}
 
           {(error || actionError) && (
             <div className="cart-error-banner" role="alert">
@@ -908,7 +951,7 @@ export default function CartPage() {
                 <Link to={ROUTES.collection} className="cart-empty-primary">
                   Browse Collection
                 </Link>
-                {!isAuthenticated ? (
+                {/* {!isAuthenticated ? (
                   <Link
                     to={ROUTES.login}
                     state={{ from: ROUTES.cart }}
@@ -916,7 +959,7 @@ export default function CartPage() {
                   >
                     Sign in
                   </Link>
-                ) : null}
+                ) : null} */}
               </div>
             </Reveal>
           ) : null}
@@ -1023,7 +1066,7 @@ export default function CartPage() {
                   onCheckout={handleCheckout}
                   checkingOut={checkingOut}
                   checkoutError={checkoutError}
-                  canCheckout={isAuthenticated && items.length > 0}
+                  canCheckout={items.length > 0}
                   onAddAddress={() => {
                     if (selectedAddress?.id) {
                       openEditAddress(selectedAddress);
@@ -1040,6 +1083,7 @@ export default function CartPage() {
                   appliedPromo={activePromo}
                   reviewAddress={selectedAddress}
                   paymentMethod={paymentMethod}
+                  isAuthenticated={isAuthenticated}
                   reviewItems={items.map((item) => ({
                     id: item.id,
                     title: item.title,

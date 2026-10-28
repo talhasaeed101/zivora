@@ -8,6 +8,13 @@ import {
   guestSavedItemsForMerge,
   removeGuestSavedItem,
 } from '../utils/saveForLaterStorage.js';
+import {
+  getGuestCart,
+  addToGuestCart as addGuestCartItem,
+  updateGuestCartItem as updateGuestCartItemStorage,
+  removeGuestCartItem as removeGuestCartItemStorage,
+  clearGuestCart as clearGuestCartStorage,
+} from '../utils/guestCart.js';
 
 const CartContext = createContext(null);
 
@@ -43,6 +50,7 @@ function mapServerSavedToGuest(item) {
 export function CartProvider({ children }) {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [cart, setCart] = useState(null);
+  const [guestCartItems, setGuestCartItems] = useState(() => getGuestCart());
   const [guestSavedItems, setGuestSavedItems] = useState(() => getGuestSavedItems());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,6 +62,7 @@ export function CartProvider({ children }) {
     if (!isAuthenticated) {
       setCart(null);
       setError('');
+      setGuestCartItems(getGuestCart());
       setGuestSavedItems(getGuestSavedItems());
       return null;
     }
@@ -153,28 +162,48 @@ export function CartProvider({ children }) {
   }, [isAuthenticated]);
 
   const addToCart = useCallback(async (payload) => {
+    if (!isAuthenticated) {
+      const updated = addGuestCartItem(payload);
+      setGuestCartItems(updated);
+      return { items: updated };
+    }
     const response = await cartApi.addToCart(payload);
     setCart(response.data);
     return response.data;
-  }, []);
+  }, [isAuthenticated]);
 
   const updateCartItem = useCallback(async (itemId, payload) => {
+    if (!isAuthenticated) {
+      const updated = updateGuestCartItemStorage(itemId, payload?.quantity);
+      setGuestCartItems(updated);
+      return { items: updated };
+    }
     const response = await cartApi.updateCartItem(itemId, payload);
     setCart(response.data);
     return response.data;
-  }, []);
+  }, [isAuthenticated]);
 
   const removeCartItem = useCallback(async (itemId) => {
+    if (!isAuthenticated) {
+      const updated = removeGuestCartItemStorage(itemId);
+      setGuestCartItems(updated);
+      return { items: updated };
+    }
     const response = await cartApi.removeCartItem(itemId);
     setCart(response.data);
     return response.data;
-  }, []);
+  }, [isAuthenticated]);
 
   const clearCart = useCallback(async () => {
+    if (!isAuthenticated) {
+      const updated = clearGuestCartStorage();
+      setGuestCartItems(updated);
+      return { items: updated };
+    }
     const response = await cartApi.clearCart();
     setCart(response.data);
     return response.data;
-  }, []);
+  }, [isAuthenticated]);
 
   const saveItemForLater = useCallback(async (itemId) => {
     const response = await cartApi.saveItemForLater(itemId);
@@ -213,13 +242,35 @@ export function CartProvider({ children }) {
     return guestSavedItems;
   }, [isAuthenticated, cart?.savedItems, guestSavedItems]);
 
+  const effectiveCart = useMemo(() => {
+    if (isAuthenticated) {
+      return cart;
+    }
+    const subtotal = guestCartItems.reduce(
+      (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+      0
+    );
+    const totalItems = guestCartItems.reduce(
+      (sum, item) => sum + (Number(item.quantity) || 1),
+      0
+    );
+    return {
+      items: guestCartItems,
+      subtotal,
+      total: subtotal,
+      totalItems,
+      discount: 0,
+      discountAmount: 0,
+    };
+  }, [isAuthenticated, cart, guestCartItems]);
+
   const value = useMemo(
     () => ({
-      cart,
+      cart: effectiveCart,
       loading,
       error,
-      totalItems: cart?.totalItems || 0,
-      subtotal: cart?.subtotal || 0,
+      totalItems: effectiveCart?.totalItems || 0,
+      subtotal: effectiveCart?.subtotal || 0,
       savedItems,
       refreshCart,
       addToCart,
@@ -233,7 +284,7 @@ export function CartProvider({ children }) {
       removeGuestSaved,
     }),
     [
-      cart,
+      effectiveCart,
       loading,
       error,
       savedItems,
