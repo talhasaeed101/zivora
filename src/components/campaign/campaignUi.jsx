@@ -21,6 +21,7 @@ export function useCampaignCtaHref(merch, campaignSlug) {
  */
 export function useCampaignCountdown(endAt, enabled, onExpire) {
   const [now, setNow] = useState(() => Date.now());
+  
 
   useEffect(() => {
     if (!enabled || !endAt) {
